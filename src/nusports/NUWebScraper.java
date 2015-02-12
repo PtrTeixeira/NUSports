@@ -10,29 +10,40 @@ import org.jsoup.select.Elements;
 
 /*
 * TODO: 
-*    Caching
-*    IOExceptions shouldn't be passed upwards, they should case the page 
-*      to attempt to reload
-*    This class should be renamed to NUWebScraper, implementing a WebScraper
-*      interface
+*   Caching
+*   Pass upward a place to put the error message.
 */
 
-public class NUWebScraper {
+public class NUWebScraper implements WebScraper {
     public String cache; // TODO
     
     public NUWebScraper() {
         
     }
     
+    // Method stub
+    public void clearCache() {
+        ; // TODO
+    }
+    
     // Return an observableList of the NU's standings.
-    public ObservableList getStandings(String sport) throws IOException {
-        Document doc;
+    public ObservableList getStandings(String sport) {
+        Document doc = null; // Explicitly set to null
         Elements rows;
         ObservableList data = FXCollections.observableArrayList();
         
-        doc = Jsoup.connect(
-            "http://caasports.com/standings.aspx?path=" + 
-            this.sportToPath(sport)).get();
+        try {
+            doc = Jsoup.connect(
+                "http://caasports.com/standings.aspx?path=" + 
+                this.sportToPath(sport)).get();
+        }
+        catch (IOException e) {
+            // TODO add place to put this
+            System.err.println("Failed to connect to interwebs");
+            return data;
+        }
+        
+        // If the code ever reaches this point, doc is non-null
         rows = doc.getElementsByClass("default_dgrd") // list of <table>
                 .first()                              // <table>
                 .children()                           // list of <tbody>
@@ -58,6 +69,8 @@ public class NUWebScraper {
     // In general, the standings tables look like
     // Hofstra | 0 - 12 | 0.000 | 5 - 25 | 0.2000
     // So this just grabs the correct elements.
+    
+    // Parse a generic standing table row into a Standing object
     private Standing parseStanding(Element e) {
         Standing retr = new Standing(e.child(0).text(),   // School
                             e.child(1).text(),            // Conference Results
@@ -70,6 +83,8 @@ public class NUWebScraper {
     // Hofstra | 0-12 | 0.000 | 0 | 5 - 25 | 0.200 | 15
     // Where the extra elements are points. So this just corrects for the 
     // change.
+    
+    // Parse a soccer standing table row into a Standing object
     private Standing parseSoccerStanding(Element e) {
         Standing retr = new Standing(e.child(0).text(), // School
                                      e.child(1).text(), // Conference Results
@@ -78,16 +93,28 @@ public class NUWebScraper {
         return retr;
     }
     
-    
-    public ObservableList getSchedule(String sport) throws IOException {
-        Document doc = Jsoup.connect(
-            "http://caasports.com/calendar.aspx")
-                .header("Connection", "keep-alive")
-                .header("Accept-Encoding", "gzip, deflate, sdch")
-                .maxBodySize(0)
-                .get();
-        Elements nuGames = doc.getElementsByClass("school_3");
+    // Returns an ObservableList of the schedule of games.
+    public ObservableList getSchedule(String sport) {
+        Document doc = null; // Explicitly set to null
+        Elements nuGames;
         ObservableList data = FXCollections.observableArrayList();
+        
+        try {
+            doc = Jsoup.connect(
+                    "http://caasports.com/calendar.aspx")
+                    .header("Connection", "keep-alive")
+                    .header("Accept-Encoding", "gzip, deflate, sdch")
+                    .maxBodySize(0)
+                    .get();
+        }
+        catch (IOException e) {
+            // TODO
+            System.err.println("Failed to connect to interwebs.");
+            return data;
+        }
+        
+        // If the code ever reaches this point, doc should not be null
+        nuGames = doc.getElementsByClass("school_3");
         
         nuGames = this.extractSport(nuGames, sport);
         
@@ -99,13 +126,7 @@ public class NUWebScraper {
         return data;
     }
     
-    
-    /*
-    * parseMatch(Element) -> Match . Accumulate the data into a Match object
-    * getDate(Element e) -> String. Look upwards until it finds a row with a 
-    *        date
-    */
-    
+    // Parse the table row in the document into a Match
     private Match parseMatch(Element e) {
         String opponent = "";
         String result = "";
@@ -148,6 +169,7 @@ public class NUWebScraper {
         return new Match(date, opponent, result);
     }
     
+    // Look up through the table until it hits a row that contains the date
     private String getDate(Element e) {
         while (e != null && !e.hasAttr("data-date")) {
             if (e.previousElementSibling() != null) {
@@ -163,12 +185,15 @@ public class NUWebScraper {
         }
     }
     
+    // Extract all elements in e1 with a class of sport
     private Elements extractSport(Elements el, String sport) {
         sport = "." + this.sportToClass(sport);
         
         return el.select(sport);
     }
     
+    // Convert the given string sport into a url sport path
+    // Called in generating standings tables
     private String sportToPath(String sport) {
         String path;
         
@@ -199,6 +224,8 @@ public class NUWebScraper {
         return path;
     }
     
+    // Convert the given string sport into a class 
+    // Used in extracting data from the calendar
     private String sportToClass(String sport) {
         String path;
         

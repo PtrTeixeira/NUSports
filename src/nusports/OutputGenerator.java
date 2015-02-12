@@ -132,16 +132,11 @@ public class OutputGenerator {
     // TODO : second conditional block needs to be changed 
     // based on edits to the scraper
     private void setData(String sport, String options) {
-        try {
-            if (options.equals("League Standings")) {
-                table.setItems(scraper.getStandings(sport));
-            }
-            else if (options.equals("Schedule/Results")) {
-                table.setItems(scraper.getSchedule(sport));
-            }
+        if (options.equals("League Standings")) {
+            table.setItems(scraper.getStandings(sport));
         }
-        catch (IOException e) {
-            System.err.println("Connection error.");
+        else if (options.equals("Schedule/Results")) {
+            table.setItems(scraper.getSchedule(sport));
         }
     }
     
