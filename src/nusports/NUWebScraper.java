@@ -82,10 +82,9 @@ public class NUWebScraper {
     public ObservableList getSchedule(String sport) throws IOException {
         Document doc = Jsoup.connect(
             "http://caasports.com/calendar.aspx")
-                //.header("ctl00$cplhMainContent$datesearch_1", "12/4/2014")
-                //.header("ctl00$cplhMainContent$datesearch_2", "3/5/2015")
                 .header("Connection", "keep-alive")
                 .header("Accept-Encoding", "gzip, deflate, sdch")
+                .maxBodySize(0)
                 .get();
         Elements nuGames = doc.getElementsByClass("school_3");
         ObservableList data = FXCollections.observableArrayList();
