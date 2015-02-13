@@ -23,8 +23,9 @@ public class NUSports extends Application {
     private final TableView actionTarget = new TableView();
     private final ComboBox<String> sports = new ComboBox<>();
     private final ComboBox<String> options = new ComboBox();
+    private final Text err = new Text();
     
-    private final OutputGenerator og = new OutputGenerator(actionTarget);
+    private final OutputGenerator og = new OutputGenerator(actionTarget, err);
     
     
     @Override
@@ -49,14 +50,6 @@ public class NUSports extends Application {
      */
     public static void main(String[] args) {
         launch(args);
-        /*
-        try {
-            new WebScraper().();
-        }
-        catch(IOException e) {
-            System.err.println("No Connection.");
-        }
-        */
     }
     
     private VBox addSideBar() {
@@ -94,6 +87,7 @@ public class NUSports extends Application {
         
         vbox.getChildren().add(sports);
         vbox.getChildren().add(options);
+        vbox.getChildren().add(err);
         
         
         return vbox;

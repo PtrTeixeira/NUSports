@@ -1,12 +1,13 @@
 package nusports;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 /**
  *
@@ -30,21 +31,13 @@ public class OutputGenerator {
     // The table
     private TableView table;                            // Table to push to
     
+    private Text error;                                   // Place to put errors
+    
     // uses the WebScraper interface
     private WebScraper scraper;                         // Scraper to get input
-    
-    
-    public void setData(TableView table) {
-        ObservableList data = 
-                FXCollections.observableArrayList(
-                new Standing("Northeastern", "0-0", "0-0"), 
-                new Standing("William & Mary", "0-0", "0-0"));
-        
-        table.setItems(data);
-    }
-    
+
     // Constructor.
-    public OutputGenerator(TableView table) {
+    public OutputGenerator(TableView table, Text error) {
         teams = new TableColumn("Teams");
         teams.setMinWidth(100);
         teams.setCellValueFactory( 
@@ -76,8 +69,8 @@ public class OutputGenerator {
             new PropertyValueFactory<>("result"));
         
         this.table = table;
-        
-        this.scraper = new NUWebScraper();
+        this.error = error;
+        this.scraper = new NUWebScraper(this);
     }
     
     // Called by clients to push results to table.
@@ -85,27 +78,6 @@ public class OutputGenerator {
         setCols(option);
         setData(sport, option);
     }
-    
-    // Deprecated.
-    private void setBaseballStandings() {
-        ObservableList data = 
-                FXCollections.observableArrayList(
-                new Standing("Northeastern", "0-0", "0-0"), 
-                new Standing("William & Mary", "0-0", "0-0"));
-        
-        table.setItems(data);
-    }
-    
-    // Soon to be deprecated.
-    private void setBaseballSchedule() {
-        ObservableList data = 
-                FXCollections.observableArrayList(
-                new Match("13 Feb 2015", "At James Madison", "7-3"), 
-                new Match("14 Feb 2015", "Vs. Bucknell", "3-2"));
-        
-        table.setItems(data);
-    }
-    
     
     // Called to change column headings. Specifically, pushes the standings
     // headings if option is for standings and the schedule headings if the 
@@ -142,7 +114,14 @@ public class OutputGenerator {
         }
     }
     
+    public void pushToError(String error) {
+        this.error.setText(error);
+        this.error.setFill(Color.RED);
+    }
     
+    public void clearError() {
+        this.error.setText("");
+    }
     
     
 }

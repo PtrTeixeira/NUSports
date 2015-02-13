@@ -15,10 +15,12 @@ import org.jsoup.select.Elements;
 */
 
 public class NUWebScraper implements WebScraper {
-    public String cache; // TODO
+    private String cache; // TODO
     
-    public NUWebScraper() {
-        
+    private OutputGenerator caller; 
+    
+    public NUWebScraper(OutputGenerator caller) {
+        this.caller = caller;
     }
     
     // Method stub
@@ -36,10 +38,10 @@ public class NUWebScraper implements WebScraper {
             doc = Jsoup.connect(
                 "http://caasports.com/standings.aspx?path=" + 
                 this.sportToPath(sport)).get();
+            this.caller.clearError();
         }
         catch (IOException e) {
-            // TODO add place to put this
-            System.err.println("Failed to connect to interwebs");
+            this.caller.pushToError("Failed to connect to interwebs");
             return data;
         }
         
@@ -106,10 +108,10 @@ public class NUWebScraper implements WebScraper {
                     .header("Accept-Encoding", "gzip, deflate, sdch")
                     .maxBodySize(0)
                     .get();
+            this.caller.clearError();
         }
         catch (IOException e) {
-            // TODO
-            System.err.println("Failed to connect to interwebs.");
+            this.caller.pushToError("Failed to connect to interwebs.");
             return data;
         }
         
