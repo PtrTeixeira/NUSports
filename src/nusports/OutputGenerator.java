@@ -27,9 +27,11 @@ public class OutputGenerator {
     private TableColumn<Match,String> opponent;         // Game opponent
     private TableColumn<Match,String> result;           // Game result
     
+    // The table
     private TableView table;                            // Table to push to
     
-    private NUWebScraper scraper;                         // Scraper to get input
+    // uses the WebScraper interface
+    private WebScraper scraper;                         // Scraper to get input
     
     
     public void setData(TableView table) {
