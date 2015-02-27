@@ -1,0 +1,12 @@
+/* 
+    Created on : Feb 27, 2015, 10:35:05 AM
+    Author     : Peter
+*/
+
+#error {
+    -fx-font: 12 Arial;
+}
+
+#title {
+    -fx-font: bold 14 Arial;
+}

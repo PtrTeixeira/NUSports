@@ -1,12 +1,9 @@
 package nusports;
 
 import java.util.ArrayList;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 /**
@@ -22,18 +19,15 @@ public class OutputGenerator {
     private TableColumn<Standing,String> teams;         // teams in conference
     private TableColumn<Standing,String> conference;    // results in conference
     private TableColumn<Standing,String> overall;       // overall results
-    
     // Schedule table
     private TableColumn<Match,String> date;             // Game date
     private TableColumn<Match,String> opponent;         // Game opponent
     private TableColumn<Match,String> result;           // Game result
-    
     // The table
     private TableView table;                            // Table to push to
-    
+    // The error console
     private Text error;                                   // Place to put errors
-    
-    // uses the WebScraper interface
+    // Webscraper to acquire text
     private WebScraper scraper;                         // Scraper to get input
 
     // Constructor.
@@ -79,6 +73,17 @@ public class OutputGenerator {
         setData(sport, option);
     }
     
+    // Push the given string to the error console
+    public void pushToError(String error) {
+        this.error.setText(error);
+        //this.error.setFill(Color.RED);
+    }
+    
+    // Clear the error console
+    public void clearError() {
+        this.error.setText("");
+    }
+
     // Called to change column headings. Specifically, pushes the standings
     // headings if option is for standings and the schedule headings if the 
     // option is for schedules.
@@ -113,15 +118,4 @@ public class OutputGenerator {
             table.setItems(scraper.getSchedule(sport));
         }
     }
-    
-    public void pushToError(String error) {
-        this.error.setText(error);
-        this.error.setFill(Color.RED);
-    }
-    
-    public void clearError() {
-        this.error.setText("");
-    }
-    
-    
 }

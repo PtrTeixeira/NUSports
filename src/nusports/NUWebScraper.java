@@ -11,13 +11,12 @@ import org.jsoup.select.Elements;
 /*
 * TODO: 
 *   Caching
-*   Pass upward a place to put the error message.
 */
 
 public class NUWebScraper implements WebScraper {
     private String cache; // TODO
     
-    private OutputGenerator caller; 
+    private final OutputGenerator caller; 
     
     public NUWebScraper(OutputGenerator caller) {
         this.caller = caller;
@@ -41,7 +40,7 @@ public class NUWebScraper implements WebScraper {
             this.caller.clearError();
         }
         catch (IOException e) {
-            this.caller.pushToError("Failed to connect to interwebs");
+            this.caller.pushToError("Unable to connect to the Internet");
             return data;
         }
         
@@ -66,33 +65,6 @@ public class NUWebScraper implements WebScraper {
         }
         
         return data;
-    }
-    
-    // In general, the standings tables look like
-    // Hofstra | 0 - 12 | 0.000 | 5 - 25 | 0.2000
-    // So this just grabs the correct elements.
-    
-    // Parse a generic standing table row into a Standing object
-    private Standing parseStanding(Element e) {
-        Standing retr = new Standing(e.child(0).text(),   // School
-                            e.child(1).text(),            // Conference Results
-                            e.child(3).text());           // Overall Results
-
-        return retr;
-    }
-    
-    // In contrast, soccer standings look like 
-    // Hofstra | 0-12 | 0.000 | 0 | 5 - 25 | 0.200 | 15
-    // Where the extra elements are points. So this just corrects for the 
-    // change.
-    
-    // Parse a soccer standing table row into a Standing object
-    private Standing parseSoccerStanding(Element e) {
-        Standing retr = new Standing(e.child(0).text(), // School
-                                     e.child(1).text(), // Conference Results
-                                     e.child(4).text());// Overall results
-        
-        return retr;
     }
     
     // Returns an ObservableList of the schedule of games.
@@ -126,6 +98,33 @@ public class NUWebScraper implements WebScraper {
         
         
         return data;
+    }
+    
+    // In general, the standings tables look like
+    // Hofstra | 0 - 12 | 0.000 | 5 - 25 | 0.2000
+    // So this just grabs the correct elements.
+    
+    // Parse a generic standing table row into a Standing object
+    private Standing parseStanding(Element e) {
+        Standing retr = new Standing(e.child(0).text(),   // School
+                            e.child(1).text(),            // Conference Results
+                            e.child(3).text());           // Overall Results
+
+        return retr;
+    }
+    
+    // In contrast, soccer standings look like 
+    // Hofstra | 0-12 | 0.000 | 0 | 5 - 25 | 0.200 | 15
+    // Where the extra elements are points. So this just corrects for the 
+    // change.
+    
+    // Parse a soccer standing table row into a Standing object
+    private Standing parseSoccerStanding(Element e) {
+        Standing retr = new Standing(e.child(0).text(), // School
+                                     e.child(1).text(), // Conference Results
+                                     e.child(4).text());// Overall results
+        
+        return retr;
     }
     
     // Parse the table row in the document into a Match
@@ -284,5 +283,4 @@ public class NUWebScraper implements WebScraper {
         * class sport_28 = Wrestling
         */
     }
-    
 }
