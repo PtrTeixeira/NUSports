@@ -1,6 +1,7 @@
 package nusports;
 
 import java.io.IOException;
+import java.util.HashMap;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.jsoup.*;
@@ -14,7 +15,8 @@ import org.jsoup.select.Elements;
 */
 
 public class NUWebScraper implements WebScraper {
-    private String cache; // TODO
+    private HashMap<String, ObservableList> standingsCache = new HashMap<>();
+    private HashMap<String, ObservableList> scheduleCache = new HashMap<>();
     
     private final OutputGenerator caller; 
     
@@ -24,7 +26,8 @@ public class NUWebScraper implements WebScraper {
     
     // Method stub
     public void clearCache() {
-        ; // TODO
+        this.scheduleCache.clear();
+        this.standingsCache.clear();
     }
     
     // Return an observableList of the NU's standings.
@@ -33,37 +36,41 @@ public class NUWebScraper implements WebScraper {
         Elements rows;
         ObservableList data = FXCollections.observableArrayList();
         
-        try {
-            doc = Jsoup.connect(
-                "http://caasports.com/standings.aspx?path=" + 
-                this.sportToPath(sport)).get();
-            this.caller.clearError();
-        }
-        catch (IOException e) {
-            this.caller.pushToError("Unable to connect to the Internet");
-            return data;
-        }
-        
-        // If the code ever reaches this point, doc is non-null
-        rows = doc.getElementsByClass("default_dgrd") // list of <table>
-                .first()                              // <table>
-                .children()                           // list of <tbody>
-                .first()                              // <tbody>
-                .children();                          // list of <tr>
-        rows.remove(0);                               // drop header
-        
-        if (!sport.equals("Men's Soccer") && 
-            !sport.equals("Women's Soccer")) {
-            for (Element e : rows) {
-                data.add(parseStanding(e));
-            }
+        if (standingsCache.containsKey(sport)) {
+            data = standingsCache.get(sport);
         }
         else {
-            for (Element e : rows) {
-                data.add(parseSoccerStanding(e));
+            try {
+                doc = Jsoup.connect(
+                    "http://caasports.com/standings.aspx?path=" + 
+                    this.sportToPath(sport)).get();
+                this.caller.clearError();
+            }
+            catch (IOException e) {
+                this.caller.pushToError("Unable to connect to the Internet");
+                return data;
+            }
+
+            // If the code ever reaches this point, doc is non-null
+            rows = doc.getElementsByClass("default_dgrd") // list of <table>
+                    .first()                              // <table>
+                    .children()                           // list of <tbody>
+                    .first()                              // <tbody>
+                    .children();                          // list of <tr>
+            rows.remove(0);                               // drop header
+
+            if (!sport.equals("Men's Soccer") && 
+                !sport.equals("Women's Soccer")) {
+                for (Element e : rows) {
+                    data.add(parseStanding(e));
+                }
+            }
+            else {
+                for (Element e : rows) {
+                    data.add(parseSoccerStanding(e));
+                }
             }
         }
-        
         return data;
     }
     
@@ -73,27 +80,33 @@ public class NUWebScraper implements WebScraper {
         Elements nuGames;
         ObservableList data = FXCollections.observableArrayList();
         
-        try {
-            doc = Jsoup.connect(
-                    "http://caasports.com/calendar.aspx")
-                    .header("Connection", "keep-alive")
-                    .header("Accept-Encoding", "gzip, deflate, sdch")
-                    .maxBodySize(0)
-                    .get();
-            this.caller.clearError();
+        if (scheduleCache.containsKey(sport)) {
+            data = scheduleCache.get(sport); // Query cache
         }
-        catch (IOException e) {
-            this.caller.pushToError("Failed to connect to interwebs.");
-            return data;
-        }
-        
-        // If the code ever reaches this point, doc should not be null
-        nuGames = doc.getElementsByClass("school_3");
-        
-        nuGames = this.extractSport(nuGames, sport);
-        
-        for (Element e : nuGames) {
-            data.add(parseMatch(e));
+        else {
+            try {
+                doc = Jsoup.connect(
+                        "http://caasports.com/calendar.aspx")
+                        .header("Connection", "keep-alive")
+                        .header("Accept-Encoding", "gzip, deflate, sdch")
+                        .maxBodySize(0)
+                        .get();
+                this.caller.clearError();
+            }
+            catch (IOException e) {
+                this.caller.pushToError("Failed to connect to interwebs.");
+                return data;
+            }
+
+            // If the code ever reaches this point, doc should not be null
+            nuGames = doc.getElementsByClass("school_3");
+
+            nuGames = this.extractSport(nuGames, sport);
+
+            for (Element e : nuGames) {
+                data.add(parseMatch(e));
+            }
+            scheduleCache.put(sport, data); // Add to cache
         }
         
         
