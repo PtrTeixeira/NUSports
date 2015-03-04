@@ -36,6 +36,7 @@ public class NUSports extends Application {
         border.setLeft(leftMenu);
         
         this.setResponseText();
+        // actionTarget.set -- Change how the table behaves under sorts
         border.setCenter(actionTarget);
         
         Scene scene = new Scene(border, 800, 800);
@@ -58,6 +59,7 @@ public class NUSports extends Application {
     private VBox addSideBar() {
         // The side bar
         VBox vbox = new VBox();
+        vbox.setId("sidebar");
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(8);
         

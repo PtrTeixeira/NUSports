@@ -10,3 +10,11 @@
 #title {
     -fx-font: bold 14 Arial;
 }
+
+.root {
+    -fx-font-family: Arial;
+}
+
+#sidebar {
+    -fx-background-color: linear-gradient(to bottom, white, black);
+}
