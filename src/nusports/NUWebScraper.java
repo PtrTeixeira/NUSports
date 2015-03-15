@@ -15,8 +15,8 @@ import org.jsoup.select.Elements;
 */
 
 public class NUWebScraper implements WebScraper {
-    private HashMap<String, ObservableList> standingsCache;
-    private HashMap<String, ObservableList> scheduleCache;
+    private final HashMap<String, ObservableList> standingsCache;
+    private final HashMap<String, ObservableList> scheduleCache;
     
     private final OutputGenerator caller; 
     
@@ -27,9 +27,9 @@ public class NUWebScraper implements WebScraper {
     }
     
     // Method stub
-    public void clearCache() {
-        this.scheduleCache.clear();
-        this.standingsCache.clear();
+    public void clearCache(String sport) {
+        this.scheduleCache.remove(sport);
+        this.standingsCache.remove(sport);
     }
     
     // Return an observableList of the NU's standings.
