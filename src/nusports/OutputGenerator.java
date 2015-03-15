@@ -16,19 +16,19 @@ import javafx.scene.text.Text;
 // produced the NUWebScraper and pushes it into the output tables.
 public class OutputGenerator {
     // Standings table.
-    private TableColumn<Standing,String> teams;         // teams in conference
-    private TableColumn<Standing,String> conference;    // results in conference
-    private TableColumn<Standing,String> overall;       // overall results
+    private final TableColumn<Standing,String> teams;     
+    private final TableColumn<Standing,String> conference; // conference record
+    private final TableColumn<Standing,String> overall;    // overall record
     // Schedule table
-    private TableColumn<Match,String> date;             // Game date
-    private TableColumn<Match,String> opponent;         // Game opponent
-    private TableColumn<Match,String> result;           // Game result
+    private final TableColumn<Match,String> date;          // Game date
+    private final TableColumn<Match,String> opponent;      // Game opponent
+    private final TableColumn<Match,String> result;        // Game result
     // The table
-    private TableView table;                            // Table to push to
+    private final TableView table;                         // Table to push to
     // The error console
-    private Text error;                                   // Place to put errors
+    private final Text error;                              // Report errors
     // Webscraper to acquire text
-    private WebScraper scraper;                         // Scraper to get input
+    private final WebScraper scraper;                      // Input scraper
 
     // Constructor.
     public OutputGenerator(TableView table, Text error) {
@@ -76,7 +76,6 @@ public class OutputGenerator {
     // Push the given string to the error console
     public void pushToError(String error) {
         this.error.setText(error);
-        //this.error.setFill(Color.RED);
     }
     
     // Clear the error console
@@ -117,5 +116,11 @@ public class OutputGenerator {
         else if (options.equals("Schedule/Results")) {
             table.setItems(scraper.getSchedule(sport));
         }
+    }
+    
+    // reload the current page based on user request
+    public void reloadCurrent(String sport, String options) {
+        this.scraper.clearCache(sport);
+        this.resetTable(sport, options);
     }
 }

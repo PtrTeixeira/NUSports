@@ -15,19 +15,21 @@ import org.jsoup.select.Elements;
 */
 
 public class NUWebScraper implements WebScraper {
-    private HashMap<String, ObservableList> standingsCache = new HashMap<>();
-    private HashMap<String, ObservableList> scheduleCache = new HashMap<>();
+    private final HashMap<String, ObservableList> standingsCache;
+    private final HashMap<String, ObservableList> scheduleCache;
     
     private final OutputGenerator caller; 
     
     public NUWebScraper(OutputGenerator caller) {
         this.caller = caller;
+        this.standingsCache = new HashMap<>();
+        this.scheduleCache = new HashMap<>();
     }
     
     // Method stub
-    public void clearCache() {
-        this.scheduleCache.clear();
-        this.standingsCache.clear();
+    public void clearCache(String sport) {
+        this.scheduleCache.remove(sport);
+        this.standingsCache.remove(sport);
     }
     
     // Return an observableList of the NU's standings.
@@ -35,6 +37,7 @@ public class NUWebScraper implements WebScraper {
         Document doc = null; // Explicitly set to null
         Elements rows;
         ObservableList data = FXCollections.observableArrayList();
+        
         
         if (standingsCache.containsKey(sport)) {
             data = standingsCache.get(sport);
@@ -44,11 +47,10 @@ public class NUWebScraper implements WebScraper {
                 doc = Jsoup.connect(
                     "http://caasports.com/standings.aspx?path=" + 
                     this.sportToPath(sport)).get();
-                this.caller.clearError();
             }
             catch (IOException e) {
                 this.caller.pushToError("Unable to connect to the Internet");
-                return data;
+                return data;  // Instantly terminate function call.
             }
 
             // If the code ever reaches this point, doc is non-null
@@ -70,7 +72,9 @@ public class NUWebScraper implements WebScraper {
                     data.add(parseSoccerStanding(e));
                 }
             }
+            standingsCache.put(sport, data);
         }
+        this.caller.clearError();
         return data;
     }
     
@@ -90,8 +94,8 @@ public class NUWebScraper implements WebScraper {
                         .header("Connection", "keep-alive")
                         .header("Accept-Encoding", "gzip, deflate, sdch")
                         .maxBodySize(0)
+                        .timeout(7000)
                         .get();
-                this.caller.clearError();
             }
             catch (IOException e) {
                 this.caller.pushToError("Failed to connect to interwebs.");
@@ -108,8 +112,7 @@ public class NUWebScraper implements WebScraper {
             }
             scheduleCache.put(sport, data); // Add to cache
         }
-        
-        
+        this.caller.clearError();
         return data;
     }
     

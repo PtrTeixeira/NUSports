@@ -2,15 +2,14 @@ package nusports;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -42,6 +41,11 @@ public class NUSports extends Application {
         Scene scene = new Scene(border, 800, 800);
         scene.getStylesheets().add(
                 getClass().getResource("OutputStyles.css").toExternalForm());
+        scene.setOnKeyReleased((KeyEvent ke) -> {
+            if (ke.getCode()==KeyCode.F5) {
+                this.reload();
+            }
+        });
         
         primaryStage.setTitle("NU Sports");
         primaryStage.setScene(scene);
@@ -102,5 +106,9 @@ public class NUSports extends Application {
     // Query ouput generator to set the response text
     private void setResponseText() {
         og.resetTable(this.sports.getValue(), this.options.getValue());
+    }
+    
+    private void reload() {
+        og.reloadCurrent(this.sports.getValue(), this.options.getValue());
     }
 }

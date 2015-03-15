@@ -16,5 +16,5 @@ public interface WebScraper {
     ObservableList getSchedule(String sport);
     
     // Force a reload of page content
-    void clearCache();
+    void clearCache(String sport);
 }
