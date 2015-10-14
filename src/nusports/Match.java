@@ -3,7 +3,8 @@ package nusports;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
- *
+ * JavaBean wrapper for sports matches.
+ * 
  * @author Peter
  */
 public class Match {

@@ -3,7 +3,11 @@ package nusports;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
- *
+ * JavaBean wrapper for sports win/loss records records.
+ * 
+ * In context, used to generate relative standings between teams by sorting 
+ * by their win/loss records.
+ * 
  * @author Peter
  */
 public class Standing {
