@@ -1,4 +1,4 @@
-package nusports;
+package github.ptrteixeira;
 
 import javafx.beans.property.SimpleStringProperty;
 

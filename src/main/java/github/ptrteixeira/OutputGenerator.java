@@ -1,4 +1,4 @@
-package nusports;
+package github.ptrteixeira;
 
 import java.util.ArrayList;
 import javafx.scene.control.TableColumn;

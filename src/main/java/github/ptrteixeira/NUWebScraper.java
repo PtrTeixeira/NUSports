@@ -1,13 +1,16 @@
-package nusports;
+package github.ptrteixeira;
 
-import java.io.IOException;
-import java.util.HashMap;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.io.IOException;
+import java.util.HashMap;
+
+
 
 /**
  * Scrape the CAA site, in particular, to get information relevant to

@@ -1,17 +1,18 @@
-package nusports;
+package github.ptrteixeira;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import javafx.scene.control.TableView;
 
 /**
  *
@@ -39,10 +40,10 @@ public class NUSports extends Application {
         border.setCenter(actionTarget);
         
         Scene scene = new Scene(border, 800, 800);
-        scene.getStylesheets().add(
-                getClass().getResource("OutputStyles.css").toExternalForm());
+//        scene.getStylesheets().add(
+//                getClass().getResource("OutputStyles.css").toExternalForm());
         scene.setOnKeyReleased((KeyEvent ke) -> {
-            if (ke.getCode()==KeyCode.F5) {
+            if (ke.getCode()== KeyCode.F5) {
                 this.reload();
             }
         });

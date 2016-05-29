@@ -2,9 +2,12 @@
 *.jar
 *.class
 
-# Exclude Netbeans tooling 
-dist/
-build/
-lib/
-nbproject/
+# Exclude tooling. This will get moved to global.
+.idea/
+out/
 
+# Exclude gradle nonsense
+.gradle/
+
+# Output Directory
+build/
