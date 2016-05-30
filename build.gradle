@@ -1,9 +1,18 @@
 group 'github.PtrTeixeira'
 version '0.1.0'
 
+// Base plugin
 apply plugin: 'java'
-
 sourceCompatibility = 1.8
+
+// Reporting Plugins
+apply plugin: 'project-report'
+apply plugin: 'build-dashboard'
+apply plugin: 'checkstyle'
+
+// Adds a task to execute the project
+apply plugin: 'application'
+mainClassName = "github.ptrTeixeira.NUSports"
 
 repositories {
     mavenCentral()

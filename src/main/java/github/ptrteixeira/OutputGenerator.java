@@ -1,10 +1,13 @@
 package github.ptrteixeira;
 
-import java.util.ArrayList;
+import github.ptrteixeira.model.*;
+import github.ptrteixeira.view.DisplayType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
+
+import java.util.ArrayList;
 
 /**
  * Generates and formats the output to the JavaFX front-end.
@@ -45,39 +48,39 @@ class OutputGenerator {
    * @param error Text field from the front-end, for injection
    */
   public OutputGenerator(TableView table, Text error) {
-    teams = new TableColumn("Teams");
+    teams = new TableColumn<>("Teams");
     teams.setMinWidth(100);
     teams.setCellValueFactory(
         new PropertyValueFactory<>("teamName"));
 
-    conference = new TableColumn("CAA");
+    conference = new TableColumn<>("CAA");
     conference.setMinWidth(100);
     conference.setCellValueFactory(
         new PropertyValueFactory<>("conference"));
 
-    overall = new TableColumn("Overall");
+    overall = new TableColumn<>("Overall");
     overall.setMinWidth(100);
     overall.setCellValueFactory(
         new PropertyValueFactory<>("Overall"));
 
-    date = new TableColumn("Date");
+    date = new TableColumn<>("Date");
     date.setMinWidth(100);
     date.setCellValueFactory(
         new PropertyValueFactory<>("date"));
 
-    opponent = new TableColumn("Opponent");
+    opponent = new TableColumn<>("Opponent");
     opponent.setMinWidth(100);
     opponent.setCellValueFactory(
         new PropertyValueFactory<>("opponent"));
 
-    result = new TableColumn("Result");
+    result = new TableColumn<>("Result");
     result.setMinWidth(100);
     result.setCellValueFactory(
         new PropertyValueFactory<>("result"));
 
     this.table = table;
     this.error = error;
-    this.scraper = new NUWebScraper(this);
+    this.scraper = new WebScraperFactory().forSite(Site.CAA);
   }
 
   /**
@@ -92,7 +95,7 @@ class OutputGenerator {
    * @param sport Sport to reset
    * @param option "League Standings" or "Schedule/Results"
    */
-  public void resetTable(String sport, String option) {
+  public void resetTable(String sport, DisplayType option) {
     setCols(option);
     setData(sport, option);
   }
@@ -113,31 +116,36 @@ class OutputGenerator {
   // Called to change column headings. Specifically, pushes the standings
   // headings if option is for standings and the schedule headings if the 
   // option is for schedules.
-  private void setCols(String option) {
+  private void setCols(DisplayType option) {
     ArrayList<TableColumn> cols = new ArrayList<>();
-
-    if (option.equals("League Standings")) {
-      cols.add(teams);
-      cols.add(conference);
-      cols.add(overall);
-    } else if (option.equals("Schedule/Results")) {
-      cols.add(date);
-      cols.add(opponent);
-      cols.add(result);
-    } else {
-      cols.add(new TableColumn("Sports!"));
+    switch (option) {
+      case SCHEDULE:
+        cols.add(teams);
+        cols.add(conference);
+        cols.add(overall);
+        break;
+      case STANDINGS:
+        cols.add(date);
+        cols.add(opponent);
+        cols.add(result);
     }
 
     table.getColumns().setAll(cols);
   }
 
   // tells the scraper to do its thing.
-  private void setData(String sport, String options) {
+  private void setData(String sport, DisplayType options) {
     this.clearError();
-    if (options.equals("League Standings")) {
-      table.setItems(scraper.getStandings(sport));
-    } else if (options.equals("Schedule/Results")) {
-      table.setItems(scraper.getSchedule(sport));
+    try {
+      switch (options) {
+        case SCHEDULE:
+          table.setItems(scraper.getSchedule(sport));
+          break;
+        case STANDINGS:
+          table.setItems(scraper.getStandings(sport));
+      }
+    } catch (ConnectionFailureException cfx) {
+      this.error.setText(cfx.getMessage());
     }
   }
 
@@ -149,9 +157,9 @@ class OutputGenerator {
    * different screens.
    * 
    * @param sport Sport to look at
-   * @param options "League Standings" or "Schedule/Results"
+   * @param options Type of view to be displayed
    */
-  public void reloadCurrent(String sport, String options) {
+  public void reloadCurrent(String sport, DisplayType options) {
     this.scraper.clearCache(sport);
     this.resetTable(sport, options);
   }

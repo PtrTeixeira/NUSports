@@ -1,4 +1,4 @@
-package github.ptrteixeira;
+package github.ptrteixeira.model;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,8 +8,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
-
+import java.util.Map;
+import java.util.function.Function;
 
 
 /**
@@ -26,13 +28,10 @@ import java.util.HashMap;
  */
 final class NUWebScraper implements WebScraper {
 
-  private final HashMap<String, ObservableList<Standing>> standingsCache;
-  private final HashMap<String, ObservableList<Match>> scheduleCache;
+  private final Map<String, ObservableList<Standing>> standingsCache;
+  private final Map<String, ObservableList<Match>> scheduleCache;
 
-  private final OutputGenerator caller;
-
-  public NUWebScraper(OutputGenerator caller) {
-    this.caller = caller;
+  NUWebScraper() {
     this.standingsCache = new HashMap<>();
     this.scheduleCache = new HashMap<>();
   }
@@ -44,91 +43,67 @@ final class NUWebScraper implements WebScraper {
   }
 
   @Override
-  public ObservableList<Standing> getStandings(String sport) {
-    Document doc = null; // Explicitly set to null
-    Elements rows;
-    ObservableList data = FXCollections.observableArrayList();
-
+  public ObservableList<Standing> getStandings(String sport) throws ConnectionFailureException {
     if (standingsCache.containsKey(sport)) {
-      data = standingsCache.get(sport);
-    } else {
-      try {
-        doc = Jsoup.connect(
-            "http://caasports.com/standings.aspx?path="
-            + this.sportToPath(sport)).get();
-      } catch (IOException e) {
-        this.caller.pushToError("Unable to connect to the Internet");
-        return data;  // Instantly terminate function call.
-      }
+      return standingsCache.get(sport);
+    }
 
-      // If the code ever reaches this point, doc is non-null
-      rows = doc.getElementsByClass("default_dgrd") // list of <table>
+    try {
+      ObservableList<Standing> data = FXCollections.observableArrayList();
+      Document doc = Jsoup.connect(
+          "http://caasports.com/standings.aspx?path="
+              + this.sportToPath(sport)).get();
+
+      Elements rows = doc.getElementsByClass("default_dgrd") // list of <table>
           .first() // <table>
           .children() // list of <tbody>
           .first() // <tbody>
           .children();                          // list of <tr>
       rows.remove(0);                               // drop header
 
-      if (!sport.equals("Men's Soccer")
-          && !sport.equals("Women's Soccer")) {
-        for (Element e : rows) {
-          data.add(parseStanding(e));
-        }
-      } else {
-        for (Element e : rows) {
-          data.add(parseSoccerStanding(e));
-        }
-      }
-      standingsCache.put(sport, data);
+      rows.stream().map(standingsParser(sport)).forEach(data::add);
+
+      return data;
+    } catch (IOException e) {
+      throw new ConnectionFailureException("Failed to connect to the internet.");
     }
-    return data;
   }
 
   @Override
-  public ObservableList<Match> getSchedule(String sport) {
-    Document doc = null; // Explicitly set to null
-    Elements nuGames;
-    ObservableList data = FXCollections.observableArrayList();
-
+  public ObservableList<Match> getSchedule(String sport) throws ConnectionFailureException {
     if (scheduleCache.containsKey(sport)) {
-      data = scheduleCache.get(sport); // Query cache
-    } else {
-      try {
-        doc = Jsoup.connect(
-            "http://caasports.com/calendar.aspx")
-            .header("Connection", "keep-alive")
-            .header("Accept-Encoding", "gzip, deflate, sdch")
-            .maxBodySize(0)
-            .timeout(7000)
-            .get();
-      } catch (IOException e) {
-        this.caller.pushToError("Failed to connect to interwebs.");
-        return data;
-      }
-
-      // If the code ever reaches this point, doc should not be null
-      nuGames = doc.getElementsByClass("school_3");
-
-      nuGames = this.extractSport(nuGames, sport);
-
-      for (Element e : nuGames) {
-        data.add(parseMatch(e));
-      }
-      scheduleCache.put(sport, data); // Add to cache
+      return scheduleCache.get(sport);
     }
-    return data;
+
+    try {
+      ObservableList<Match> data = FXCollections.observableArrayList();
+      Document doc = Jsoup.connect(
+          "http://caasports.com/calendar.aspx")
+          .header("Connection", "keep-alive")
+          .header("Accept-Encoding", "gzip, deflate, sdch")
+          .maxBodySize(0)
+          .timeout(7000)
+          .get();
+
+      Elements nuGames = this.extractSport(doc.getElementsByClass("sport_3"), sport);
+
+      nuGames.stream().map(this::parseMatch).forEach(data::add);
+
+      return data;
+    } catch (IOException e) {
+      throw new ConnectionFailureException("Failed to connect to the internet.");
+    }
   }
 
     // In general, the standings tables look like
   // Hofstra | 0 - 12 | 0.000 | 5 - 25 | 0.2000
   // So this just grabs the correct elements.
   // Parse a generic standing table row into a Standing object
-  private Standing parseStanding(Element e) {
-    Standing retr = new Standing(e.child(0).text(), // School
-                                 e.child(1).text(), // Conference Results
-                                 e.child(3).text());           // Overall Results
-
-    return retr;
+  private Standing parseNormalStanding(Element e) {
+    return new Standing(
+        e.child(0).text(), // School
+        e.child(1).text(), // Conference Results
+        e.child(3).text());           // Overall Results
   }
 
     // In contrast, soccer standings look like 
@@ -137,46 +112,40 @@ final class NUWebScraper implements WebScraper {
   // change.
   // Parse a soccer standing table row into a Standing object
   private Standing parseSoccerStanding(Element e) {
-    Standing retr = new Standing(e.child(0).text(), // School
-                                 e.child(1).text(), // Conference Results
-                                 e.child(4).text());// Overall results
+    return new Standing(
+        e.child(0).text(), // School
+        e.child(1).text(), // Conference Results
+        e.child(4).text());// Overall results
+  }
 
-    return retr;
+  private Function<Element, Standing> standingsParser(String sport) {
+    if (sport.equals("Men's Soccer") || sport.equals("Women's Soccer")) {
+      return this::parseSoccerStanding;
+    } else {
+      return this::parseNormalStanding;
+    }
   }
 
   // Parse the table row in the document into a Match
   private Match parseMatch(Element e) {
-    String opponent = "";
-    String result = "";
-    String date = "";
-
-    if (e.children().size() >= 6) {
-      if (e.child(1).text().equals("Northeastern")) {
-        opponent = e.child(4).text();
-        if (e.child(1).hasClass("won")) {
-          result = "W " + e.child(2).text() + " - "
-              + e.child(5).text();
-        } else if (e.child(4).hasClass("won")) {
-          result = "L " + e.child(5).text() + " - "
-              + e.child(2).text();
-        } else {
-          result = "";
-        }
-      } else {
-        opponent = e.child(1).text();
-        if (e.child(4).hasClass("won")) {
-          result = "W " + e.child(5).text() + " - "
-              + e.child(2).text();
-        } else if (e.child(1).hasClass("won")) {
-          result = "L " + e.child(2).text() + " - "
-              + e.child(5).text();
-        } else {
-          result = "";
-        }
-      }
-
-      date = this.getDate(e);
+    String opponent;
+    int northeasternIndex;
+    if (e.child(1).text().equals("Northeastern")) {
+      opponent = e.child(4).text();
+      northeasternIndex = 1;
+    } else {
+      opponent = e.child(1).text();
+      northeasternIndex = 4;
     }
+
+    String result;
+    if (e.child(northeasternIndex).hasClass("won")) {
+      result = MessageFormat.format("{} {} - {}", "W", e.child(2).text(), e.child(5).text());
+    } else {
+      result = MessageFormat.format("{} {} - {}", "L", e.child(2).text(), e.child(5).text());
+    }
+
+    String date = this.getDate(e);
 
     return new Match(date, opponent, result);
   }
@@ -189,7 +158,7 @@ final class NUWebScraper implements WebScraper {
       }
     }
 
-    if (e.hasAttr("data-date")) {
+    if (e != null && e.hasAttr("data-date")) {
       return e.attr("data-date");
     } else {
       return "";
