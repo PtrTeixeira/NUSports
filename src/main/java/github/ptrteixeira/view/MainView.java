@@ -3,7 +3,6 @@ package github.ptrteixeira.view;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -15,6 +14,9 @@ public class MainView {
     BorderPane pane = new BorderPane();
     pane.setCenter(this.createCenter());
     pane.setBottom(this.createBottomBar());
+
+    pane.setMinWidth(600);
+    pane.setMinHeight(600);
 
     return pane;
   }
@@ -32,20 +34,8 @@ public class MainView {
   private Node createCenter() {
     TabPane tabPane = new TabPane();
     tabPane.getTabs()
-        .addAll(this.createScheduleTab(), this.createStandingsTab());
+        .addAll(new ScheduleTab(), new StandingsTab());
 
     return tabPane;
   }
-
-  private Tab createStandingsTab() {
-    Tab standingTab = new Tab();
-    return standingTab;
-  }
-
-  private Tab createScheduleTab() {
-    Tab scheduleTab = new Tab();
-    return scheduleTab;
-  }
-
-
 }

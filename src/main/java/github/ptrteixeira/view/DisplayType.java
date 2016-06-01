@@ -1,7 +1,7 @@
 package github.ptrteixeira.view;
 
 /**
- * Created by pteixeira on 5/29/16.
+ * @author Peter Teixeira
  */
 public enum DisplayType {
   SCHEDULE,
