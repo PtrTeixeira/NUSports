@@ -1,15 +1,15 @@
 package github.ptrteixeira;
 
-import github.ptrteixeira.view.DisplayType;
+import github.ptrteixeira.model.Site;
+import github.ptrteixeira.model.WebScraper;
+import github.ptrteixeira.model.WebScraperFactory;
+import github.ptrteixeira.presenter.MainPresenter;
 import github.ptrteixeira.view.MainView;
+import github.ptrteixeira.view.ViewPresenter;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -28,24 +28,13 @@ public class NUSports extends Application {
 
   // Set up stage: add table, side bar
   public void start(Stage primaryStage) {
-    BorderPane border = new BorderPane();
-//
-//        VBox leftMenu = this.addSideBar();
-//        border.setLeft(leftMenu);
-//
-//        this.setResponseText();
-//        // actionTarget.set -- Change how the table behaves under sorts
-//        border.setCenter(actionTarget);
-//
-//        Scene scene = new Scene(border, 800, 800);
-//        scene.getStylesheets().add(
-//                getClass().getResource("OutputStyles.css").toExternalForm());
-//        scene.setOnKeyReleased((KeyEvent ke) -> {
-//            if (ke.getCode()== KeyCode.F5) {
-//                this.reload();
-//            }
-//        });
-    MainView view = new MainView();
+    ViewPresenter view = new MainView();
+    WebScraper scraper = new WebScraperFactory().forSite(Site.CAA);
+
+    MainPresenter presenter = new MainPresenter(scraper, view);
+    presenter.loadPresenter();
+
+
     Scene scene = new Scene(view.createView());
 
     primaryStage.setTitle("NU Sports");
@@ -58,59 +47,5 @@ public class NUSports extends Application {
    */
   public static void main(String[] args) {
     launch(args);
-  }
-
-  // Add the side bar containing a header, the controls, and an error text
-  private VBox addSideBar() {
-    // The side bar
-    VBox vbox = new VBox();
-    vbox.setId("sidebar");
-    vbox.setPadding(new Insets(10));
-    vbox.setSpacing(8);
-
-    // Header for the side bar
-    Text title = new Text("Settings");
-    title.setId("title");
-
-    // controls: sports options
-    sports.getItems().addAll("Baseball",
-        "Men's Basketball",
-        "Men's Soccer",
-        "Women's Basketball",
-        "Women's Soccer",
-        "Volleyball");
-    sports.setValue("Baseball");
-    sports.setOnAction((ActionEvent e) -> {
-      setResponseText();
-    });
-    // Controls: display options
-    options.getItems().addAll("League Standings",
-        "Schedule/Results");
-    options.setValue("League Standings");
-    options.setOnAction((ActionEvent e) -> {
-      setResponseText();
-    });
-
-    // The error bar
-    err.setId("error");
-
-    // Add children to the side bar
-    vbox.getChildren().add(title);
-    vbox.getChildren().add(sports);
-    vbox.getChildren().add(options);
-    vbox.getChildren().add(err);
-
-
-    return vbox;
-  }
-
-  // Query ouput generator to set the response text
-  // TODO parse text into DisplayType
-  private void setResponseText() {
-    og.resetTable(this.sports.getValue(), DisplayType.SCHEDULE);
-  }
-
-  private void reload() {
-    og.reloadCurrent(this.sports.getValue(), DisplayType.SCHEDULE);
   }
 }

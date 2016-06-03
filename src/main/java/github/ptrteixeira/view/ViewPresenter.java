@@ -1,10 +1,12 @@
 package github.ptrteixeira.view;
 
+import github.ptrteixeira.model.Match;
+import github.ptrteixeira.model.Standing;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 
 import java.util.List;
 
@@ -21,11 +23,14 @@ public interface ViewPresenter {
 
   void setSelectableSports(List<String> sports);
 
-  <T> void setTableContents(ObservableList<T> tableContents);
+  void setScheduleContents(List<Match> scheduleContents);
+  void setStandingsContents(List<Standing> standingsContents);
 
   DisplayType getCurrentDisplayType();
   void setCurrentDisplayType(DisplayType displayType);
 
   void clearErrorText();
   void setErrorText(String text);
+
+  Pane createView();
 }

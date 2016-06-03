@@ -4,7 +4,8 @@ version '0.1.0'
 def versions = [
    checkstyle: '6.19',
    jsoup: '1.9.2',
-   junit: '4.11'
+   junit: '4.11',
+   log4j: '2.6'
 ]
 
 configurations {
@@ -39,6 +40,7 @@ repositories {
 
 dependencies {
   compile group: 'org.jsoup', name: 'jsoup', version: "${versions.jsoup}"
+  compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${versions.log4j}"
   testCompile group: 'junit', name: 'junit', version: "${versions.junit}"
   checkstyleConfig module(group: 'com.puppycrawl.tools', name: 'checkstyle', version: "${versions.checkstyle}") {
     transitive = false

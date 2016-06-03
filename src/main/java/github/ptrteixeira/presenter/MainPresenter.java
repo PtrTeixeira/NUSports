@@ -9,16 +9,24 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
 
+import java.util.Collections;
+
 public class MainPresenter {
   private final WebScraper scraper;
   private final ViewPresenter presenter;
   private String currentDisplayItem;
 
-  private MainPresenter(WebScraper scraper, ViewPresenter presenter) {
+  // TODO split this up. A
+  public MainPresenter(WebScraper scraper, ViewPresenter presenter) {
     this.scraper = scraper;
     this.presenter = presenter;
 
+    this.currentDisplayItem = "";
+  }
+
+  public void loadPresenter() {
     this.registerCallbacks(this.presenter);
+    this.setViewSportSelection(this.scraper, this.presenter);
   }
 
   private void registerCallbacks(ViewPresenter presenter) {
@@ -27,8 +35,14 @@ public class MainPresenter {
     presenter.registerTabSwitchCallback(this::tabChangeListener);
   }
 
+  private void setViewSportSelection(WebScraper webScraper, ViewPresenter presenter) {
+    // TODO implement
+    presenter.setSelectableSports(Collections.singletonList("Men's Basketball"));
+  }
+
   private void tabChangeListener(
       ObservableValue<? extends Tab> observableValue, Tab oldValue, Tab newValue) {
+    System.out.println("Tab changed.");
     if (presenter.getCurrentDisplayType().equals(DisplayType.SCHEDULE)) {
       presenter.setCurrentDisplayType(DisplayType.STANDINGS);
     } else {
@@ -39,6 +53,7 @@ public class MainPresenter {
   }
 
   private void reloadCallback(MouseEvent mouseEvent) {
+    System.out.println("Reload clicked.");
     this.scraper.clearCache(this.currentDisplayItem);
 
     this.changeSelection(this.presenter, this.scraper, this.currentDisplayItem);
@@ -55,13 +70,14 @@ public class MainPresenter {
       ViewPresenter presenter, WebScraper scraper, String currentSelection) {
     try {
       if (presenter.getCurrentDisplayType().equals(DisplayType.SCHEDULE)) {
-        presenter.setTableContents(scraper.getSchedule(currentSelection));
+        presenter.setScheduleContents(scraper.getSchedule(currentSelection));
       } else {
-        presenter.setTableContents(scraper.getStandings(currentSelection));
+        presenter.setStandingsContents(scraper.getStandings(currentSelection));
       }
     } catch (ConnectionFailureException cfx) {
       presenter.setErrorText(cfx.getMessage());
-      presenter.setTableContents(FXCollections.emptyObservableList());
+      presenter.setScheduleContents(FXCollections.emptyObservableList());
+      presenter.setStandingsContents(FXCollections.emptyObservableList());
     }
   }
 }

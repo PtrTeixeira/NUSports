@@ -64,9 +64,7 @@ abstract class AbstractViewTab<T> extends Tab {
     this.errorText.setText("");
   }
 
-  final void populateTable(List<T> contents) {
-    this.tableView.setItems(FXCollections.observableList(contents));
-  }
+  abstract void populateTable(List<T> contents);
 
   final void setSportSelections(List<String> sports) {
     this.sportSelections = sports;
