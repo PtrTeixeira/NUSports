@@ -1,5 +1,8 @@
 package github.ptrteixeira.model;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Factory for creating methods of attaching to web sites. Structured the way that it is because,
  * so far as I am concerned, each web scraper needs to be tailored for the site that it gets
@@ -10,14 +13,16 @@ package github.ptrteixeira.model;
  * @author Peter Teixeira
  */
 public final class WebScraperFactory {
+  private static final Logger logger = LogManager.getLogger();
+
   public WebScraper forSite(Site site) {
     switch (site) {
       case CAA:
+        logger.debug("Creating web scraper for CAA Sports website");
         return new NUWebScraper();
       default:
-        // Included because Intellij doesn't like switch statements with only a single
-        // branch.
-        throw new IllegalStateException();
+        logger.error("Given bad argument {} when creating web scraper", site);
+        throw new IllegalStateException("Invalid argument when creating WebScraper");
     }
   }
 }

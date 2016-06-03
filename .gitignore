@@ -1,13 +1,11 @@
-# Exclude compiled files
-*.jar
-*.class
-
 # Exclude tooling. This will get moved to global.
 .idea/
-out/
 
 # Exclude gradle nonsense
 .gradle/
 
 # Output Directory
 build/
+
+# Log files
+logs/

@@ -2,6 +2,8 @@ package github.ptrteixeira.model;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,6 +29,7 @@ import java.util.function.Function;
  * @author Peter
  */
 final class NUWebScraper implements WebScraper {
+  private static final Logger logger = LogManager.getLogger();
 
   private final Map<String, ObservableList<Standing>> standingsCache;
   private final Map<String, ObservableList<Match>> scheduleCache;
@@ -38,6 +41,7 @@ final class NUWebScraper implements WebScraper {
 
   @Override
   public void clearCache(String sport) {
+    logger.info("Clearing the cache for sport {}", sport);
     this.scheduleCache.remove(sport);
     this.standingsCache.remove(sport);
   }
@@ -45,10 +49,12 @@ final class NUWebScraper implements WebScraper {
   @Override
   public ObservableList<Standing> getStandings(String sport) throws ConnectionFailureException {
     if (standingsCache.containsKey(sport)) {
+      logger.debug("Using cache to get standings for sport {}", sport);
       return standingsCache.get(sport);
     }
 
     try {
+      logger.debug("Standings for sport {} not found in cache; connecting to internet.", sport);
       ObservableList<Standing> data = FXCollections.observableArrayList();
       Document doc = Jsoup.connect(
           "http://caasports.com/standings.aspx?path="
@@ -63,8 +69,11 @@ final class NUWebScraper implements WebScraper {
 
       rows.stream().map(standingsParser(sport)).forEach(data::add);
 
+      logger.debug("Found standings data on the web for {}. Writing to cache.", sport);
+      this.standingsCache.put(sport, data);
       return data;
     } catch (IOException e) {
+      logger.trace("Connection failed trying to get Standings information for {}.", sport);
       throw new ConnectionFailureException("Failed to connect to the internet.");
     }
   }
@@ -72,10 +81,12 @@ final class NUWebScraper implements WebScraper {
   @Override
   public ObservableList<Match> getSchedule(String sport) throws ConnectionFailureException {
     if (scheduleCache.containsKey(sport)) {
+      logger.info("Using cache to get schedule for sport {}", sport);
       return scheduleCache.get(sport);
     }
 
     try {
+      logger.debug("Schedule for sport {} not found in cache; connecting to internet", sport);
       ObservableList<Match> data = FXCollections.observableArrayList();
       Document doc = Jsoup.connect(
           "http://caasports.com/calendar.aspx")
@@ -89,8 +100,11 @@ final class NUWebScraper implements WebScraper {
 
       nuGames.stream().map(this::parseMatch).forEach(data::add);
 
+      logger.debug("Found schedule data on the web for {}. Writing to cache.", sport);
+      this.scheduleCache.put(sport, data);
       return data;
     } catch (IOException e) {
+      logger.trace("Connection failed trying to get Schedule information for {}", sport);
       throw new ConnectionFailureException("Failed to connect to the internet.");
     }
   }
@@ -175,6 +189,8 @@ final class NUWebScraper implements WebScraper {
     // Convert the given string sport into a url sport path
   // Called in generating standings tables
   private String sportToPath(String sport) {
+    logger.debug("Getting URL path for sport {}", sport);
+
     switch (sport) {
       case "Baseball":
         return "baseball";
@@ -196,6 +212,8 @@ final class NUWebScraper implements WebScraper {
     // Convert the given string sport into an HTML class 
   // Used in extracting data from the calendar
   private String sportToClass(String sport) {
+    logger.debug("Finding CSS class for sport {}", sport);
+
     switch (sport) {
       case "Baseball":
         return "sport_1";

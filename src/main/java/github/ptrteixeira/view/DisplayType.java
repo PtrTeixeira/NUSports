@@ -5,5 +5,14 @@ package github.ptrteixeira.view;
  */
 public enum DisplayType {
   SCHEDULE,
-  STANDINGS
+  STANDINGS;
+
+  @Override
+  public String toString() {
+    switch (this) {
+      case SCHEDULE: return "Schedule";
+      case STANDINGS: return "Standings";
+      default: throw new IllegalStateException("Unreachable");
+    }
+  }
 }

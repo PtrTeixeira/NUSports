@@ -13,10 +13,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
 public class MainView implements ViewPresenter {
+  private static final Logger logger = LogManager.getLogger();
+
   private final ScheduleTab scheduleTab;
   private final StandingsTab standingsTab;
 
@@ -59,17 +63,20 @@ public class MainView implements ViewPresenter {
 
   @Override
   public void setSelectableSports(List<String> sports) {
+    logger.info("Set list of selectable sports to {}", sports);
     this.scheduleTab.setSportSelections(sports);
     this.standingsTab.setSportSelections(sports);
   }
 
   @Override
   public void setScheduleContents(List<Match> scheduleContents) {
+    logger.debug("Reset contents of schedule table");
     this.scheduleTab.populateTable(scheduleContents);
   }
 
   @Override
   public void setStandingsContents(List<Standing> standingsContents) {
+    logger.debug("Reset contents of standings tab");
     this.standingsTab.populateTable(standingsContents);
   }
 
@@ -80,17 +87,20 @@ public class MainView implements ViewPresenter {
 
   @Override
   public void setCurrentDisplayType(DisplayType displayType) {
+    logger.debug("Set current DisplayType to {}", displayType.toString());
     this.displayType = displayType;
   }
 
   @Override
   public void clearErrorText() {
+    logger.trace("Cleared the error message in the UI");
     this.standingsTab.clearErrorText();
     this.scheduleTab.clearErrorText();
   }
 
   @Override
   public void setErrorText(String text) {
+    logger.trace("Set the error message in the UI to {}", text);
     if (this.displayType.equals(DisplayType.SCHEDULE)) {
       this.scheduleTab.setErrorText(text);
     } else {
@@ -107,6 +117,7 @@ public class MainView implements ViewPresenter {
     pane.setMinWidth(600);
     pane.setMinHeight(600);
 
+    logger.info("Creating main view");
     return pane;
   }
 
@@ -117,6 +128,7 @@ public class MainView implements ViewPresenter {
 
     bottomBar.getChildren().add(reload);
 
+    logger.trace("Creating bottom bar for main view");
     return bottomBar;
   }
 
@@ -125,6 +137,7 @@ public class MainView implements ViewPresenter {
     tabPane.getTabs()
         .addAll(this.scheduleTab, this.standingsTab);
 
+    logger.trace("Creating center for main view");
     return tabPane;
   }
 }
