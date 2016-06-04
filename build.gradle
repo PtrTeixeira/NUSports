@@ -23,9 +23,9 @@ apply plugin: 'build-dashboard'
 apply plugin: 'checkstyle'
 checkstyle {
     toolVersion = "${versions.checkstyle}"
-    config = resources.text.fromArchiveEntry(configurations.checkstyleConfig, 'google_checks.xml')
 }
 tasks.withType(Checkstyle) {
+  config = resources.text.fromArchiveEntry(configurations.checkstyleConfig, 'google_checks.xml')
   reports {
     html.destination rootProject.file("build/reports/checkstyle.html")
   }
