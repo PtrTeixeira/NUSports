@@ -33,7 +33,7 @@ public class MainView implements ViewPresenter {
     this.scheduleTab = scheduleTab;
     this.standingsTab = standingsTab;
 
-    this.displayType = DisplayType.SCHEDULE;
+    this.displayType = DisplayType.STANDINGS;
 
     this.tabPane = new TabPane();
     this.reloadButton = new Button("Reload");
@@ -66,17 +66,18 @@ public class MainView implements ViewPresenter {
     logger.info("Set list of selectable sports to {}", sports);
     this.scheduleTab.setSportSelections(sports);
     this.standingsTab.setSportSelections(sports);
+
   }
 
   @Override
   public void setScheduleContents(List<Match> scheduleContents) {
-    logger.debug("Reset contents of schedule table");
+    logger.trace("Set contents of schedule table to {}", scheduleContents);
     this.scheduleTab.populateTable(scheduleContents);
   }
 
   @Override
   public void setStandingsContents(List<Standing> standingsContents) {
-    logger.debug("Reset contents of standings tab");
+    logger.trace("Reset contents of standings tab to {}", standingsContents);
     this.standingsTab.populateTable(standingsContents);
   }
 
@@ -100,10 +101,11 @@ public class MainView implements ViewPresenter {
 
   @Override
   public void setErrorText(String text) {
-    logger.trace("Set the error message in the UI to {}", text);
     if (this.displayType.equals(DisplayType.SCHEDULE)) {
+      logger.trace("Set the error message for Schedule tab to \"{}\"", text);
       this.scheduleTab.setErrorText(text);
     } else {
+      logger.trace("Set the error message for Standings tab to \"{}\"", text);
       this.standingsTab.setErrorText(text);
     }
   }

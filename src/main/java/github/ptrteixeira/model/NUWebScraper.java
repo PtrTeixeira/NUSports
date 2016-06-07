@@ -11,7 +11,9 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -41,7 +43,7 @@ final class NUWebScraper implements WebScraper {
 
   @Override
   public void clearCache(String sport) {
-    logger.info("Clearing the cache for sport {}", sport);
+    logger.info("Clearing the cache for \"{}\"", sport);
     this.scheduleCache.remove(sport);
     this.standingsCache.remove(sport);
   }
@@ -49,16 +51,18 @@ final class NUWebScraper implements WebScraper {
   @Override
   public ObservableList<Standing> getStandings(String sport) throws ConnectionFailureException {
     if (standingsCache.containsKey(sport)) {
-      logger.debug("Using cache to get standings for sport {}", sport);
+      logger.debug("Using cache to get standings for \"{}\"", sport);
       return standingsCache.get(sport);
     }
 
     try {
-      logger.debug("Standings for sport {} not found in cache; connecting to internet.", sport);
+      logger.debug("Standings for \"{}\" not found in cache; connecting to internet.", sport);
       ObservableList<Standing> data = FXCollections.observableArrayList();
-      Document doc = Jsoup.connect(
-          "http://caasports.com/standings.aspx?path="
-              + this.sportToPath(sport)).get();
+      String queryPath = "http://caasports.com/standings.aspx?path=" + this.sportToPath(sport);
+      logger.debug("Making query to path {}", queryPath);
+      Document doc = Jsoup.connect(queryPath)
+          .userAgent("Chrome/51")
+          .get();
 
       Elements rows = doc.getElementsByClass("default_dgrd") // list of <table>
           .first() // <table>
@@ -69,11 +73,11 @@ final class NUWebScraper implements WebScraper {
 
       rows.stream().map(standingsParser(sport)).forEach(data::add);
 
-      logger.debug("Found standings data on the web for {}. Writing to cache.", sport);
+      logger.debug("Found standings data on the web for \"{}\". Writing to cache.", sport);
       this.standingsCache.put(sport, data);
       return data;
     } catch (IOException e) {
-      logger.trace("Connection failed trying to get Standings information for {}.", sport);
+      logger.warn("Connection failure getting standings data", e);
       throw new ConnectionFailureException("Failed to connect to the internet.");
     }
   }
@@ -81,17 +85,19 @@ final class NUWebScraper implements WebScraper {
   @Override
   public ObservableList<Match> getSchedule(String sport) throws ConnectionFailureException {
     if (scheduleCache.containsKey(sport)) {
-      logger.info("Using cache to get schedule for sport {}", sport);
+      logger.info("Using cache to get schedule for \"{}\"", sport);
       return scheduleCache.get(sport);
     }
 
     try {
-      logger.debug("Schedule for sport {} not found in cache; connecting to internet", sport);
+      logger.debug("Schedule for \"{}\" not found in cache; connecting to internet", sport);
       ObservableList<Match> data = FXCollections.observableArrayList();
-      Document doc = Jsoup.connect(
-          "http://caasports.com/calendar.aspx")
+      String queryPath = "http://caasports.com/calendar.aspx";
+      logger.debug("Making query to path {}", queryPath);
+      Document doc = Jsoup.connect(queryPath)
           .header("Connection", "keep-alive")
           .header("Accept-Encoding", "gzip, deflate, sdch")
+          .userAgent("Chrome/51")
           .maxBodySize(0)
           .timeout(7000)
           .get();
@@ -104,12 +110,17 @@ final class NUWebScraper implements WebScraper {
       this.scheduleCache.put(sport, data);
       return data;
     } catch (IOException e) {
-      logger.trace("Connection failed trying to get Schedule information for {}", sport);
+      logger.trace("Connection failure getting schedule data", e.fillInStackTrace());
       throw new ConnectionFailureException("Failed to connect to the internet.");
     }
   }
 
-    // In general, the standings tables look like
+  @Override
+  public List<String> getSelectableSports() {
+    return Collections.singletonList("Men's Basketball");
+  }
+
+  // In general, the standings tables look like
   // Hofstra | 0 - 12 | 0.000 | 5 - 25 | 0.2000
   // So this just grabs the correct elements.
   // Parse a generic standing table row into a Standing object
@@ -189,7 +200,7 @@ final class NUWebScraper implements WebScraper {
     // Convert the given string sport into a url sport path
   // Called in generating standings tables
   private String sportToPath(String sport) {
-    logger.debug("Getting URL path for sport {}", sport);
+    logger.trace("Getting URL path for \"{}\"", sport);
 
     switch (sport) {
       case "Baseball":
@@ -212,7 +223,7 @@ final class NUWebScraper implements WebScraper {
     // Convert the given string sport into an HTML class 
   // Used in extracting data from the calendar
   private String sportToClass(String sport) {
-    logger.debug("Finding CSS class for sport {}", sport);
+    logger.debug("Finding CSS class for \"{}\"", sport);
 
     switch (sport) {
       case "Baseball":

@@ -2,6 +2,8 @@ package github.ptrteixeira.model;
 
 import javafx.collections.ObservableList;
 
+import java.util.List;
+
 /**
  * Public API of WebScraper objects.
  *
@@ -31,6 +33,8 @@ public interface WebScraper {
    * @throws ConnectionFailureException if the site this scraper is attached to cannot be reached
    */
   ObservableList<Match> getSchedule(String sport) throws ConnectionFailureException;
+
+  List<String> getSelectableSports();
 
   /**
    * Clear the cache for the given sport, typically to force an update.

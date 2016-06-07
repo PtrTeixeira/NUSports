@@ -1,23 +1,26 @@
 package github.ptrteixeira.presenter;
 
 import github.ptrteixeira.model.ConnectionFailureException;
+import github.ptrteixeira.model.Match;
+import github.ptrteixeira.model.Standing;
 import github.ptrteixeira.model.WebScraper;
 import github.ptrteixeira.view.DisplayType;
 import github.ptrteixeira.view.ViewPresenter;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
+import java.util.List;
 
 public class MainPresenter {
   private static final Logger logger = LogManager.getLogger();
 
   private final WebScraper scraper;
   private final ViewPresenter presenter;
+
   private String currentDisplayItem;
 
   public MainPresenter(WebScraper scraper, ViewPresenter presenter) {
@@ -25,7 +28,6 @@ public class MainPresenter {
     this.presenter = presenter;
 
     this.currentDisplayItem = "";
-    logger.debug("Creating new MainPresenter");
   }
 
   public void loadPresenter() {
@@ -33,6 +35,7 @@ public class MainPresenter {
     this.registerCallbacks(this.presenter);
     this.setViewSportSelection(this.scraper, this.presenter);
     logger.trace("Successfully registered presenter on View.");
+    this.changeSelection(presenter, scraper, this.currentDisplayItem);
   }
 
   private void registerCallbacks(ViewPresenter presenter) {
@@ -42,9 +45,12 @@ public class MainPresenter {
   }
 
   private void setViewSportSelection(WebScraper webScraper, ViewPresenter presenter) {
-    // TODO implement
-    presenter.setSelectableSports(Collections.singletonList("Men's Basketball"));
-    logger.trace("Setting selectable sports to {}", "[Men's Basketball]");
+    List<String> selectableSports = webScraper.getSelectableSports();
+    presenter.setSelectableSports(selectableSports);
+    logger.trace("Setting selectable sports to {}", selectableSports);
+
+    logger.trace("Setting currently selected sport to {}", selectableSports.get(0));
+    this.currentDisplayItem = selectableSports.get(0);
   }
 
   private void tabChangeListener(
@@ -80,17 +86,19 @@ public class MainPresenter {
       ViewPresenter presenter, WebScraper scraper, String currentSelection) {
     try {
       if (presenter.getCurrentDisplayType().equals(DisplayType.SCHEDULE)) {
-        logger.trace("Setting contents of Schedule table");
-        presenter.setScheduleContents(scraper.getSchedule(currentSelection));
+        List<Match> schedule = scraper.getSchedule(currentSelection);
+        logger.trace("Setting contents of Schedule table to {}", schedule);
+        presenter.setScheduleContents(schedule);
       } else {
-        logger.trace("Setting contents of Standing table");
-        presenter.setStandingsContents(scraper.getStandings(currentSelection));
+        List<Standing> standings = scraper.getStandings(currentSelection);
+        logger.trace("Setting contents of Standing table to {}", standings);
+        presenter.setStandingsContents(standings);
       }
     } catch (ConnectionFailureException cfx) {
       logger.warn("Failed to connect", cfx);
       presenter.setErrorText(cfx.getMessage());
-      presenter.setScheduleContents(FXCollections.emptyObservableList());
-      presenter.setStandingsContents(FXCollections.emptyObservableList());
+      presenter.setScheduleContents(Collections.emptyList());
+      presenter.setStandingsContents(Collections.emptyList());
     }
   }
 }
