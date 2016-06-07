@@ -1,4 +1,4 @@
-package nusports;
+package github.ptrteixeira.model;
 
 import javafx.beans.property.SimpleStringProperty;
 
@@ -10,12 +10,12 @@ import javafx.beans.property.SimpleStringProperty;
  * 
  * @author Peter
  */
-public class Standing {
+public final class Standing {
     private final SimpleStringProperty teamName;
     private final SimpleStringProperty conference;
     private final SimpleStringProperty overall;
     
-    public Standing(String teamName, String conference, String overall) {
+    Standing(String teamName, String conference, String overall) {
         this.teamName = new SimpleStringProperty(teamName);
         this.conference = new SimpleStringProperty(conference);
         this.overall = new SimpleStringProperty(overall);
