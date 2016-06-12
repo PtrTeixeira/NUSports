@@ -29,6 +29,9 @@ abstract class AbstractViewTab<T> extends Tab {
     this.setContent(this.createContent());
 
     this.errorText.setFill(Color.RED);
+    this.errorText.getStyleClass().add("error");
+
+    this.sportsSelector.getStyleClass().add("sportSelector");
   }
 
   private Node createContent() {

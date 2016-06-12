@@ -31,12 +31,18 @@ public class MainView implements ViewPresenter {
 
   MainView(ScheduleTab scheduleTab, StandingsTab standingsTab) {
     this.scheduleTab = scheduleTab;
-    this.standingsTab = standingsTab;
+    this.scheduleTab.setId("standingsTab");
 
-    this.displayType = DisplayType.STANDINGS;
+    this.standingsTab = standingsTab;
+    this.standingsTab.setId("scheduleTab");
+
+    this.displayType = DisplayType.SCHEDULE;
 
     this.tabPane = new TabPane();
+    this.tabPane.setId("tabPane");
+
     this.reloadButton = new Button("Reload");
+    reloadButton.setId("reload");
   }
 
   public MainView() {
@@ -48,6 +54,13 @@ public class MainView implements ViewPresenter {
     this.tabPane.getSelectionModel()
         .selectedItemProperty()
         .addListener(tabChangeListener);
+    this.tabPane.getSelectionModel()
+        .selectedItemProperty()
+        .addListener((observable, oldValue, newValue) ->
+          this.displayType = this.displayType.equals(DisplayType.SCHEDULE) ?
+              DisplayType.STANDINGS :
+              DisplayType.SCHEDULE
+    );
   }
 
   @Override
@@ -82,7 +95,7 @@ public class MainView implements ViewPresenter {
   }
 
   @Override
-  public DisplayType getCurrentDisplayType() {
+  public DisplayType currentDisplayType() {
     return this.displayType;
   }
 
@@ -101,13 +114,9 @@ public class MainView implements ViewPresenter {
 
   @Override
   public void setErrorText(String text) {
-    if (this.displayType.equals(DisplayType.SCHEDULE)) {
-      logger.trace("Set the error message for Schedule tab to \"{}\"", text);
-      this.scheduleTab.setErrorText(text);
-    } else {
-      logger.trace("Set the error message for Standings tab to \"{}\"", text);
-      this.standingsTab.setErrorText(text);
-    }
+    logger.trace("Set error message on UI to \"{}\"", text);
+    this.scheduleTab.setErrorText(text);
+    this.standingsTab.setErrorText(text);
   }
 
   @Override

@@ -14,8 +14,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-public class MainPresenter {
+public final class MainPresenter {
   private static final Logger logger = LogManager.getLogger();
 
   private final WebScraper scraper;
@@ -24,6 +25,9 @@ public class MainPresenter {
   private String currentDisplayItem;
 
   public MainPresenter(WebScraper scraper, ViewPresenter presenter) {
+    Objects.requireNonNull(scraper);
+    Objects.requireNonNull(presenter);
+
     this.scraper = scraper;
     this.presenter = presenter;
 
@@ -55,15 +59,6 @@ public class MainPresenter {
 
   private void tabChangeListener(
       ObservableValue<? extends Tab> observableValue, Tab oldValue, Tab newValue) {
-
-    if (presenter.getCurrentDisplayType().equals(DisplayType.SCHEDULE)) {
-      presenter.setCurrentDisplayType(DisplayType.STANDINGS);
-      logger.debug("Tab changed from Schedule to Standings");
-    } else {
-      presenter.setCurrentDisplayType(DisplayType.SCHEDULE);
-      logger.debug("Tab changed from Standings to Schedule");
-    }
-
     this.changeSelection(this.presenter, this.scraper, this.currentDisplayItem);
   }
 
@@ -85,7 +80,7 @@ public class MainPresenter {
   private void changeSelection(
       ViewPresenter presenter, WebScraper scraper, String currentSelection) {
     try {
-      if (presenter.getCurrentDisplayType().equals(DisplayType.SCHEDULE)) {
+      if (presenter.currentDisplayType().equals(DisplayType.SCHEDULE)) {
         List<Match> schedule = scraper.getSchedule(currentSelection);
         logger.trace("Setting contents of Schedule table to {}", schedule);
         presenter.setScheduleContents(schedule);

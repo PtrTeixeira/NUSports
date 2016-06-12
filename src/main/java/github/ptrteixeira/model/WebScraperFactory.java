@@ -16,13 +16,17 @@ public final class WebScraperFactory {
   private static final Logger logger = LogManager.getLogger();
 
   public WebScraper forSite(Site site) {
+    if (site == null) {
+      throw new IllegalArgumentException("Invalid argument when creating WebScraper");
+    }
+
     switch (site) {
       case CAA:
         logger.debug("Creating web scraper for CAA Sports website");
         return new NUWebScraper();
       default:
         logger.error("Given bad argument {} when creating web scraper", site);
-        throw new IllegalStateException("Invalid argument when creating WebScraper");
+        throw new IllegalArgumentException("Invalid argument when creating WebScraper");
     }
   }
 }

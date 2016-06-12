@@ -5,7 +5,8 @@ def versions = [
    checkstyle: '6.19',
    jsoup: '1.9.2',
    junit: '4.11',
-   log4j: '2.6'
+   log4j: '2.6',
+   testfx: '4.0.4-alpha'
 ]
 
 configurations {
@@ -41,7 +42,11 @@ repositories {
 dependencies {
   compile group: 'org.jsoup', name: 'jsoup', version: "${versions.jsoup}"
   compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${versions.log4j}"
+
   testCompile group: 'junit', name: 'junit', version: "${versions.junit}"
+  testCompile group: 'org.testfx', name: 'testfx-core', version: "${versions.testfx}"
+  testCompile group: 'org.testfx', name: 'testfx-junit', version: "${versions.testfx}"
+
   checkstyleConfig module(group: 'com.puppycrawl.tools', name: 'checkstyle', version: "${versions.checkstyle}") {
     transitive = false
   }
