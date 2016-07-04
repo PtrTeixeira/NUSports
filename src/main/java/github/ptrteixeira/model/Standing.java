@@ -17,7 +17,7 @@ public final class Standing {
     private final SimpleStringProperty conference;
     private final SimpleStringProperty overall;
     
-    Standing(String teamName, String conference, String overall) {
+    public Standing(String teamName, String conference, String overall) {
         this.teamName = new SimpleStringProperty(teamName);
         this.conference = new SimpleStringProperty(conference);
         this.overall = new SimpleStringProperty(overall);

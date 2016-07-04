@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -166,13 +167,45 @@ public class NUWebScraperTest {
   }
 
   @Test
-  public void getSelectableSports() throws Exception {
+  public void testGetSelectableSports() throws Exception {
     WebScraper webScraper = new NUWebScraper(null, null, null);
 
     assertThat(webScraper.getSelectableSports(), containsInAnyOrder(
         "Baseball", "Men's Basketball", "Women's Basketball",
         "Volleyball", "Men's Soccer", "Women's Soccer"
     ));
+  }
+
+  @Test
+  public void testConnectionFailureExceptionThrownOnIOFailureInGetStandings()
+      throws Exception {
+    DocumentSource documentSource = url -> {
+      throw new IOException();
+    };
+    HashMap<String, ObservableList<Standing>> standingsCache = new HashMap<>();
+    HashMap<String, ObservableList<Match>> scheduleCache = new HashMap<>();
+
+    WebScraper webScraper = new NUWebScraper(standingsCache,
+        scheduleCache, documentSource);
+
+    expectedException.expect(ConnectionFailureException.class);
+    webScraper.getStandings("Baseball");
+  }
+
+  @Test
+  public void testConnectionFailureExceptionThrownOnIOFailureInGetSchedule()
+      throws Exception {
+    DocumentSource documentSource = url -> {
+      throw new IOException();
+    };
+    HashMap<String, ObservableList<Standing>> standingsCache = new HashMap<>();
+    HashMap<String, ObservableList<Match>> scheduleCache = new HashMap<>();
+
+    WebScraper webScraper = new NUWebScraper(standingsCache,
+        scheduleCache, documentSource);
+
+    expectedException.expect(ConnectionFailureException.class);
+    webScraper.getSchedule("Baseball");
   }
 
 }

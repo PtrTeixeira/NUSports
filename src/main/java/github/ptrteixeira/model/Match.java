@@ -14,7 +14,7 @@ public final class Match {
     private final SimpleStringProperty opponent;
     private final SimpleStringProperty result;
     
-    Match(String date, String opponent, String result) {
+    public Match(String date, String opponent, String result) {
         this.date = new SimpleStringProperty(date);
         this.opponent = new SimpleStringProperty(opponent);
         this.result = new SimpleStringProperty(result);

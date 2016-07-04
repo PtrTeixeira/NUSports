@@ -57,8 +57,8 @@ public final class MainPresenter {
     this.currentDisplayItem = selectableSports.get(0);
   }
 
-  private void tabChangeListener(
-      ObservableValue<? extends Tab> observableValue, Tab oldValue, Tab newValue) {
+  private void tabChangeListener(ObservableValue<? extends Tab> observableValue,
+                                 Tab oldValue, Tab newValue) {
     this.changeSelection(this.presenter, this.scraper, this.currentDisplayItem);
   }
 
@@ -66,20 +66,31 @@ public final class MainPresenter {
     logger.debug("Reload clicked");
     this.scraper.clearCache(this.currentDisplayItem);
 
-    this.changeSelection(this.presenter, this.scraper, this.currentDisplayItem);
+    this.changeSelection(this.presenter, this.scraper, this.currentDisplayItem, true);
   }
 
-  private void selectionChangeListener(
-      ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
+  private void selectionChangeListener(ObservableValue<? extends String> observableValue,
+                                       String oldValue, String newValue) {
     logger.debug("Selected sport changed from {} to {}", oldValue, newValue);
     this.currentDisplayItem = newValue;
 
     this.changeSelection(this.presenter, this.scraper, newValue);
   }
 
-  private void changeSelection(
-      ViewPresenter presenter, WebScraper scraper, String currentSelection) {
+  private void changeSelection(ViewPresenter presenter, WebScraper scraper,
+                               String currentSelection) {
+    this.changeSelection(presenter, scraper, currentSelection, false);
+  }
+
+  private void changeSelection(ViewPresenter presenter, WebScraper scraper,
+                               String currentSelection, boolean isRefresh) {
     try {
+      presenter.clearErrorText();
+
+      if (presenter.currentDisplayType() == null) {
+        presenter.setCurrentDisplayType(DisplayType.SCHEDULE);
+      }
+
       if (presenter.currentDisplayType().equals(DisplayType.SCHEDULE)) {
         List<Match> schedule = scraper.getSchedule(currentSelection);
         logger.trace("Setting contents of Schedule table to {}", schedule);
@@ -92,8 +103,10 @@ public final class MainPresenter {
     } catch (ConnectionFailureException cfx) {
       logger.warn("Failed to connect", cfx);
       presenter.setErrorText(cfx.getMessage());
-      presenter.setScheduleContents(Collections.emptyList());
-      presenter.setStandingsContents(Collections.emptyList());
+      if (!isRefresh) {
+        presenter.setScheduleContents(Collections.emptyList());
+        presenter.setStandingsContents(Collections.emptyList());
+      }
     }
   }
 }
