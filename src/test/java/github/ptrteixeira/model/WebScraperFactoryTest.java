@@ -18,7 +18,7 @@ public class WebScraperFactoryTest {
   @Test
   public void forSiteThrowsErrorOnBadArgument() {
     WebScraperFactory factory = new WebScraperFactory();
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(NullPointerException.class);
     factory.forSite(null);
   }
 
