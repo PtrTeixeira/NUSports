@@ -32,8 +32,32 @@ tasks.withType(Checkstyle) {
   }
 }
 
+sourceSets {
+  uiTest {
+    java {
+      compileClasspath += sourceSets.main.output
+    }
+  }
+}
+
+configurations {
+  uiTestCompile.extendsFrom testCompile
+  uiTestRuntime.extendsFrom testRuntime
+}
+
+task uiTest(type: Test) {
+  testClassesDir = sourceSets.uiTest.output.classesDir
+  classpath = sourceSets.uiTest.runtimeClasspath
+  outputs.upToDateWhen { false }
+}
+
+check.dependsOn uiTest
+uiTest.mustRunAfter test
 
 
+tasks.withType(Test) {
+  reports.html.destination = file("${reporting.baseDir}/${name}")
+}
 
 repositories {
   mavenCentral()
@@ -44,10 +68,13 @@ dependencies {
   compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${versions.log4j}"
 
   testCompile group: 'junit', name: 'junit', version: "${versions.junit}"
-  testCompile group: 'org.testfx', name: 'testfx-core', version: "${versions.testfx}"
-  testCompile group: 'org.testfx', name: 'testfx-junit', version: "${versions.testfx}"
 
   checkstyleConfig module(group: 'com.puppycrawl.tools', name: 'checkstyle', version: "${versions.checkstyle}") {
     transitive = false
   }
+
+//  uiTestCompile sourceSets.main.output
+//  uiTestCompile configurations.testCompile
+  testCompile group: 'org.testfx', name: 'testfx-core', version: "${versions.testfx}"
+  testCompile group: 'org.testfx', name: 'testfx-junit', version: "${versions.testfx}"
 }
