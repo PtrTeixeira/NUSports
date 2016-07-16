@@ -8,7 +8,15 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 
 /**
- * Foreign source access layer
+ * Implementation of the access layer for foreign resources.
+ * In particular, it is designed to get relevant documents
+ * from the CAA website.
+ *
+ * <p>
+ * I am really not sure how much specification
+ * really needs to go in here; perhaps it would be better to just make
+ * this {@code DocumentSourceImpl}.
+ * </p>
  *
  * @author Peter Teixeira
  */

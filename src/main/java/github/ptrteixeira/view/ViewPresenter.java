@@ -18,18 +18,23 @@ import java.util.List;
  */
 public interface ViewPresenter {
   void registerTabSwitchCallback(ChangeListener<Tab> tabChangeListener);
+
   void registerReloadCallback(EventHandler<MouseEvent> reloadCallback);
+
   void registerSportSelectionCallback(ChangeListener<String> selectionChangeListener);
 
   void setSelectableSports(List<String> sports);
 
   void setScheduleContents(List<Match> scheduleContents);
+
   void setStandingsContents(List<Standing> standingsContents);
 
   DisplayType currentDisplayType();
+
   void setCurrentDisplayType(DisplayType displayType);
 
   void clearErrorText();
+
   void setErrorText(String text);
 
   Pane createView();

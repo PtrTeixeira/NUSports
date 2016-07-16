@@ -1,13 +1,5 @@
 package github.ptrteixeira.view;
 
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import org.junit.After;
-import org.junit.Test;
-import org.testfx.framework.junit.ApplicationTest;
-
-import java.util.Collections;
-
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
@@ -16,7 +8,21 @@ import static org.testfx.matcher.base.NodeMatchers.hasChildren;
 import static org.testfx.matcher.base.NodeMatchers.hasText;
 import static org.testfx.matcher.base.NodeMatchers.isVisible;
 
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import org.junit.After;
+import org.junit.Test;
+import org.testfx.framework.junit.ApplicationTest;
+
+import java.util.Collections;
+
 /**
+ * Test class for user interface.
+ *
+ * <p>
+ *   Uses TestFX as the runner and automation tool for JavaFX.
+ * </p>
+ *
  * @author Peter Teixeira
  */
 public class MainViewSpec extends ApplicationTest {

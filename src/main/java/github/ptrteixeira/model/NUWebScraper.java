@@ -21,11 +21,13 @@ import java.util.function.Function;
  * Scrape the CAA site, in particular, to get information relevant to
  * Northeastern.
  *
+ * <p>
  * It is extremely tightly tied to the actual structure of the CAA site, but I
  * couldn't find a REST endpoint or anything similar that would allow me to
  * trivially extract the information that I needed. So it just scrapes straight
  * off of HTML, which works until the CAA changes how their site is laid out
  * again.
+ * </p>
  *
  * @author Peter
  */
@@ -42,15 +44,6 @@ final class NUWebScraper implements WebScraper {
     this.standingsCache = standingsCache;
     this.scheduleCache = scheduleCache;
     this.documentSource = documentSource;
-  }
-
-  @Override
-  public void clearCache(String sport) {
-    Objects.requireNonNull(sport);
-
-    logger.debug("Clearing the cache for \"{}\"", sport);
-    this.scheduleCache.remove(sport);
-    this.standingsCache.remove(sport);
   }
 
   @Override
@@ -79,8 +72,8 @@ final class NUWebScraper implements WebScraper {
       logger.debug("Found standings data on the web for \"{}\". Writing to cache.", sport);
       this.standingsCache.put(sport, data);
       return data;
-    } catch (IOException e) {
-      logger.warn("Connection failure getting standings data", e);
+    } catch (IOException iex) {
+      logger.warn("Connection failure getting standings data", iex);
       throw new ConnectionFailureException("Failed to connect to the internet.");
     }
   }
@@ -107,8 +100,8 @@ final class NUWebScraper implements WebScraper {
       logger.debug("Found schedule data on the web for {}. Writing to cache.", sport);
       this.scheduleCache.put(sport, data);
       return data;
-    } catch (IOException e) {
-      logger.trace("Connection failure getting schedule data", e.fillInStackTrace());
+    } catch (IOException iex) {
+      logger.trace("Connection failure getting schedule data", iex.fillInStackTrace());
       throw new ConnectionFailureException("Failed to connect to the internet.");
     }
   }
@@ -123,79 +116,13 @@ final class NUWebScraper implements WebScraper {
     return sports;
   }
 
-  // In general, the standings tables look like
-  // Hofstra | 0 - 12 | 0.000 | 5 - 25 | 0.2000
-  // So this just grabs the correct elements.
-  // Parse a generic standing table row into a Standing object
-  private Standing parseNormalStanding(Element e) {
-    return new Standing(
-        e.child(0).text(), // School
-        e.child(1).text(), // Conference Results
-        e.child(3).text());           // Overall Results
-  }
+  @Override
+  public void clearCache(String sport) {
+    Objects.requireNonNull(sport);
 
-    // In contrast, soccer standings look like 
-  // Hofstra | 0-12 | 0.000 | 0 | 5 - 25 | 0.200 | 15
-  // Where the extra elements are points. So this just corrects for the 
-  // change.
-  // Parse a soccer standing table row into a Standing object
-  private Standing parseSoccerStanding(Element e) {
-    return new Standing(
-        e.child(0).text(), // School
-        e.child(1).text(), // Conference Results
-        e.child(4).text());// Overall results
-  }
-
-  private Function<Element, Standing> standingsParser(String sport) {
-    if (sport.equals("Men's Soccer") || sport.equals("Women's Soccer")) {
-      return this::parseSoccerStanding;
-    } else {
-      return this::parseNormalStanding;
-    }
-  }
-
-  // Parse the table row in the document into a Match
-  private Match parseMatch(Element e) {
-    String opponent;
-    int northeasternIndex;
-    int opponentIndex;
-    if (e.child(1).text().equals("Northeastern")) {
-      opponent = e.child(4).text();
-      northeasternIndex = 1;
-      opponentIndex = 4;
-    } else {
-      opponent = e.child(1).text();
-      northeasternIndex = 4;
-      opponentIndex = 1;
-    }
-
-    String result;
-    if (e.child(northeasternIndex).hasClass("won")) {
-      result = String.format("%s %s - %s", "W", e.child(2).text().trim(), e.child(5).text().trim());
-    } else if (e.child(opponentIndex).hasClass("won")) {
-      result = String.format("%s %s - %s", "L", e.child(2).text().trim(), e.child(5).text().trim());
-    } else {
-      result = "";
-    }
-
-    String date = this.getDate(e);
-
-    return new Match(date, opponent, result);
-  }
-
-  // Look up through the table until it hits a row that contains the date
-  private String getDate(Element e) {
-    while (e != null && !e.hasAttr("data-date")) {
-      if (e.previousElementSibling() != null) {
-        e = e.previousElementSibling();
-      }
-    }
-
-    if (e != null && e.hasAttr("data-date")) {
-      return e.attr("data-date");
-    } else {
-      return "";
-    }
+    logger.info("Clearing the cache for \"{}\"", sport);
+    this.scheduleCache.remove(sport);
+    this.standingsCache.remove(sport);
   }
 
   // Extract all elements in e1 with a class of sport
@@ -204,30 +131,7 @@ final class NUWebScraper implements WebScraper {
     return el.select(sport);
   }
 
-    // Convert the given string sport into a url sport path
-  // Called in generating standings tables
-  private String sportToPath(String sport) {
-    logger.trace("Getting URL path for \"{}\"", sport);
-
-    switch (sport) {
-      case "Baseball":
-        return "baseball";
-      case "Men's Basketball":
-        return "mbball";
-      case "Men's Soccer":
-        return "msoc";
-      case "Women's Basketball":
-        return "wbball";
-      case "Women's Soccer":
-        return "wsoc";
-      case "Volleyball":
-        return "wvball";
-      default:
-        return "";
-    }
-  }
-
-    // Convert the given string sport into an HTML class 
+  // Convert the given string sport into an HTML class
   // Used in extracting data from the calendar
   private String sportToClass(String sport) {
     logger.debug("Finding CSS class for \"{}\"", sport);
@@ -275,5 +179,103 @@ final class NUWebScraper implements WebScraper {
      * class sport_27 = Women's Track and Field
      * class sport_28 = Wrestling
      */
+  }
+
+  private Function<Element, Standing> standingsParser(String sport) {
+    if (sport.equals("Men's Soccer") || sport.equals("Women's Soccer")) {
+      return this::parseSoccerStanding;
+    } else {
+      return this::parseNormalStanding;
+    }
+  }
+
+  // Convert the given string sport into a url sport path
+  // Called in generating standings tables
+  private String sportToPath(String sport) {
+    logger.trace("Getting URL path for \"{}\"", sport);
+
+    switch (sport) {
+      case "Baseball":
+        return "baseball";
+      case "Men's Basketball":
+        return "mbball";
+      case "Men's Soccer":
+        return "msoc";
+      case "Women's Basketball":
+        return "wbball";
+      case "Women's Soccer":
+        return "wsoc";
+      case "Volleyball":
+        return "wvball";
+      default:
+        return "";
+    }
+  }
+
+  // In general, the standings tables look like
+  // Hofstra | 0 - 12 | 0.000 | 5 - 25 | 0.2000
+  // So this just grabs the correct elements.
+  // Parse a generic standing table row into a Standing object
+  private Standing parseNormalStanding(Element element) {
+    return new Standing(
+        element.child(0).text(), // School
+        element.child(1).text(), // Conference Results
+        element.child(3).text());           // Overall Results
+  }
+
+  // In contrast, soccer standings look like
+  // Hofstra | 0-12 | 0.000 | 0 | 5 - 25 | 0.200 | 15
+  // Where the extra elements are points. So this just corrects for the
+  // change.
+  // Parse a soccer standing table row into a Standing object
+  private Standing parseSoccerStanding(Element element) {
+    return new Standing(
+        element.child(0).text(), // School
+        element.child(1).text(), // Conference Results
+        element.child(4).text());// Overall results
+  }
+
+  // Parse the table row in the document into a Match
+  private Match parseMatch(Element e) {
+    String opponent;
+    int northeasternIndex;
+    int opponentIndex;
+    if (e.child(1).text().equals("Northeastern")) {
+      opponent = e.child(4).text();
+      northeasternIndex = 1;
+      opponentIndex = 4;
+    } else {
+      opponent = e.child(1).text();
+      northeasternIndex = 4;
+      opponentIndex = 1;
+    }
+
+    String result;
+    if (e.child(northeasternIndex).hasClass("won")) {
+      result = String.format("%s %s - %s", "W", e.child(2).text().trim(), e.child(5).text().trim());
+    } else if (e.child(opponentIndex).hasClass("won")) {
+      result = String.format("%s %s - %s", "L", e.child(2).text().trim(), e.child(5).text().trim());
+    } else {
+      result = "";
+    }
+
+    String date = this.getDate(e);
+
+    return new Match(date, opponent, result);
+  }
+
+  // Look up through the table until it hits a row that contains the date
+  private String getDate(Element e) {
+    while (e != null && !e.hasAttr("data-date")) {
+      if (e.previousElementSibling() != null) {
+        e = e.previousElementSibling();
+      }
+    }
+
+    if (e != null && e.hasAttr("data-date")) {
+      return e.attr("data-date");
+    } else {
+      return "";
+    }
   }
 }
