@@ -1,0 +1,28 @@
+apply plugin: "checkstyle"
+
+def version = "7.0"
+
+repositories {
+  mavenCentral()
+}
+
+checkstyle {
+  toolVersion = "${version}"
+}
+
+configurations {
+  checkstyleConfig
+}
+
+tasks.withType(Checkstyle) {
+  config = resources.text.fromArchiveEntry(configurations.checkstyleConfig, 'google_checks.xml')
+  reports {
+    html.destination rootProject.file("build/reports/style.html")
+  }
+}
+
+dependencies {
+  checkstyleConfig module(group: 'com.puppycrawl.tools', name: 'checkstyle', version: "${version}") {
+    transitive = false
+  }
+}
