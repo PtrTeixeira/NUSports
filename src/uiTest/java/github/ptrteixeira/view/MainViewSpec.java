@@ -10,6 +10,7 @@ import java.util.Collections;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeThat;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.base.NodeMatchers.hasChildren;
 import static org.testfx.matcher.base.NodeMatchers.hasText;
@@ -72,7 +73,7 @@ public class MainViewSpec extends ApplicationTest {
 
   @Test
   public void testCanChangeSportSelection() {
-    assertThat(this.presenter.selectedSport(), is(""));
+    assumeThat(this.presenter.selectedSport(), is(""));
 
     clickOn(".sportSelector");
     clickOn("Sport 2");

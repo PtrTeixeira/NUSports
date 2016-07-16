@@ -5,9 +5,6 @@ import github.ptrteixeira.model.WebScraper;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by pteixeira on 6/11/16.
- */
 final class DummyPresenter {
   private final WebScraper scraper;
   private final ViewPresenter viewPresenter;

@@ -36,6 +36,7 @@ sourceSets {
   uiTest {
     java {
       compileClasspath += sourceSets.main.output
+      runtimeClasspath += sourceSets.main.output
     }
   }
 }
@@ -49,10 +50,18 @@ task uiTest(type: Test) {
   testClassesDir = sourceSets.uiTest.output.classesDir
   classpath = sourceSets.uiTest.runtimeClasspath
   outputs.upToDateWhen { false }
+  jvmArgs(
+     '-Dtestfx.robot=glass',
+     '-Dglass.platform=Monocle',
+     '-Dmonocle.platform=Headless',
+     '-Dprism.order=sw'
+  )
+  onlyIf { project.hasProperty('uiTest') }
+  mustRunAfter test
 }
-
 check.dependsOn uiTest
-uiTest.mustRunAfter test
+
+uiTest.enabled = false
 
 
 tasks.withType(Test) {

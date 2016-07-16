@@ -70,8 +70,8 @@ public class MainView implements ViewPresenter {
 
   @Override
   public void registerSportSelectionCallback(ChangeListener<String> selectionChangeListener) {
-    // TODO implement
-    // throw new NotImplementedException();
+    this.scheduleTab.registerSportSelections(selectionChangeListener);
+    this.standingsTab.registerSportSelections(selectionChangeListener);
   }
 
   @Override
