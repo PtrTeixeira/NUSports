@@ -41,6 +41,8 @@ final class ScheduleTab extends AbstractViewTab<Match> {
     tableView.getColumns().add(opponent);
     tableView.getColumns().add(result);
 
+    tableView.setId("scheduleTable");
+
     return tableView;
   }
 

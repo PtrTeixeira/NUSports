@@ -4,17 +4,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 
@@ -35,14 +34,20 @@ final class NUWebScraper implements WebScraper {
 
   private final Map<String, ObservableList<Standing>> standingsCache;
   private final Map<String, ObservableList<Match>> scheduleCache;
+  private final DocumentSource documentSource;
 
-  NUWebScraper() {
-    this.standingsCache = new HashMap<>();
-    this.scheduleCache = new HashMap<>();
+  NUWebScraper(Map<String, ObservableList<Standing>> standingsCache,
+               Map<String, ObservableList<Match>> scheduleCache,
+               DocumentSource documentSource) {
+    this.standingsCache = standingsCache;
+    this.scheduleCache = scheduleCache;
+    this.documentSource = documentSource;
   }
 
   @Override
   public void clearCache(String sport) {
+    Objects.requireNonNull(sport);
+
     logger.info("Clearing the cache for \"{}\"", sport);
     this.scheduleCache.remove(sport);
     this.standingsCache.remove(sport);
@@ -60,9 +65,7 @@ final class NUWebScraper implements WebScraper {
       ObservableList<Standing> data = FXCollections.observableArrayList();
       String queryPath = "http://caasports.com/standings.aspx?path=" + this.sportToPath(sport);
       logger.debug("Making query to path {}", queryPath);
-      Document doc = Jsoup.connect(queryPath)
-          .userAgent("Chrome/51")
-          .get();
+      Document doc = documentSource.get(queryPath);
 
       Elements rows = doc.getElementsByClass("default_dgrd") // list of <table>
           .first() // <table>
@@ -94,17 +97,13 @@ final class NUWebScraper implements WebScraper {
       ObservableList<Match> data = FXCollections.observableArrayList();
       String queryPath = "http://caasports.com/calendar.aspx";
       logger.debug("Making query to path {}", queryPath);
-      Document doc = Jsoup.connect(queryPath)
-          .header("Connection", "keep-alive")
-          .header("Accept-Encoding", "gzip, deflate, sdch")
-          .userAgent("Chrome/51")
-          .maxBodySize(0)
-          .timeout(7000)
-          .get();
+      Document doc = documentSource.get(queryPath);
 
-      Elements nuGames = this.extractSport(doc.getElementsByClass("sport_3"), sport);
+      Elements nuGames = this.extractSport(doc.getElementsByClass("school_3"), sport);
 
-      nuGames.stream().map(this::parseMatch).forEach(data::add);
+      nuGames.stream()
+          .map(this::parseMatch)
+          .forEach(data::add);
 
       logger.debug("Found schedule data on the web for {}. Writing to cache.", sport);
       this.scheduleCache.put(sport, data);
@@ -117,7 +116,12 @@ final class NUWebScraper implements WebScraper {
 
   @Override
   public List<String> getSelectableSports() {
-    return Collections.singletonList("Men's Basketball");
+    List<String> sports = new ArrayList<>();
+    Collections.addAll(sports,
+        "Men's Basketball", "Women's Basketball", "Baseball",
+        "Men's Soccer", "Women's Soccer", "Volleyball");
+
+    return sports;
   }
 
   // In general, the standings tables look like
@@ -165,9 +169,9 @@ final class NUWebScraper implements WebScraper {
 
     String result;
     if (e.child(northeasternIndex).hasClass("won")) {
-      result = MessageFormat.format("{} {} - {}", "W", e.child(2).text(), e.child(5).text());
+      result = String.format("%s %s - %s", "W", e.child(2).text().trim(), e.child(5).text().trim());
     } else {
-      result = MessageFormat.format("{} {} - {}", "L", e.child(2).text(), e.child(5).text());
+      result = String.format("%s %s - %s", "L", e.child(2).text().trim(), e.child(5).text().trim());
     }
 
     String date = this.getDate(e);

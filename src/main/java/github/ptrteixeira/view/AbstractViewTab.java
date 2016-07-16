@@ -1,5 +1,6 @@
 package github.ptrteixeira.view;
 
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -29,6 +30,9 @@ abstract class AbstractViewTab<T> extends Tab {
     this.setContent(this.createContent());
 
     this.errorText.setFill(Color.RED);
+    this.errorText.getStyleClass().add("error");
+
+    this.sportsSelector.getStyleClass().add("sportSelector");
   }
 
   private Node createContent() {
@@ -67,5 +71,7 @@ abstract class AbstractViewTab<T> extends Tab {
     this.sportsSelector.getSelectionModel().select(0);
   }
 
-
+  final void registerSportSelections(ChangeListener<String> selectionChangeListener) {
+    this.sportsSelector.valueProperty().addListener(selectionChangeListener);
+  }
 }

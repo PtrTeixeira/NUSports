@@ -26,7 +26,7 @@ public interface ViewPresenter {
   void setScheduleContents(List<Match> scheduleContents);
   void setStandingsContents(List<Standing> standingsContents);
 
-  DisplayType getCurrentDisplayType();
+  DisplayType currentDisplayType();
   void setCurrentDisplayType(DisplayType displayType);
 
   void clearErrorText();

@@ -14,8 +14,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-public class MainPresenter {
+public final class MainPresenter {
   private static final Logger logger = LogManager.getLogger();
 
   private final WebScraper scraper;
@@ -24,6 +25,9 @@ public class MainPresenter {
   private String currentDisplayItem;
 
   public MainPresenter(WebScraper scraper, ViewPresenter presenter) {
+    Objects.requireNonNull(scraper);
+    Objects.requireNonNull(presenter);
+
     this.scraper = scraper;
     this.presenter = presenter;
 
@@ -53,17 +57,8 @@ public class MainPresenter {
     this.currentDisplayItem = selectableSports.get(0);
   }
 
-  private void tabChangeListener(
-      ObservableValue<? extends Tab> observableValue, Tab oldValue, Tab newValue) {
-
-    if (presenter.getCurrentDisplayType().equals(DisplayType.SCHEDULE)) {
-      presenter.setCurrentDisplayType(DisplayType.STANDINGS);
-      logger.debug("Tab changed from Schedule to Standings");
-    } else {
-      presenter.setCurrentDisplayType(DisplayType.SCHEDULE);
-      logger.debug("Tab changed from Standings to Schedule");
-    }
-
+  private void tabChangeListener(ObservableValue<? extends Tab> observableValue,
+                                 Tab oldValue, Tab newValue) {
     this.changeSelection(this.presenter, this.scraper, this.currentDisplayItem);
   }
 
@@ -71,21 +66,32 @@ public class MainPresenter {
     logger.debug("Reload clicked");
     this.scraper.clearCache(this.currentDisplayItem);
 
-    this.changeSelection(this.presenter, this.scraper, this.currentDisplayItem);
+    this.changeSelection(this.presenter, this.scraper, this.currentDisplayItem, true);
   }
 
-  private void selectionChangeListener(
-      ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
+  private void selectionChangeListener(ObservableValue<? extends String> observableValue,
+                                       String oldValue, String newValue) {
     logger.debug("Selected sport changed from {} to {}", oldValue, newValue);
     this.currentDisplayItem = newValue;
 
     this.changeSelection(this.presenter, this.scraper, newValue);
   }
 
-  private void changeSelection(
-      ViewPresenter presenter, WebScraper scraper, String currentSelection) {
+  private void changeSelection(ViewPresenter presenter, WebScraper scraper,
+                               String currentSelection) {
+    this.changeSelection(presenter, scraper, currentSelection, false);
+  }
+
+  private void changeSelection(ViewPresenter presenter, WebScraper scraper,
+                               String currentSelection, boolean isRefresh) {
     try {
-      if (presenter.getCurrentDisplayType().equals(DisplayType.SCHEDULE)) {
+      presenter.clearErrorText();
+
+      if (presenter.currentDisplayType() == null) {
+        presenter.setCurrentDisplayType(DisplayType.SCHEDULE);
+      }
+
+      if (presenter.currentDisplayType().equals(DisplayType.SCHEDULE)) {
         List<Match> schedule = scraper.getSchedule(currentSelection);
         logger.trace("Setting contents of Schedule table to {}", schedule);
         presenter.setScheduleContents(schedule);
@@ -97,8 +103,10 @@ public class MainPresenter {
     } catch (ConnectionFailureException cfx) {
       logger.warn("Failed to connect", cfx);
       presenter.setErrorText(cfx.getMessage());
-      presenter.setScheduleContents(Collections.emptyList());
-      presenter.setStandingsContents(Collections.emptyList());
+      if (!isRefresh) {
+        presenter.setScheduleContents(Collections.emptyList());
+        presenter.setStandingsContents(Collections.emptyList());
+      }
     }
   }
 }

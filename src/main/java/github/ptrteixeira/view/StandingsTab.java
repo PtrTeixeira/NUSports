@@ -41,6 +41,8 @@ final class StandingsTab extends AbstractViewTab<Standing> {
     tableView.getColumns().add(conference);
     tableView.getColumns().add(overall);
 
+    tableView.setId("standingsTable");
+
     return tableView;
   }
 

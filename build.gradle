@@ -4,8 +4,9 @@ version '0.1.0'
 def versions = [
    checkstyle: '6.19',
    jsoup: '1.9.2',
-   junit: '4.11',
-   log4j: '2.6'
+   junit: '4.12',
+   log4j: '2.6',
+   testfx: '4.0.4-alpha'
 ]
 
 configurations {
@@ -31,8 +32,41 @@ tasks.withType(Checkstyle) {
   }
 }
 
+sourceSets {
+  uiTest {
+    java {
+      compileClasspath += sourceSets.main.output
+      runtimeClasspath += sourceSets.main.output
+    }
+  }
+}
+
+configurations {
+  uiTestCompile.extendsFrom testCompile
+  uiTestRuntime.extendsFrom testRuntime
+}
+
+task uiTest(type: Test) {
+  testClassesDir = sourceSets.uiTest.output.classesDir
+  classpath = sourceSets.uiTest.runtimeClasspath
+  outputs.upToDateWhen { false }
+  jvmArgs(
+     '-Dtestfx.robot=glass',
+     '-Dglass.platform=Monocle',
+     '-Dmonocle.platform=Headless',
+     '-Dprism.order=sw'
+  )
+  onlyIf { project.hasProperty('uiTest') }
+  mustRunAfter test
+}
+check.dependsOn uiTest
+
+uiTest.enabled = false
 
 
+tasks.withType(Test) {
+  reports.html.destination = file("${reporting.baseDir}/${name}")
+}
 
 repositories {
   mavenCentral()
@@ -41,8 +75,15 @@ repositories {
 dependencies {
   compile group: 'org.jsoup', name: 'jsoup', version: "${versions.jsoup}"
   compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${versions.log4j}"
+
   testCompile group: 'junit', name: 'junit', version: "${versions.junit}"
+
   checkstyleConfig module(group: 'com.puppycrawl.tools', name: 'checkstyle', version: "${versions.checkstyle}") {
     transitive = false
   }
+
+//  uiTestCompile sourceSets.main.output
+//  uiTestCompile configurations.testCompile
+  testCompile group: 'org.testfx', name: 'testfx-core', version: "${versions.testfx}"
+  testCompile group: 'org.testfx', name: 'testfx-junit', version: "${versions.testfx}"
 }
