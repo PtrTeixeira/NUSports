@@ -4,3 +4,8 @@ machine:
 test:
   override:
     - ./gradlew check
+  post: 
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - find . -type f -wholename "./build/test-results/*.xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+    - cp build/reports/style.html $CIRCLE_ARTIFACTS/style.html
+
