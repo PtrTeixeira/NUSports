@@ -54,7 +54,8 @@ final class NUWebScraper implements WebScraper {
     }
 
     try {
-      logger.debug("Standings for \"{}\" not found in cache; connecting to external source.", sport);
+      logger.debug("Standings for \"{}\" not found in cache; "
+          + "connecting to external source.", sport);
       ObservableList<Standing> data = FXCollections.observableArrayList();
       String queryPath = "http://caasports.com/standings.aspx?path=" + this.sportToPath(sport);
       logger.debug("Making query to path {}", queryPath);
@@ -128,6 +129,7 @@ final class NUWebScraper implements WebScraper {
   // Extract all elements in e1 with a class of sport
   private Elements extractSport(Elements el, String sport) {
     sport = "." + this.sportToClass(sport);
+
     return el.select(sport);
   }
 
@@ -236,44 +238,53 @@ final class NUWebScraper implements WebScraper {
   }
 
   // Parse the table row in the document into a Match
-  private Match parseMatch(Element e) {
+  private Match parseMatch(Element element) {
     String opponent;
     int northeasternIndex;
     int opponentIndex;
-    if (e.child(1).text().equals("Northeastern")) {
-      opponent = e.child(4).text();
+    if (element.child(1).text().equals("Northeastern")) {
+      opponent = element.child(4).text();
       northeasternIndex = 1;
       opponentIndex = 4;
     } else {
-      opponent = e.child(1).text();
+      opponent = element.child(1).text();
       northeasternIndex = 4;
       opponentIndex = 1;
     }
 
     String result;
-    if (e.child(northeasternIndex).hasClass("won")) {
-      result = String.format("%s %s - %s", "W", e.child(2).text().trim(), e.child(5).text().trim());
-    } else if (e.child(opponentIndex).hasClass("won")) {
-      result = String.format("%s %s - %s", "L", e.child(2).text().trim(), e.child(5).text().trim());
+    final String outputFormat = "%s %s - %s";
+    if (element.child(northeasternIndex).hasClass("won")) {
+      result = String.format(
+          outputFormat,
+          "W",
+          element.child(2).text().trim(),
+          element.child(5).text().trim());
+    } else if (element.child(opponentIndex).hasClass("won")) {
+      result = String.format(
+          outputFormat,
+          "L",
+          element.child(2).text().trim(),
+          element.child(5).text().trim());
     } else {
       result = "";
     }
 
-    String date = this.getDate(e);
+    String date = this.getDate(element);
 
     return new Match(date, opponent, result);
   }
 
   // Look up through the table until it hits a row that contains the date
-  private String getDate(Element e) {
-    while (e != null && !e.hasAttr("data-date")) {
-      if (e.previousElementSibling() != null) {
-        e = e.previousElementSibling();
+  private String getDate(Element element) {
+    while (element != null && !element.hasAttr("data-date")) {
+      if (element.previousElementSibling() != null) {
+        element = element.previousElementSibling();
       }
     }
 
-    if (e != null && e.hasAttr("data-date")) {
-      return e.attr("data-date");
+    if (element != null && element.hasAttr("data-date")) {
+      return element.attr("data-date");
     } else {
       return "";
     }

@@ -18,7 +18,6 @@ import java.util.List;
  * @author Peter Teixeira
  */
 abstract class AbstractViewTab<T> extends Tab {
-//  private final StringPropertyBase errorText;
   private final Text errorText = new Text("");
   private final ObservableList<String> sportSelections =
       FXCollections.observableArrayList();

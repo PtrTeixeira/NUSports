@@ -16,6 +16,7 @@ import javafx.stage.Stage;
  */
 public class NUSports extends Application {
 
+  @Override
   public void start(Stage primaryStage) {
     ViewPresenter view = new MainView();
     WebScraper scraper = new WebScraperFactory().forSite(Site.CAA);
@@ -32,6 +33,8 @@ public class NUSports extends Application {
   }
 
   /**
+   * Entry point for application.
+   *
    * @param args the command line arguments
    */
   public static void main(String[] args) {

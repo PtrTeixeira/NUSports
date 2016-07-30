@@ -23,8 +23,8 @@ public interface WebScraper {
 
   /**
    * Get the schedule for a specific team in the given sport.
-   * <p>
-   * For this particular project, the team (Northeastern) is dictated as
+   *
+   * <p>For this particular project, the team (Northeastern) is dictated as
    * part of the definition of the web scraper. It may be better to extend
    * this so that it takes the team name and the name of the sport.
    *

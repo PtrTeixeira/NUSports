@@ -6,8 +6,8 @@ import java.util.Objects;
 
 /**
  * JavaBean wrapper for sports win/loss records records.
- * <p>
- * In context, used to generate relative standings between teams by sorting
+ *
+ * <p>In context, used to generate relative standings between teams by sorting
  * by their win/loss records.
  *
  * @author Peter
@@ -53,14 +53,14 @@ public final class Standing {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
+  public boolean equals(Object other) {
+    if (this == other) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (other == null || getClass() != other.getClass()) {
       return false;
     }
-    Standing standing = (Standing) o;
+    Standing standing = (Standing) other;
     return Objects.equals(teamName, standing.teamName)
         && Objects.equals(conference, standing.conference)
         && Objects.equals(overall, standing.overall);
