@@ -1,5 +1,17 @@
 package github.ptrteixeira.model;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.IsNot.not;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.jsoup.Jsoup;
@@ -10,17 +22,6 @@ import org.junit.rules.ExpectedException;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.core.IsNot.not;
 
 /**
  * @author Peter Teixeira
@@ -123,12 +124,14 @@ public class NUWebScraperTest {
         scheduleCache, documentSource);
 
     ObservableList<Match> results = webScraper.getSchedule("Baseball");
-
     assertThat(results, is(not(nullValue())));
-    assertThat(results, hasSize(4));
+    assertThat(results, hasSize(1));
+    assertThat(results, contains(
+        both(hasProperty("opponent", is("Oklahoma")))
+            .and(hasProperty("result", is("W 3 - 2")))));
 
     assertThat(scheduleCache.keySet(), contains("Baseball"));
-    assertThat(scheduleCache.get("Baseball"), hasSize(4));
+    assertThat(scheduleCache.get("Baseball"), hasSize(1));
 
     assertThat(standingsCache.keySet(), is(empty()));
   }
