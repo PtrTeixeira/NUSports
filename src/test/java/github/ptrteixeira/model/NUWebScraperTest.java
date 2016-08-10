@@ -22,6 +22,8 @@ import org.junit.rules.ExpectedException;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Peter Teixeira
@@ -136,7 +138,7 @@ public class NUWebScraperTest {
     assertThat(standingsCache.keySet(), is(empty()));
   }
 
-  @Test
+  @Test @SuppressWarnings("unchecked")
   public void getStandingsOnItemNotInCacheParsesAndStoresInCache() throws Exception {
     DocumentSource documentSource = url ->
         Jsoup.parse(new File("src/test/resources/test_standings.html"), "UTF8", ".");
@@ -211,4 +213,25 @@ public class NUWebScraperTest {
     webScraper.getSchedule("Baseball");
   }
 
+  @Test
+  public void testCorrectlyParsesResultsWhenGameNotYetPlayed() throws Exception {
+    DocumentSource source = url ->
+        Jsoup.parse(
+            new File("src/test/resources/test_schedule_unplayed_games.html"),
+            "UTF8",
+            ".");
+
+    HashMap<String, ObservableList<Standing>> standingsCache = new HashMap<>();
+    HashMap<String, ObservableList<Match>> scheduleCache = new HashMap<>();
+
+    WebScraper webScraper = new NUWebScraper(standingsCache, scheduleCache, source);
+
+    List<Match> matches = webScraper.getSchedule("Baseball");
+    List<String> results = matches.stream()
+        .map(Match::getResult)
+        .collect(Collectors.toList());
+
+    assertThat(results, hasSize(1));
+    assertThat(results, contains(""));
+  }
 }

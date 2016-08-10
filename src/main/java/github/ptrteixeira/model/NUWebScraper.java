@@ -48,7 +48,7 @@ final class NUWebScraper implements WebScraper {
   public void clearCache(String sport) {
     Objects.requireNonNull(sport);
 
-    logger.info("Clearing the cache for \"{}\"", sport);
+    logger.debug("Clearing the cache for \"{}\"", sport);
     this.scheduleCache.remove(sport);
     this.standingsCache.remove(sport);
   }
@@ -61,7 +61,7 @@ final class NUWebScraper implements WebScraper {
     }
 
     try {
-      logger.debug("Standings for \"{}\" not found in cache; connecting to internet.", sport);
+      logger.debug("Standings for \"{}\" not found in cache; connecting to external source.", sport);
       ObservableList<Standing> data = FXCollections.observableArrayList();
       String queryPath = "http://caasports.com/standings.aspx?path=" + this.sportToPath(sport);
       logger.debug("Making query to path {}", queryPath);
@@ -69,7 +69,7 @@ final class NUWebScraper implements WebScraper {
 
       Elements rows = doc.getElementsByClass("default_dgrd") // list of <table>
           .first() // <table>
-          .children() // list of <tbody>
+          .getElementsByTag("tbody") // list of <tbody>
           .first() // <tbody>
           .children();                          // list of <tr>
       rows.remove(0);                               // drop header
@@ -93,10 +93,9 @@ final class NUWebScraper implements WebScraper {
     }
 
     try {
-      logger.debug("Schedule for \"{}\" not found in cache; connecting to internet", sport);
+      logger.debug("Schedule for \"{}\" not found in cache; connecting to external source", sport);
       ObservableList<Match> data = FXCollections.observableArrayList();
       String queryPath = "http://caasports.com/calendar.aspx";
-      logger.debug("Making query to path {}", queryPath);
       Document doc = documentSource.get(queryPath);
 
       Elements nuGames = this.extractSport(doc.getElementsByClass("school_3"), sport);
@@ -159,19 +158,24 @@ final class NUWebScraper implements WebScraper {
   private Match parseMatch(Element e) {
     String opponent;
     int northeasternIndex;
+    int opponentIndex;
     if (e.child(1).text().equals("Northeastern")) {
       opponent = e.child(4).text();
       northeasternIndex = 1;
+      opponentIndex = 4;
     } else {
       opponent = e.child(1).text();
       northeasternIndex = 4;
+      opponentIndex = 1;
     }
 
     String result;
     if (e.child(northeasternIndex).hasClass("won")) {
       result = String.format("%s %s - %s", "W", e.child(2).text().trim(), e.child(5).text().trim());
-    } else {
+    } else if (e.child(opponentIndex).hasClass("won")) {
       result = String.format("%s %s - %s", "L", e.child(2).text().trim(), e.child(5).text().trim());
+    } else {
+      result = "";
     }
 
     String date = this.getDate(e);
@@ -197,7 +201,6 @@ final class NUWebScraper implements WebScraper {
   // Extract all elements in e1 with a class of sport
   private Elements extractSport(Elements el, String sport) {
     sport = "." + this.sportToClass(sport);
-
     return el.select(sport);
   }
 
