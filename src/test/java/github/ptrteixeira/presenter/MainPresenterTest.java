@@ -1,18 +1,5 @@
 package github.ptrteixeira.presenter;
 
-import github.ptrteixeira.model.Match;
-import github.ptrteixeira.model.MockWebScraper;
-import github.ptrteixeira.view.DisplayType;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import java.util.List;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
@@ -25,6 +12,19 @@ import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assume.assumeThat;
+
+import github.ptrteixeira.model.Match;
+import github.ptrteixeira.model.MockWebScraper;
+import github.ptrteixeira.view.DisplayType;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import java.util.List;
 
 
 /**
@@ -161,5 +161,28 @@ public class MainPresenterTest {
     assertThat(mockWebScraper.standingsRequests.size(),
         is(equalTo(standingsRequests + 1)));
     assertThat(mockWebScraper.standingsRequests.get(0), is("Sport 1"));
+  }
+
+  @Test
+  public void testChangingTabsMakesRequestToModel() {
+    assumeThat(mockViewPresenter.currentDisplayType, is(DisplayType.SCHEDULE));
+    int scheduleRequests = mockWebScraper.scheduleRequests.size();
+    int standingsRequests = mockWebScraper.standingsRequests.size();
+
+
+    mockViewPresenter.changeTab();
+
+    assertThat(mockViewPresenter.currentDisplayType, is(DisplayType.STANDINGS));
+    assertThat(mockWebScraper.standingsRequests.size(),
+        is(equalTo(standingsRequests + 1)));
+    assertThat(mockWebScraper.standingsRequests.get(0), is("Sport 1"));
+
+
+    mockViewPresenter.changeTab();
+
+    assertThat(mockViewPresenter.currentDisplayType, is(DisplayType.SCHEDULE));
+    assertThat(mockWebScraper.scheduleRequests.size(),
+        is(equalTo(scheduleRequests + 1)));
+    assertThat(mockWebScraper.scheduleRequests.get(0), is("Sport 1"));
   }
 }
