@@ -7,5 +7,6 @@ test:
   post: 
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -wholename "./build/test-results/*.xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
-    - cp build/reports/style.html $CIRCLE_ARTIFACTS/style.html
+    - mkdir $CIRCLE_ARTIFACTS/style && cp build/reports/checkstyle/*.html -t $CIRCLE_ARTIFACTS/style/
+    - mkdir $CIRCLE_ARTIFACTS/test && cp -r build/reports/test/ -t $CIRCLE_ARTIFACTS/test
 
