@@ -84,4 +84,14 @@ final class MockViewPresenter implements ViewPresenter {
   public Pane createView() {
     return null;
   }
+
+  void changeTab() {
+    if (this.currentDisplayType == DisplayType.SCHEDULE) {
+      this.currentDisplayType = DisplayType.STANDINGS;
+    } else {
+      this.currentDisplayType = DisplayType.SCHEDULE;
+    }
+
+    this.tabChangeListener.changed(null, null, null);
+  }
 }

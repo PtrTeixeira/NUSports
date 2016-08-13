@@ -53,14 +53,14 @@ public class MainView implements ViewPresenter {
   public void registerTabSwitchCallback(ChangeListener<Tab> tabChangeListener) {
     this.tabPane.getSelectionModel()
         .selectedItemProperty()
-        .addListener(tabChangeListener);
-    this.tabPane.getSelectionModel()
-        .selectedItemProperty()
-        .addListener((observable, oldValue, newValue) ->
-          this.displayType = this.displayType.equals(DisplayType.SCHEDULE) ?
-              DisplayType.STANDINGS :
-              DisplayType.SCHEDULE
-    );
+        .addListener((observable, oldValue, newValue) -> {
+          if (this.displayType == DisplayType.STANDINGS) {
+            this.displayType = DisplayType.SCHEDULE;
+          } else {
+            this.displayType = DisplayType.STANDINGS;
+          }
+          tabChangeListener.changed(observable, oldValue, newValue);
+        });
   }
 
   @Override
