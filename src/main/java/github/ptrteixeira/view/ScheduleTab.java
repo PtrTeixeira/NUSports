@@ -29,7 +29,6 @@ final class ScheduleTab extends AbstractViewTab<Match> {
   Node createCenter() {
     this.tableContents = FXCollections.observableArrayList();
 
-    TableView<Match> tableView = new TableView<>(this.tableContents);
     TableColumn<Match, String> date = new TableColumn<>("Date");
     date.setCellValueFactory(new PropertyValueFactory<>("date"));
     TableColumn<Match, String> opponent = new TableColumn<>("Opponent");
@@ -37,6 +36,7 @@ final class ScheduleTab extends AbstractViewTab<Match> {
     TableColumn<Match, String> result = new TableColumn<>("Result");
     result.setCellValueFactory(new PropertyValueFactory<>("result"));
 
+    TableView<Match> tableView = new TableView<>(this.tableContents);
     tableView.getColumns().add(date);
     tableView.getColumns().add(opponent);
     tableView.getColumns().add(result);

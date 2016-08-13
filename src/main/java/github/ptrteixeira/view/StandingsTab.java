@@ -29,7 +29,6 @@ final class StandingsTab extends AbstractViewTab<Standing> {
   final Node createCenter() {
     this.tableContents = FXCollections.observableArrayList();
 
-    TableView<Standing> tableView = new TableView<>(this.tableContents);
     TableColumn<Standing, String> teamName = new TableColumn<>("Team");
     teamName.setCellValueFactory(new PropertyValueFactory<>("teamName"));
     TableColumn<Standing, String> conference = new TableColumn<>("Conference");
@@ -37,6 +36,7 @@ final class StandingsTab extends AbstractViewTab<Standing> {
     TableColumn<Standing, String> overall = new TableColumn<>("Result");
     overall.setCellValueFactory(new PropertyValueFactory<>("result"));
 
+    TableView<Standing> tableView = new TableView<>(this.tableContents);
     tableView.getColumns().add(teamName);
     tableView.getColumns().add(conference);
     tableView.getColumns().add(overall);
@@ -49,6 +49,6 @@ final class StandingsTab extends AbstractViewTab<Standing> {
   @Override
   void populateTable(List<Standing> contents) {
     logger.trace("Set contents of Standings table to {}", contents);
-   this.tableContents.setAll(contents);
+    this.tableContents.setAll(contents);
   }
 }

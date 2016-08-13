@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 interface DocumentSource {
   /**
+   * Return the {@link Document} which can be accessed at the given URL.
    *
    * @param url URL of the web page to be accessed
    * @return {@code JSoup} interpretation of the accessed web-page

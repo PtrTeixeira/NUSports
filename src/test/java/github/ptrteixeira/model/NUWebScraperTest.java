@@ -138,7 +138,8 @@ public class NUWebScraperTest {
     assertThat(standingsCache.keySet(), is(empty()));
   }
 
-  @Test @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked")
+  @Test
   public void getStandingsOnItemNotInCacheParsesAndStoresInCache() throws Exception {
     DocumentSource documentSource = url ->
         Jsoup.parse(new File("src/test/resources/test_standings.html"), "UTF8", ".");
@@ -182,7 +183,7 @@ public class NUWebScraperTest {
   }
 
   @Test
-  public void testConnectionFailureExceptionThrownOnIOFailureInGetStandings()
+  public void testConnectionFailureExceptionThrownOnIoFailureInGetStandings()
       throws Exception {
     DocumentSource documentSource = url -> {
       throw new IOException();
@@ -198,7 +199,7 @@ public class NUWebScraperTest {
   }
 
   @Test
-  public void testConnectionFailureExceptionThrownOnIOFailureInGetSchedule()
+  public void testConnectionFailureExceptionThrownOnIoFailureInGetSchedule()
       throws Exception {
     DocumentSource documentSource = url -> {
       throw new IOException();
