@@ -16,9 +16,6 @@ configurations {
 
 tasks.withType(Checkstyle) {
   config = resources.text.fromArchiveEntry(configurations.checkstyleConfig, 'google_checks.xml')
-  reports {
-    html.destination rootProject.file("build/reports/style.html")
-  }
 }
 
 dependencies {
