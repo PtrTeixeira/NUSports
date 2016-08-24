@@ -25,6 +25,9 @@ final class MockViewPresenter implements ViewPresenter {
   DisplayType currentDisplayType;
   String errorText;
 
+  MockViewPresenter() {
+    this.currentDisplayType = DisplayType.SCHEDULE;
+  }
 
   @Override
   public void registerTabSwitchCallback(ChangeListener<Tab> tabChangeListener) {

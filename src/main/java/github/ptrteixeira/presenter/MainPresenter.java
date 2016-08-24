@@ -1,12 +1,14 @@
 package github.ptrteixeira.presenter;
 
-import github.ptrteixeira.model.ConnectionFailureException;
 import github.ptrteixeira.model.Match;
 import github.ptrteixeira.model.Standing;
 import github.ptrteixeira.model.WebScraper;
 import github.ptrteixeira.view.DisplayType;
 import github.ptrteixeira.view.ViewPresenter;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
 import org.apache.logging.log4j.LogManager;
@@ -15,21 +17,25 @@ import org.apache.logging.log4j.Logger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 public final class MainPresenter {
   private static final Logger logger = LogManager.getLogger();
 
   private final WebScraper scraper;
   private final ViewPresenter presenter;
+  private final Executor executor;
 
   private String currentDisplayItem;
 
-  public MainPresenter(WebScraper scraper, ViewPresenter presenter) {
+  public MainPresenter(WebScraper scraper, ViewPresenter presenter, Executor executor) {
     Objects.requireNonNull(scraper);
     Objects.requireNonNull(presenter);
+    Objects.requireNonNull(executor);
 
     this.scraper = scraper;
     this.presenter = presenter;
+    this.executor = executor;
 
     this.currentDisplayItem = "";
   }
@@ -84,29 +90,48 @@ public final class MainPresenter {
 
   private void changeSelection(ViewPresenter presenter, WebScraper scraper,
                                String currentSelection, boolean isRefresh) {
-    try {
-      presenter.clearErrorText();
 
-      if (presenter.currentDisplayType() == null) {
-        presenter.setCurrentDisplayType(DisplayType.SCHEDULE);
-      }
+    presenter.clearErrorText();
 
-      if (presenter.currentDisplayType().equals(DisplayType.SCHEDULE)) {
-        List<Match> schedule = scraper.getSchedule(currentSelection);
-        logger.trace("Setting contents of Schedule table to {}", schedule);
-        presenter.setScheduleContents(schedule);
-      } else {
-        List<Standing> standings = scraper.getStandings(currentSelection);
-        logger.trace("Setting contents of Standing table to {}", standings);
-        presenter.setStandingsContents(standings);
-      }
-    } catch (ConnectionFailureException cfx) {
-      logger.warn("Failed to connect", cfx);
-      presenter.setErrorText(cfx.getMessage());
+    EventHandler<WorkerStateEvent> onError = workerStateEvent -> {
+      Throwable exn = workerStateEvent.getSource().getException();
+      logger.warn("Failed to connect", exn);
+      presenter.setErrorText("Failed to load data");
+
+      System.out.println(isRefresh);
+
       if (!isRefresh) {
+        System.out.println("Failed to load stuff");
         presenter.setScheduleContents(Collections.emptyList());
         presenter.setStandingsContents(Collections.emptyList());
       }
+    };
+
+
+    if (presenter.currentDisplayType() == DisplayType.SCHEDULE) {
+      Task<List<Match>> task = new Task<List<Match>>() {
+        @Override
+        protected List<Match> call() throws Exception {
+          return scraper.getSchedule(currentSelection);
+        }
+      };
+
+      task.setOnSucceeded(workerStateEvent ->
+          presenter.setScheduleContents(task.getValue()));
+      task.setOnFailed(onError);
+      executor.execute(task);
+    } else if (presenter.currentDisplayType() == DisplayType.STANDINGS) {
+      Task<List<Standing>> task = new Task<List<Standing>>() {
+        @Override
+        protected List<Standing> call() throws Exception {
+          return scraper.getStandings(currentSelection);
+        }
+      };
+
+      task.setOnSucceeded(workerStateEvent ->
+          presenter.setStandingsContents(task.getValue()));
+      task.setOnFailed(onError);
+      executor.execute(task);
     }
   }
 }

@@ -16,18 +16,26 @@ import static org.junit.Assume.assumeThat;
 import github.ptrteixeira.model.Match;
 import github.ptrteixeira.model.MockWebScraper;
 import github.ptrteixeira.view.DisplayType;
+import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 
 /**
+ * This class is liberally sprinkled with Thread.sleep statements and other threading nuisances.
+ * Unfortunately, this is necessary to get the JavaFX threading system, which controls Tasks, linked
+ * up to the thread that is running the tests. Oh well.
+ *
  * @author Peter Teixeira
  */
 public class MainPresenterTest {
@@ -43,11 +51,21 @@ public class MainPresenterTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  @BeforeClass
+  public static void launchJavaFX() throws Exception {
+    Thread t = new Thread(() -> Application.launch(AsNonApp.class));
+    t.setDaemon(true);
+    t.start();
+
+    Thread.sleep(200);
+  }
+
   @Before
   public void setUp() {
     this.mockViewPresenter = new MockViewPresenter();
     this.mockWebScraper = new MockWebScraper();
-    this.mainPresenter = new MainPresenter(mockWebScraper, mockViewPresenter);
+    Executor immediateExecutor = Runnable::run;
+    this.mainPresenter = new MainPresenter(mockWebScraper, mockViewPresenter, immediateExecutor);
 
     mainPresenter.loadPresenter();
   }
@@ -55,13 +73,13 @@ public class MainPresenterTest {
   @Test
   public void testCreateWithNullArgumentsThrowsException() {
     expectedException.expect(NullPointerException.class);
-    new MainPresenter(null, null);
+    new MainPresenter(null, null, null);
   }
 
   @Test
   public void testCreateWithNullArgumentThrowsException() {
     expectedException.expect(NullPointerException.class);
-    new MainPresenter(new MockWebScraper(), null);
+    new MainPresenter(new MockWebScraper(), null, null);
   }
 
   @Test
@@ -75,7 +93,8 @@ public class MainPresenterTest {
   }
 
   @Test
-  public void testWillAttemptToPopulateTableWhenLoadPresenterCalled() {
+  public void testWillAttemptToPopulateTableWhenLoadPresenterCalled() throws Exception {
+//    Thread.sleep(4000);
     assertThat(mockWebScraper.scheduleRequests, hasSize(greaterThan(0)));
     assertThat(mockViewPresenter.scheduleContents, is(not(empty())));
   }
@@ -101,11 +120,11 @@ public class MainPresenterTest {
   }
 
   @Test
-  public void testOnRequestFailErrorTextIsSet() {
+  public void testOnRequestFailErrorTextIsSet() throws Exception {
     mockWebScraper.failNextRequest();
 
     mockViewPresenter.reloadCallback.handle(PRIMARY_MOUSE_CLICK);
-
+    Thread.sleep(200);
     assertThat(mockViewPresenter.errorText, is(not(isEmptyString())));
   }
 
@@ -120,22 +139,25 @@ public class MainPresenterTest {
   }
 
   @Test
-  public void testOnFailedChangeSelectedSportContentsAreEmptied() {
+  public void testOnFailedChangeSelectedSportContentsAreEmptied() throws Exception {
     mockWebScraper.failNextRequest();
     mockViewPresenter.selectionChange
         .changed(new SimpleStringProperty("Sport 2"), "Sport 1", "Sport 2");
 
+    Thread.sleep(200);
     assertThat(mockViewPresenter.scheduleContents, is(empty()));
   }
 
   @Test
-  public void testMakingSuccessfulRequestAfterFailedRequestClearsErrorText() {
+  public void testMakingSuccessfulRequestAfterFailedRequestClearsErrorText() throws Exception {
     mockWebScraper.failNextRequest();
 
     mockViewPresenter.reloadCallback.handle(PRIMARY_MOUSE_CLICK);
+    Thread.sleep(200);
     assumeThat(mockViewPresenter.errorText, is(not(isEmptyString())));
 
     mockViewPresenter.reloadCallback.handle(PRIMARY_MOUSE_CLICK);
+    Thread.sleep(200);
     assertThat(mockViewPresenter.errorText, isEmptyString());
   }
 
@@ -184,5 +206,14 @@ public class MainPresenterTest {
     assertThat(mockWebScraper.scheduleRequests.size(),
         is(equalTo(scheduleRequests + 1)));
     assertThat(mockWebScraper.scheduleRequests.get(0), is("Sport 1"));
+  }
+
+  public static class AsNonApp extends Application {
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+      // no-op
+      // Required to spawn a JavaFX thread, which allows
+      // JavaFX thread handlers like Task to be created
+    }
   }
 }
