@@ -129,12 +129,14 @@ public class MainPresenterTest {
   }
 
   @Test
-  public void testOnFailedReloadContentsAreNotChanged() {
+  public void testOnFailedReloadContentsAreNotChanged() throws Exception {
+    Thread.sleep(200);
     List<Match> initialContents = mockViewPresenter.scheduleContents;
 
     mockWebScraper.failNextRequest();
     mockViewPresenter.reloadCallback.handle(PRIMARY_MOUSE_CLICK);
 
+    Thread.sleep(200);
     assertThat(mockViewPresenter.scheduleContents, is(equalTo(initialContents)));
   }
 
