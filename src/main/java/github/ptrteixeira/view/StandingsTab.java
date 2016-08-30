@@ -33,8 +33,8 @@ final class StandingsTab extends AbstractViewTab<Standing> {
     teamName.setCellValueFactory(new PropertyValueFactory<>("teamName"));
     TableColumn<Standing, String> conference = new TableColumn<>("Conference");
     conference.setCellValueFactory(new PropertyValueFactory<>("conference"));
-    TableColumn<Standing, String> overall = new TableColumn<>("Result");
-    overall.setCellValueFactory(new PropertyValueFactory<>("result"));
+    TableColumn<Standing, String> overall = new TableColumn<>("Overall");
+    overall.setCellValueFactory(new PropertyValueFactory<>("overall"));
 
     TableView<Standing> tableView = new TableView<>(this.tableContents);
     tableView.getColumns().add(teamName);
