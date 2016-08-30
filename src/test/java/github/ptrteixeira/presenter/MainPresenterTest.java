@@ -129,12 +129,13 @@ public class MainPresenterTest {
   }
 
   @Test
-  public void testOnFailedReloadContentsAreNotChanged() {
+  public void testOnFailedReloadContentsAreNotChanged() throws Exception {
     List<Match> initialContents = mockViewPresenter.scheduleContents;
 
     mockWebScraper.failNextRequest();
     mockViewPresenter.reloadCallback.handle(PRIMARY_MOUSE_CLICK);
 
+    Thread.sleep(400);
     assertThat(mockViewPresenter.scheduleContents, is(equalTo(initialContents)));
   }
 
@@ -144,7 +145,7 @@ public class MainPresenterTest {
     mockViewPresenter.selectionChange
         .changed(new SimpleStringProperty("Sport 2"), "Sport 1", "Sport 2");
 
-    Thread.sleep(200);
+    Thread.sleep(400);
     assertThat(mockViewPresenter.scheduleContents, is(empty()));
   }
 
