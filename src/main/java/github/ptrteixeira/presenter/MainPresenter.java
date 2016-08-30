@@ -72,7 +72,7 @@ public final class MainPresenter {
     logger.debug("Reload clicked");
     this.scraper.clearCache(this.currentDisplayItem);
 
-    this.changeSelection(this.presenter, this.scraper, this.currentDisplayItem, true);
+    this.changeSelection(this.presenter, this.scraper, this.currentDisplayItem, false);
   }
 
   private void selectionChangeListener(ObservableValue<? extends String> observableValue,
@@ -85,11 +85,11 @@ public final class MainPresenter {
 
   private void changeSelection(ViewPresenter presenter, WebScraper scraper,
                                String currentSelection) {
-    this.changeSelection(presenter, scraper, currentSelection, false);
+    this.changeSelection(presenter, scraper, currentSelection, true);
   }
 
   private void changeSelection(ViewPresenter presenter, WebScraper scraper,
-                               String currentSelection, boolean isRefresh) {
+                               String currentSelection, boolean shouldClear) {
 
     presenter.clearErrorText();
 
@@ -98,9 +98,7 @@ public final class MainPresenter {
       logger.warn("Failed to connect", exn);
       presenter.setErrorText("Failed to load data");
 
-      System.out.println(isRefresh);
-
-      if (!isRefresh) {
+      if (shouldClear) {
         System.out.println("Failed to load stuff");
         presenter.setScheduleContents(Collections.emptyList());
         presenter.setStandingsContents(Collections.emptyList());
