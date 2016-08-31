@@ -120,6 +120,43 @@ class NUWebScraperSpec : Spek({
             .isThrownBy { webScraper.getSchedule("Baseball") }
       }
     }
+
+    context("when a game has a victor") {
+      val source = DocumentSource {
+        Jsoup.parse(File("src/test/resources/test_schedule.html"), "UTF8", ".")
+      }
+      val webScraper = NUWebScraper(
+          buildMutableStandingsCache(), buildMutableScheduleCache(), source)
+      it("outputs a core as a win or a loss") {
+        assertThat(webScraper.getSchedule("Baseball"))
+            .extracting("result")
+            .containsExactly("W 3 - 2")
+      }
+    }
+    context("when a game results in a tie") {
+      val source = DocumentSource {
+        Jsoup.parse(File("src/test/resources/test_schedule_ties.html"), "UTF8", ".")
+      }
+      val webScraper = NUWebScraper(
+          buildMutableStandingsCache(), buildMutableScheduleCache(), source)
+      it("outputs the score, but not as a win or a loss") {
+        assertThat(webScraper.getSchedule("Baseball"))
+            .extracting("result")
+            .containsExactly("2 - 2")
+      }
+    }
+    context("when a game has not yet been played") {
+      val source = DocumentSource {
+        Jsoup.parse(File("src/test/resources/test_schedule_unplayed_games.html"), "UTF8", ".")
+      }
+      val webScraper = NUWebScraper(
+          buildMutableStandingsCache(), buildMutableScheduleCache(), source)
+      it("outputs the empty string") {
+        assertThat(webScraper.getSchedule("Baseball"))
+            .extracting("result")
+            .containsExactly("")
+      }
+    }
   }
 
   describe("getStandings") {

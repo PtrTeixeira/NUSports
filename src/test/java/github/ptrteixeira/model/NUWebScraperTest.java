@@ -192,10 +192,7 @@ public class NUWebScraperTest {
   @Test
   public void testCorrectlyParsesResultsWhenGameNotYetPlayed() throws Exception {
     DocumentSource source = url ->
-        Jsoup.parse(
-            new File("src/test/resources/test_schedule_unplayed_games.html"),
-            "UTF8",
-            ".");
+        Jsoup.parse(new File("src/test/resources/test_schedule_unplayed_games.html"), "UTF8", ".");
 
     HashMap<String, ObservableList<Standing>> standingsCache = new HashMap<>();
     HashMap<String, ObservableList<Match>> scheduleCache = new HashMap<>();
@@ -206,5 +203,21 @@ public class NUWebScraperTest {
         .extracting(Match::getResult)
         .hasSize(1)
         .containsExactly("");
+  }
+
+  @Test
+  public void testCorrectlyParsesResultInCaseOfTie() throws Exception {
+    DocumentSource source = url ->
+        Jsoup.parse(new File("src/test/resources/test_schedule_ties.html"), "UTF8", ".");
+
+    HashMap<String, ObservableList<Standing>> standingsCache = new HashMap<>();
+    HashMap<String, ObservableList<Match>> scheduleCache = new HashMap<>();
+
+    WebScraper webScraper = new NUWebScraper(standingsCache, scheduleCache, source);
+
+    assertThat(webScraper.getSchedule("Baseball"))
+        .extracting(Match::getResult)
+        .hasSize(1)
+        .containsExactly("2 - 2");
   }
 }
