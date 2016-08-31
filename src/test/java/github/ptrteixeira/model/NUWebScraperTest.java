@@ -1,16 +1,5 @@
 package github.ptrteixeira.model;
 
-//import static org.hamcrest.CoreMatchers.equalTo;
-//import static org.hamcrest.CoreMatchers.is;
-//import static org.hamcrest.CoreMatchers.nullValue;
-//import static org.hamcrest.MatcherAssert.assertThat;
-//import static org.hamcrest.Matchers.both;
-//import static org.hamcrest.Matchers.contains;
-//import static org.hamcrest.Matchers.containsInAnyOrder;
-//import static org.hamcrest.Matchers.empty;
-//import static org.hamcrest.Matchers.hasProperty;
-//import static org.hamcrest.Matchers.hasSize;
-//import static org.hamcrest.core.IsNot.not;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.tuple;
@@ -145,9 +134,7 @@ public class NUWebScraperTest {
     WebScraper webScraper = new NUWebScraper(standingsCache,
         scheduleCache, documentSource);
 
-    ObservableList<Standing> results = webScraper.getStandings("Baseball");
-
-    assertThat(results)
+    assertThat(webScraper.getStandings("Baseball"))
         .isNotNull()
         .extracting(Standing::getTeamName)
         .containsExactly(
