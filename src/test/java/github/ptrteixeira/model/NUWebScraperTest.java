@@ -1,18 +1,19 @@
 package github.ptrteixeira.model;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.both;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.expectThrows;
+//import static org.hamcrest.CoreMatchers.equalTo;
+//import static org.hamcrest.CoreMatchers.is;
+//import static org.hamcrest.CoreMatchers.nullValue;
+//import static org.hamcrest.MatcherAssert.assertThat;
+//import static org.hamcrest.Matchers.both;
+//import static org.hamcrest.Matchers.contains;
+//import static org.hamcrest.Matchers.containsInAnyOrder;
+//import static org.hamcrest.Matchers.empty;
+//import static org.hamcrest.Matchers.hasProperty;
+//import static org.hamcrest.Matchers.hasSize;
+//import static org.hamcrest.core.IsNot.not;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.tuple;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,22 +23,11 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-
-//import org.junit.Rule;
-//import org.junit.Test;
-//import org.junit.rules.ExpectedException;
-//import org.junit.jupiter.api.
 
 /**
  * @author Peter Teixeira
  */
 public class NUWebScraperTest {
-
-//  @Rule
-//  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
   public void testClearCacheRemovesStatedElementFromCache() throws Exception {
     HashMap<String, ObservableList<Standing>> standingsCache = new HashMap<>();
@@ -51,13 +41,13 @@ public class NUWebScraperTest {
 
     WebScraper webScraper = new NUWebScraper(standingsCache, scheduleCache, null);
 
-    assertThat(standingsCache.keySet(), is(not(empty())));
-    assertThat(scheduleCache.keySet(), is(not(empty())));
+    assertThat(standingsCache).containsOnlyKeys("key1", "key2");
+    assertThat(scheduleCache).containsOnlyKeys("key1", "key2");
 
     webScraper.clearCache("key1");
 
-    assertThat(standingsCache.keySet(), contains("key2"));
-    assertThat(scheduleCache.keySet(), contains("key2"));
+    assertThat(standingsCache).containsOnlyKeys("key2");
+    assertThat(scheduleCache).containsOnlyKeys("key2");
   }
 
   @Test
@@ -71,13 +61,13 @@ public class NUWebScraperTest {
 
     WebScraper webScraper = new NUWebScraper(standingsCache, scheduleCache, null);
 
-    assertThat(standingsCache.keySet(), is(not(empty())));
-    assertThat(scheduleCache.keySet(), is(not(empty())));
+    assertThat(standingsCache).containsOnlyKeys("key1");
+    assertThat(scheduleCache).containsOnlyKeys("key1");
 
     webScraper.clearCache("key2");
 
-    assertThat(standingsCache.keySet(), contains("key1"));
-    assertThat(scheduleCache.keySet(), contains("key1"));
+    assertThat(standingsCache).containsOnlyKeys("key1");
+    assertThat(scheduleCache).containsOnlyKeys("key1");
   }
 
   @Test
@@ -87,7 +77,8 @@ public class NUWebScraperTest {
 
     WebScraper webScraper = new NUWebScraper(standingsCache, scheduleCache, null);
 
-    expectThrows(NullPointerException.class, () -> webScraper.clearCache(null));
+    assertThatExceptionOfType(NullPointerException.class)
+        .isThrownBy(() -> webScraper.clearCache(null));
   }
 
   @Test
@@ -103,8 +94,10 @@ public class NUWebScraperTest {
 
     WebScraper webScraper = new NUWebScraper(standingsCache, scheduleCache, null);
 
-    assertThat(webScraper.getSchedule("key1"), contains(match));
-    assertThat(webScraper.getStandings("key1"), contains(standing));
+    assertThat(webScraper.getSchedule("key1"))
+        .contains(match);
+    assertThat(webScraper.getStandings("key1"))
+        .contains(standing);
   }
 
   @Test
@@ -114,7 +107,8 @@ public class NUWebScraperTest {
 
     WebScraper webScraper = new NUWebScraper(standingsCache, scheduleCache, null);
 
-    assertThrows(NullPointerException.class, () -> webScraper.getSchedule("key1"));
+    assertThatExceptionOfType(NullPointerException.class)
+        .isThrownBy(() -> webScraper.getSchedule("key1"));
   }
 
   @Test
@@ -128,17 +122,15 @@ public class NUWebScraperTest {
     WebScraper webScraper = new NUWebScraper(standingsCache,
         scheduleCache, documentSource);
 
-    ObservableList<Match> results = webScraper.getSchedule("Baseball");
-    assertThat(results, is(not(nullValue())));
-    assertThat(results, hasSize(1));
-    assertThat(results, contains(
-        both(hasProperty("opponent", is("Oklahoma")))
-            .and(hasProperty("result", is("W 3 - 2")))));
+    assertThat(webScraper.getSchedule("Baseball"))
+        .isNotNull()
+        .hasSize(1)
+        .extracting(Match::getOpponent, Match::getResult)
+        .containsExactly(tuple("Oklahoma", "W 3 - 2"));
 
-    assertThat(scheduleCache.keySet(), contains("Baseball"));
-    assertThat(scheduleCache.get("Baseball"), hasSize(1));
-
-    assertThat(standingsCache.keySet(), is(empty()));
+    assertThat(scheduleCache).containsOnlyKeys("Baseball");
+    assertThat(scheduleCache.get("Baseball")).hasSize(1);
+    assertThat(standingsCache).isEmpty();
   }
 
   @SuppressWarnings("unchecked")
@@ -155,33 +147,27 @@ public class NUWebScraperTest {
 
     ObservableList<Standing> results = webScraper.getStandings("Baseball");
 
-    assertThat(results, is(not(nullValue())));
-    assertThat(results, contains(
-        hasProperty("teamName", equalTo("UNCW")),
-        hasProperty("teamName", equalTo("William & Mary")),
-        hasProperty("teamName", equalTo("Elon")),
-        hasProperty("teamName", equalTo("James Madison")),
-        hasProperty("teamName", equalTo("Northeastern")),
-        hasProperty("teamName", equalTo("Charleston")),
-        hasProperty("teamName", equalTo("Delaware")),
-        hasProperty("teamName", equalTo("Towson")),
-        hasProperty("teamName", equalTo("Hofstra"))
-    ));
+    assertThat(results)
+        .isNotNull()
+        .extracting(Standing::getTeamName)
+        .containsExactly(
+            "UNCW", "William & Mary", "Elon", "James Madison",
+            "Northeastern", "Charleston", "Delaware", "Towson", "Hofstra");
 
-    assertThat(standingsCache.keySet(), contains("Baseball"));
-    assertThat(standingsCache.get("Baseball"), hasSize(9));
-
-    assertThat(scheduleCache.keySet(), is(empty()));
+    assertThat(standingsCache).containsOnlyKeys("Baseball");
+    assertThat(standingsCache.get("Baseball")).hasSize(9);
+    assertThat(scheduleCache).isEmpty();
   }
 
   @Test
   public void testGetSelectableSports() throws Exception {
     WebScraper webScraper = new NUWebScraper(null, null, null);
 
-    assertThat(webScraper.getSelectableSports(), containsInAnyOrder(
-        "Baseball", "Men's Basketball", "Women's Basketball",
-        "Volleyball", "Men's Soccer", "Women's Soccer"
-    ));
+    assertThat(webScraper.getSelectableSports())
+        .containsExactlyInAnyOrder(
+            "Baseball", "Men's Basketball", "Women's Basketball",
+            "Volleyball", "Men's Soccer", "Women's Soccer"
+        );
   }
 
   @Test
@@ -196,7 +182,8 @@ public class NUWebScraperTest {
     WebScraper webScraper = new NUWebScraper(standingsCache,
         scheduleCache, documentSource);
 
-    assertThrows(ConnectionFailureException.class, () -> webScraper.getStandings("Baseball"));
+    assertThatExceptionOfType(ConnectionFailureException.class)
+        .isThrownBy(() -> webScraper.getStandings("Baseball"));
   }
 
   @Test
@@ -211,7 +198,8 @@ public class NUWebScraperTest {
     WebScraper webScraper = new NUWebScraper(standingsCache,
         scheduleCache, documentSource);
 
-    assertThrows(ConnectionFailureException.class, () -> webScraper.getSchedule("Baseball"));
+    assertThatExceptionOfType(ConnectionFailureException.class)
+        .isThrownBy(() -> webScraper.getSchedule("Baseball"));
   }
 
   @Test
@@ -227,12 +215,9 @@ public class NUWebScraperTest {
 
     WebScraper webScraper = new NUWebScraper(standingsCache, scheduleCache, source);
 
-    List<Match> matches = webScraper.getSchedule("Baseball");
-    List<String> results = matches.stream()
-        .map(Match::getResult)
-        .collect(Collectors.toList());
-
-    assertThat(results, hasSize(1));
-    assertThat(results, contains(""));
+    assertThat(webScraper.getSchedule("Baseball"))
+        .extracting(Match::getResult)
+        .hasSize(1)
+        .containsExactly("");
   }
 }

@@ -1,18 +1,7 @@
 package github.ptrteixeira.presenter;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.isIn;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import github.ptrteixeira.model.Match;
 import github.ptrteixeira.model.MockWebScraper;
@@ -40,7 +29,6 @@ import java.util.concurrent.Executor;
 public class MainPresenterTest {
   private MockViewPresenter mockViewPresenter;
   private MockWebScraper mockWebScraper;
-  private MainPresenter mainPresenter;
 
   private static final MouseEvent PRIMARY_MOUSE_CLICK = new MouseEvent(
       MouseEvent.MOUSE_CLICKED, 0, 0, 0, 0, MouseButton.PRIMARY, 1,
@@ -52,8 +40,6 @@ public class MainPresenterTest {
     Thread t = new Thread(() -> Application.launch(AsNonApp.class));
     t.setDaemon(true);
     t.start();
-
-    Thread.sleep(200);
   }
 
   @BeforeEach
@@ -61,44 +47,55 @@ public class MainPresenterTest {
     this.mockViewPresenter = new MockViewPresenter();
     this.mockWebScraper = new MockWebScraper();
     Executor immediateExecutor = Runnable::run;
-    this.mainPresenter = new MainPresenter(mockWebScraper, mockViewPresenter, immediateExecutor);
+    MainPresenter mainPresenter = new MainPresenter(mockWebScraper, mockViewPresenter, immediateExecutor);
 
     mainPresenter.loadPresenter();
   }
 
+  @BeforeEach
+  public void pause() throws Exception {
+    Thread.sleep(200);
+  }
+
   @Test
   public void testCreateWithNullArgumentsThrowsException() {
-    assertThrows(NullPointerException.class, () -> new MainPresenter(null, null, null));
+    assertThatExceptionOfType(NullPointerException.class)
+        .isThrownBy(() -> new MainPresenter(null, null, null));
   }
 
   @Test
   public void testCreateWithNullArgumentThrowsException() {
-    assertThrows(NullPointerException.class,
-        () -> new MainPresenter(new MockWebScraper(), null, null));
+    assertThatExceptionOfType(NullPointerException.class)
+        .isThrownBy(() -> new MainPresenter(new MockWebScraper(), null, null));
   }
 
   @Test
   public void testDefaultDisplayTypeIsSchedule() {
-    assertThat(mockViewPresenter.currentDisplayType(), is(DisplayType.SCHEDULE));
+    assertThat(mockViewPresenter.currentDisplayType)
+        .isEqualTo(DisplayType.SCHEDULE);
   }
 
   @Test
   public void testPopulatesSelectableSportsOnLoad() {
-    assertThat(mockViewPresenter.selectableSports, contains("Sport 1", "Sport 2"));
+    assertThat(mockViewPresenter.selectableSports)
+        .contains("Sport 1", "Sport 2");
   }
 
   @Test
   public void testWillAttemptToPopulateTableWhenLoadPresenterCalled() throws Exception {
-    assertThat(mockWebScraper.scheduleRequests, hasSize(greaterThan(0)));
-    assertThat(mockViewPresenter.scheduleContents, is(not(empty())));
+    assertThat(mockViewPresenter.scheduleContents)
+        .isNotEmpty();
+    assertThat(mockWebScraper.scheduleRequests)
+        .size().isGreaterThan(0);
   }
 
   @Test
   public void testReloadClearsCache() {
     mockViewPresenter.reloadCallback.handle(PRIMARY_MOUSE_CLICK);
 
-    assertThat(mockWebScraper.cacheClears, is(notNullValue()));
-    assertThat(mockWebScraper.cacheClears, is(not(empty())));
+    assertThat(mockWebScraper.cacheClears)
+        .isNotNull()
+        .isNotEmpty();
   }
 
   @Test
@@ -107,10 +104,10 @@ public class MainPresenterTest {
 
     mockViewPresenter.reloadCallback.handle(PRIMARY_MOUSE_CLICK);
 
-    assertThat(mockWebScraper.scheduleRequests.size(),
-        is(equalTo(scheduleRequestCountBefore + 1)));
-    assertThat(mockWebScraper.scheduleRequests.get(0),
-        isIn(mockWebScraper.getSelectableSports()));
+    assertThat(mockWebScraper.scheduleRequests)
+        .size().isEqualTo(scheduleRequestCountBefore + 1)
+        .returnToIterable()
+        .first().isIn(mockWebScraper.getSelectableSports());
   }
 
   @Test
@@ -119,19 +116,21 @@ public class MainPresenterTest {
 
     mockViewPresenter.reloadCallback.handle(PRIMARY_MOUSE_CLICK);
     Thread.sleep(200);
-    assertThat(mockViewPresenter.errorText, is(not(isEmptyString())));
+
+    assertThat(mockViewPresenter.errorText)
+        .isNotEmpty();
   }
 
   @Test
   public void testOnFailedReloadContentsAreNotChanged() throws Exception {
-    Thread.sleep(200);
     List<Match> initialContents = mockViewPresenter.scheduleContents;
 
     mockWebScraper.failNextRequest();
     mockViewPresenter.reloadCallback.handle(PRIMARY_MOUSE_CLICK);
 
     Thread.sleep(200);
-    assertThat(mockViewPresenter.scheduleContents, is(equalTo(initialContents)));
+    assertThat(mockViewPresenter.scheduleContents)
+        .isEqualTo(initialContents);
   }
 
   @Test
@@ -141,7 +140,8 @@ public class MainPresenterTest {
         .changed(new SimpleStringProperty("Sport 2"), "Sport 1", "Sport 2");
 
     Thread.sleep(200);
-    assertThat(mockViewPresenter.scheduleContents, is(empty()));
+    assertThat(mockViewPresenter.scheduleContents)
+        .isEmpty();
   }
 
   @Test
@@ -153,7 +153,8 @@ public class MainPresenterTest {
 
     mockViewPresenter.reloadCallback.handle(PRIMARY_MOUSE_CLICK);
     Thread.sleep(200);
-    assertThat(mockViewPresenter.errorText, isEmptyString());
+    assertThat(mockViewPresenter.errorText)
+        .isEmpty();
   }
 
   @Test
@@ -163,9 +164,11 @@ public class MainPresenterTest {
     mockViewPresenter.selectionChange.changed(
         new SimpleStringProperty("Sport 2"), "Sport 1", "Sport 2");
 
-    assertThat(mockWebScraper.scheduleRequests.size(),
-        is(equalTo(scheduleRequests + 1)));
-    assertThat(mockWebScraper.scheduleRequests.get(0), is(equalTo("Sport 2")));
+    assertThat(mockWebScraper.scheduleRequests)
+        .size().isEqualTo(scheduleRequests + 1)
+        .returnToIterable()
+        .first().isEqualTo("Sport 2");
+
   }
 
   @Test
@@ -175,32 +178,36 @@ public class MainPresenterTest {
     mockViewPresenter.setCurrentDisplayType(DisplayType.STANDINGS);
     mockViewPresenter.reloadCallback.handle(PRIMARY_MOUSE_CLICK);
 
-    assertThat(mockWebScraper.standingsRequests.size(),
-        is(equalTo(standingsRequests + 1)));
-    assertThat(mockWebScraper.standingsRequests.get(0), is("Sport 1"));
+    assertThat(mockWebScraper.standingsRequests)
+        .size().isEqualTo(standingsRequests + 1)
+        .returnToIterable()
+        .first().isEqualTo("Sport 1");
   }
 
   @Test
-  public void testChangingTabsMakesRequestToModel() {
-    assumeTrue(mockViewPresenter.currentDisplayType == DisplayType.SCHEDULE);
+  public void testChangingTabsMakesRequestToModel() throws Exception {
     int scheduleRequests = mockWebScraper.scheduleRequests.size();
     int standingsRequests = mockWebScraper.standingsRequests.size();
 
 
     mockViewPresenter.changeTab();
 
-    assertThat(mockViewPresenter.currentDisplayType, is(DisplayType.STANDINGS));
-    assertThat(mockWebScraper.standingsRequests.size(),
-        is(equalTo(standingsRequests + 1)));
-    assertThat(mockWebScraper.standingsRequests.get(0), is("Sport 1"));
+    assertThat(mockViewPresenter.currentDisplayType)
+        .isEqualTo(DisplayType.STANDINGS);
+    assertThat(mockWebScraper.standingsRequests)
+        .size().isEqualTo(standingsRequests + 1)
+        .returnToIterable()
+        .first().isEqualTo("Sport 1");
 
 
     mockViewPresenter.changeTab();
 
-    assertThat(mockViewPresenter.currentDisplayType, is(DisplayType.SCHEDULE));
-    assertThat(mockWebScraper.scheduleRequests.size(),
-        is(equalTo(scheduleRequests + 1)));
-    assertThat(mockWebScraper.scheduleRequests.get(0), is("Sport 1"));
+    assertThat(mockViewPresenter.currentDisplayType)
+        .isEqualTo(DisplayType.SCHEDULE);
+    assertThat(mockWebScraper.scheduleRequests)
+        .size().isEqualTo(scheduleRequests + 1)
+        .returnToIterable()
+        .first().isEqualTo("Sport 1");
   }
 
   public static class AsNonApp extends Application {

@@ -1,7 +1,6 @@
 package github.ptrteixeira.view;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasToString;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +17,9 @@ import org.junit.jupiter.api.Test;
 public class DisplayTypeTest {
   @Test
   public void testToStringReturnsExpectedValues() {
-    assertThat(DisplayType.SCHEDULE, hasToString("Schedule"));
-    assertThat(DisplayType.STANDINGS, hasToString("Standings"));
+    assertThat(DisplayType.SCHEDULE)
+        .hasToString("Schedule");
+    assertThat(DisplayType.STANDINGS)
+        .hasToString("Standings");
   }
 }

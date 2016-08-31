@@ -1,9 +1,7 @@
 package github.ptrteixeira.model;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +19,8 @@ public class WebScraperFactoryTest {
 
   @Test
   public void forSiteThrowsErrorOnBadArgument() {
-    assertThrows(NullPointerException.class, () -> factory.forSite(null));
+    assertThatExceptionOfType(NullPointerException.class)
+        .isThrownBy(() -> factory.forSite(null));
   }
 
   @Test
@@ -30,6 +29,7 @@ public class WebScraperFactoryTest {
     // But it is a test, which is a start.
     WebScraper scraper = factory.forSite(Site.CAA);
 
-    assertThat(scraper, is(instanceOf(NUWebScraper.class)));
+    assertThat(scraper)
+        .isInstanceOf(NUWebScraper.class);
   }
 }
