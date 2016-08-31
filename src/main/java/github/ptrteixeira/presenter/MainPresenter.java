@@ -99,7 +99,6 @@ public final class MainPresenter {
       presenter.setErrorText("Failed to load data");
 
       if (shouldClear) {
-        System.out.println("Failed to load stuff");
         presenter.setScheduleContents(Collections.emptyList());
         presenter.setStandingsContents(Collections.emptyList());
       }

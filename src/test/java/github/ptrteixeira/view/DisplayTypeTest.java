@@ -3,7 +3,7 @@ package github.ptrteixeira.view;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * The point of this class is mostly just for fun.

@@ -11,13 +11,13 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.expectThrows;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.jsoup.Jsoup;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,13 +25,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+//import org.junit.Rule;
+//import org.junit.Test;
+//import org.junit.rules.ExpectedException;
+//import org.junit.jupiter.api.
+
 /**
  * @author Peter Teixeira
  */
 public class NUWebScraperTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+//  @Rule
+//  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void testClearCacheRemovesStatedElementFromCache() throws Exception {
@@ -82,8 +87,7 @@ public class NUWebScraperTest {
 
     WebScraper webScraper = new NUWebScraper(standingsCache, scheduleCache, null);
 
-    expectedException.expect(NullPointerException.class);
-    webScraper.clearCache(null);
+    expectThrows(NullPointerException.class, () -> webScraper.clearCache(null));
   }
 
   @Test
@@ -110,8 +114,7 @@ public class NUWebScraperTest {
 
     WebScraper webScraper = new NUWebScraper(standingsCache, scheduleCache, null);
 
-    expectedException.expect(NullPointerException.class);
-    webScraper.getSchedule("key1");
+    assertThrows(NullPointerException.class, () -> webScraper.getSchedule("key1"));
   }
 
   @Test
@@ -151,7 +154,6 @@ public class NUWebScraperTest {
         scheduleCache, documentSource);
 
     ObservableList<Standing> results = webScraper.getStandings("Baseball");
-    System.out.println(results);
 
     assertThat(results, is(not(nullValue())));
     assertThat(results, contains(
@@ -194,8 +196,7 @@ public class NUWebScraperTest {
     WebScraper webScraper = new NUWebScraper(standingsCache,
         scheduleCache, documentSource);
 
-    expectedException.expect(ConnectionFailureException.class);
-    webScraper.getStandings("Baseball");
+    assertThrows(ConnectionFailureException.class, () -> webScraper.getStandings("Baseball"));
   }
 
   @Test
@@ -210,8 +211,7 @@ public class NUWebScraperTest {
     WebScraper webScraper = new NUWebScraper(standingsCache,
         scheduleCache, documentSource);
 
-    expectedException.expect(ConnectionFailureException.class);
-    webScraper.getSchedule("Baseball");
+    assertThrows(ConnectionFailureException.class, () -> webScraper.getSchedule("Baseball"));
   }
 
   @Test
