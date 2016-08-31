@@ -1,43 +1,64 @@
-group 'github.PtrTeixeira'
-version '0.1.0'
+buildscript {
+  ext.kotlin_version = '1.0.3'
+  ext.junit_version = '1.0.0-M2'
 
-apply from: "gradle/style.gradle"
-apply from: "gradle/uitest.gradle"
+  repositories {
+    mavenCentral()
+  }
 
-def versions = [
-   jsoup: '1.9.2',
-   junit: '4.12',
-   log4j: '2.6',
-   hamcrest: '1.3'
-]
-
-
-// Base plugin
-apply plugin: 'java'
-sourceCompatibility = 1.8
-
-// Reporting Plugins
-apply plugin: 'project-report'
-apply plugin: 'build-dashboard'
-
-tasks.withType(Test) {
-  testLogging {
-    events "passed", "skipped", "failed"
+  dependencies {
+    classpath "org.junit.platform:junit-platform-gradle-plugin:$junit_version"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
 }
 
-tasks.withType(Test) {
-  reports.html.destination = file("${reporting.baseDir}/${name}")
+plugins {
+  // Language Plugins
+  id 'java'
+
+  // Reporting Plugins
+  id 'project-report'
+  id 'build-dashboard'
 }
+
+apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'kotlin'
+apply from: "gradle/style.gradle"
+apply from: "gradle/uitest.gradle"
+
+group 'github.PtrTeixeira'
+version '0.1.0'
+
+def versions = [
+   jsoup: '1.9.2',
+   junit: '5.0.0-M2',
+   log4j: '2.6',
+   assertj: '3.5.2',
+   spek: '1.0.77'
+]
+
+junitPlatform {
+  engines {
+    include 'spek', 'junit-jupiter'
+  }
+}
+
+
+// Base plugin
+sourceCompatibility = 1.8
 
 repositories {
   mavenCentral()
 }
 
 dependencies {
-  compile group: 'org.jsoup', name: 'jsoup', version: "${versions.jsoup}"
-  compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${versions.log4j}"
+  compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_version
+  compile group: 'org.jsoup', name: 'jsoup', version: versions.jsoup
+  compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
 
-  testCompile group: 'junit', name: 'junit', version: "${versions.junit}"
-  testCompile group: 'org.hamcrest', name: "hamcrest-all", version: "${versions.hamcrest}"
+  testCompile group: 'org.assertj', name: 'assertj-core', version: versions.assertj
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
+  testCompile group: 'org.jetbrains.spek', name: 'spek-api', version: versions.spek
+  testRuntime group: 'org.jetbrains.spek', name: 'spek-junit-platform-engine', version: versions.spek
+  testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
 }

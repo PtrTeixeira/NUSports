@@ -1,9 +1,8 @@
 package github.ptrteixeira.view;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasToString;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * The point of this class is mostly just for fun.
@@ -18,7 +17,9 @@ import org.junit.Test;
 public class DisplayTypeTest {
   @Test
   public void testToStringReturnsExpectedValues() {
-    assertThat(DisplayType.SCHEDULE, hasToString("Schedule"));
-    assertThat(DisplayType.STANDINGS, hasToString("Standings"));
+    assertThat(DisplayType.SCHEDULE)
+        .hasToString("Schedule");
+    assertThat(DisplayType.STANDINGS)
+        .hasToString("Standings");
   }
 }
