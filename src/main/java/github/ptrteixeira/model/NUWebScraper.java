@@ -111,8 +111,10 @@ final class NUWebScraper implements WebScraper {
   public List<String> getSelectableSports() {
     List<String> sports = new ArrayList<>();
     Collections.addAll(sports,
-        "Men's Basketball", "Women's Basketball", "Baseball",
-        "Men's Soccer", "Women's Soccer", "Volleyball");
+        "Baseball", "Field Hockey",
+        "Men's Basketball", "Women's Basketball",
+        "Men's Soccer", "Women's Soccer",
+        "Softball", "Volleyball");
 
     return sports;
   }
@@ -135,16 +137,20 @@ final class NUWebScraper implements WebScraper {
 
   // Convert the given string sport into an HTML class
   // Used in extracting data from the calendar
-  private String sportToClass(String sport) {
+  String sportToClass(String sport) {
     logger.debug("Finding CSS class for \"{}\"", sport);
 
     switch (sport) {
       case "Baseball":
         return "sport_1";
+      case "Field Hockey":
+        return "sport_3";
       case "Men's Basketball":
         return "sport_6";
       case "Men's Soccer":
         return "sport_8";
+      case "Softball":
+        return "sport_9";
       case "Women's Basketball":
         return "sport_13";
       case "Women's Soccer":
@@ -193,16 +199,20 @@ final class NUWebScraper implements WebScraper {
 
   // Convert the given string sport into a url sport path
   // Called in generating standings tables
-  private String sportToPath(String sport) {
+  String sportToPath(String sport) {
     logger.trace("Getting URL path for \"{}\"", sport);
 
     switch (sport) {
       case "Baseball":
         return "baseball";
+      case "Field Hockey":
+        return "fhockey";
       case "Men's Basketball":
         return "mbball";
       case "Men's Soccer":
         return "msoc";
+      case "Softball":
+        return "softball";
       case "Women's Basketball":
         return "wbball";
       case "Women's Soccer":
