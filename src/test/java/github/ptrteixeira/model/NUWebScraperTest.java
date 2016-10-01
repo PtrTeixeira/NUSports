@@ -152,8 +152,10 @@ public class NUWebScraperTest {
 
     assertThat(webScraper.getSelectableSports())
         .containsExactlyInAnyOrder(
-            "Baseball", "Men's Basketball", "Women's Basketball",
-            "Volleyball", "Men's Soccer", "Women's Soccer"
+            "Baseball", "Softball",
+            "Volleyball", "Field Hockey",
+            "Men's Basketball", "Women's Basketball",
+            "Men's Soccer", "Women's Soccer"
         );
   }
 

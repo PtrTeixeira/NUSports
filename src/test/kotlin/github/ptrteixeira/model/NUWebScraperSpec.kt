@@ -214,9 +214,21 @@ class NUWebScraperSpec : Spek({
 
       assertThat(webScraper.selectableSports)
           .containsExactlyInAnyOrder(
-              "Baseball", "Men's Basketball", "Women's Basketball",
-              "Volleyball", "Men's Soccer", "Women's Soccer"
+              "Baseball", "Softball",
+              "Volleyball", "Field Hockey",
+              "Men's Basketball", "Women's Basketball",
+              "Men's Soccer", "Women's Soccer"
           )
+    }
+    it("should only contain sports supported by the rest of the scraper") {
+      val webScraper = NUWebScraper(null, null, null)
+
+      webScraper.selectableSports.forEach { sport ->
+        assertThat(webScraper.sportToClass(sport))
+            .isNotEmpty()
+        assertThat(webScraper.sportToPath(sport))
+            .isNotEmpty()
+      }
     }
   }
 })
