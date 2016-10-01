@@ -266,8 +266,10 @@ final class NUWebScraper implements WebScraper {
           "L",
           element.child(2).text().trim(),
           element.child(5).text().trim());
-    } else {
+    } else if (element.child(opponentIndex + 1).text().trim().isEmpty()) {
       result = "";
+    } else {
+      result = String.format("%s - %1$s", element.child(opponentIndex + 1).text().trim());
     }
 
     String date = this.getDate(element);
