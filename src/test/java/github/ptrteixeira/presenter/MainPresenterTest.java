@@ -83,6 +83,7 @@ public class MainPresenterTest {
 
   @Test
   public void testWillAttemptToPopulateTableWhenLoadPresenterCalled() throws Exception {
+    Thread.sleep(200);
     assertThat(mockViewPresenter.scheduleContents)
         .isNotEmpty();
     assertThat(mockWebScraper.scheduleRequests)
@@ -123,6 +124,7 @@ public class MainPresenterTest {
 
   @Test
   public void testOnFailedReloadContentsAreNotChanged() throws Exception {
+    Thread.sleep(200);
     List<Match> initialContents = mockViewPresenter.scheduleContents;
 
     mockWebScraper.failNextRequest();
