@@ -19,7 +19,7 @@
         </File>
     </Appenders>
     <Loggers>
-        <Logger name="github.ptrteixeira" level="trace">
+        <Logger name="com.github.ptrteixeira" level="trace">
             <AppenderRef ref="console" />
         </Logger>
         <Root level="debug">
