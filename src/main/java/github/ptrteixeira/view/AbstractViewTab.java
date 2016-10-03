@@ -73,4 +73,9 @@ abstract class AbstractViewTab<T> extends Tab {
   final void registerSportSelections(ChangeListener<String> selectionChangeListener) {
     this.sportsSelector.valueProperty().addListener(selectionChangeListener);
   }
+
+  final void setSelectedSport(String sport) {
+    System.out.println(String.format("Set selected sport to %s", sport));
+    this.sportsSelector.getSelectionModel().select(sport);
+  }
 }

@@ -23,11 +23,10 @@ public class MainView implements ViewPresenter {
 
   private final ScheduleTab scheduleTab;
   private final StandingsTab standingsTab;
-
-  private DisplayType displayType;
-
   private final TabPane tabPane;
   private final Button reloadButton;
+
+  private DisplayType displayType;
 
   MainView(ScheduleTab scheduleTab, StandingsTab standingsTab) {
     this.scheduleTab = scheduleTab;
@@ -54,11 +53,14 @@ public class MainView implements ViewPresenter {
     this.tabPane.getSelectionModel()
         .selectedItemProperty()
         .addListener((observable, oldValue, newValue) -> {
+          // This part has to do with how the UI changes in response to a changed tab
           if (this.displayType == DisplayType.STANDINGS) {
             this.displayType = DisplayType.SCHEDULE;
           } else {
             this.displayType = DisplayType.STANDINGS;
           }
+
+          // This part has to do with how the Model changes in response to a changed tab
           tabChangeListener.changed(observable, oldValue, newValue);
         });
   }
@@ -70,8 +72,15 @@ public class MainView implements ViewPresenter {
 
   @Override
   public void registerSportSelectionCallback(ChangeListener<String> selectionChangeListener) {
-    this.scheduleTab.registerSportSelections(selectionChangeListener);
-    this.standingsTab.registerSportSelections(selectionChangeListener);
+    ChangeListener<String> callback = (observable, oldValue, newValue) -> {
+      this.scheduleTab.setSelectedSport(newValue);
+      this.standingsTab.setSelectedSport(newValue);
+
+      selectionChangeListener.changed(observable, oldValue, newValue);
+    };
+
+    this.scheduleTab.registerSportSelections(callback);
+    this.standingsTab.registerSportSelections(callback);
   }
 
   @Override
