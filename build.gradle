@@ -26,7 +26,7 @@ apply plugin: 'kotlin'
 apply from: "gradle/style.gradle"
 apply from: "gradle/uitest.gradle"
 
-group 'com.com.github.PtrTeixeira'
+group 'com.github.PtrTeixeira'
 version '2.0.0'
 
 def versions = [
