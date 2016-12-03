@@ -1,5 +1,5 @@
 buildscript {
-  ext.kotlin_version = '1.0.4'
+  ext.kotlin_version = '1.0.5-2'
   ext.junit_version = '1.0.0-M2'
 
   repositories {
@@ -26,18 +26,19 @@ apply plugin: 'kotlin'
 apply from: "gradle/style.gradle"
 apply from: "gradle/uitest.gradle"
 
-group 'com.com.github.PtrTeixeira'
+group 'com.github.PtrTeixeira'
 version '2.0.0'
 
 def versions = [
-   jsoup: '1.9.2',
+   jsoup: '1.10.1',
    junit: '5.0.0-M2',
-   log4j: '2.6',
-   assertj: '3.5.2',
-   spek: '1.0.77'
+   log4j: '2.7',
+   assertj: '3.6.1',
+   spek: '1.0.89'
 ]
 
 junitPlatform {
+  platformVersion = "1.0.0-M2"
   engines {
     include 'spek', 'junit-jupiter'
   }
