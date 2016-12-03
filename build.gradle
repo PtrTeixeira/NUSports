@@ -33,7 +33,7 @@ def versions = [
    jsoup: '1.9.2',
    junit: '5.0.0-M2',
    log4j: '2.6',
-   assertj: '3.5.2',
+   assertj: '3.6.1',
    spek: '1.0.89'
 ]
 
