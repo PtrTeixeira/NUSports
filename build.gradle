@@ -34,10 +34,11 @@ def versions = [
    junit: '5.0.0-M2',
    log4j: '2.6',
    assertj: '3.5.2',
-   spek: '1.0.77'
+   spek: '1.0.89'
 ]
 
 junitPlatform {
+  platformVersion = "1.0.0-M2"
   engines {
     include 'spek', 'junit-jupiter'
   }
