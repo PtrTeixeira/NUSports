@@ -6,7 +6,7 @@ import javafx.collections.ObservableList
 import tornadofx.column
 import tornadofx.tableview
 
-class KScheduleTab(private val binding : ObservableList<com.github.ptrteixeira.nusports.model.Match>) : KAbstractTab<com.github.ptrteixeira.nusports.model.Match>() {
+class ScheduleTab(private val binding : ObservableList<com.github.ptrteixeira.nusports.model.Match>) : AbstractTab<com.github.ptrteixeira.nusports.model.Match>() {
     private var tableContents = FXCollections.observableArrayList<Match>()
 
     init {

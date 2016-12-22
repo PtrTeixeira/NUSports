@@ -4,7 +4,7 @@ import com.github.ptrteixeira.nusports.model.Site;
 import com.github.ptrteixeira.nusports.model.WebScraper;
 import com.github.ptrteixeira.nusports.model.WebScraperFactory;
 import com.github.ptrteixeira.nusports.presenter.MainController;
-import com.github.ptrteixeira.nusports.view.KMainView;
+import com.github.ptrteixeira.nusports.view.MainView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -36,7 +36,7 @@ public class NUSports extends Application {
         500, TimeUnit.MILLISECONDS,
         new LinkedBlockingQueue<>());
     MainController controller = new MainController(executor, scraper);
-    KMainView view = new KMainView(controller);
+    MainView view = new MainView(controller);
 
 
     Scene scene = new Scene(view.getRoot());

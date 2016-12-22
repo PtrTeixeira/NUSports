@@ -7,16 +7,9 @@ import javafx.scene.control.ComboBox
 import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
 import javafx.scene.text.Text
-import tornadofx.View
-import tornadofx.borderpane
-import tornadofx.center
-import tornadofx.combobox
-import tornadofx.left
-import tornadofx.singleAssign
-import tornadofx.text
-import tornadofx.vbox
+import tornadofx.*
 
-abstract class KAbstractTab<in TableData> : View() {
+abstract class AbstractTab<in TableData> : View() {
     private val sports = FXCollections.observableArrayList<String>()
 
     private var errorText : Text by singleAssign()

@@ -6,9 +6,9 @@ import javafx.collections.ObservableList
 import tornadofx.column
 import tornadofx.tableview
 
-class KStandingTab(private val binding
+class StandingTab(private val binding
                    : ObservableList<com.github.ptrteixeira.nusports.model.Standing>)
-: KAbstractTab<com.github.ptrteixeira.nusports.model.Standing>() {
+: AbstractTab<com.github.ptrteixeira.nusports.model.Standing>() {
     private val tableContents = FXCollections.observableArrayList<Standing>()
 
     init {
