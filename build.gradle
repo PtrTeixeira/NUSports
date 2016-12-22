@@ -24,7 +24,6 @@ plugins {
 apply plugin: 'org.junit.platform.gradle.plugin'
 apply plugin: 'kotlin'
 apply from: "gradle/style.gradle"
-apply from: "gradle/uitest.gradle"
 
 group 'com.github.PtrTeixeira'
 version '2.0.0'
