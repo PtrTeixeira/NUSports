@@ -62,9 +62,10 @@ class MainView(private val controller : MainController) : View() {
 
     private fun changeTabs() : ChangeListener<Tab> {
         return ChangeListener { observable, oldValue, newValue ->
-            displayType = when (displayType) {
-                SCHEDULE -> STANDINGS
-                STANDINGS -> SCHEDULE
+            displayType = when (newValue.text) {
+                "Schedule" -> SCHEDULE
+                "Standings" -> STANDINGS
+                else -> throw IllegalStateException("Invalid tab title")
             }
 
             controller.lookup(displayType, currentSelection)
