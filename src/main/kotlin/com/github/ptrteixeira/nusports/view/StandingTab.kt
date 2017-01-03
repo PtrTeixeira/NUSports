@@ -1,41 +1,30 @@
 package com.github.ptrteixeira.nusports.view
 
+import com.github.ptrteixeira.nusports.model.StandingK
 import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener
 import javafx.collections.ObservableList
 import tornadofx.column
 import tornadofx.tableview
 
-class StandingTab(private val binding
-                   : ObservableList<com.github.ptrteixeira.nusports.model.Standing>)
-: AbstractTab<com.github.ptrteixeira.nusports.model.Standing>() {
-    private val tableContents = FXCollections.observableArrayList<Standing>()
+class StandingTab(private val binding: ObservableList<StandingK>) : AbstractTab<StandingK>() {
+    private val tableContents = FXCollections.observableArrayList<StandingK>()
 
     init {
-        binding.addListener(ListChangeListener { change ->
-            tableContents.clear()
-            binding.map {
-                Standing(it.teamName, it.conference, it.overall)
-            }.toCollection(tableContents)
-        })
+        binding.addListener(ListChangeListener { tableContents.setAll(binding) })
     }
 
     override val root = place {
-        tableview<Standing> {
+        tableview<StandingK> {
             items = tableContents
 
-            column("Team", Standing::team)
-            column("Conference", Standing::conference)
-            column("Overall", Standing::overall)
+            column("Team", StandingK::teamName)
+            column("Conference", StandingK::conference)
+            column("Overall", StandingK::overall)
         }
     }
 
-    override fun populate(tableData: List<com.github.ptrteixeira.nusports.model.Standing>) {
-        this.tableContents.clear()
-        tableData.map {
-            Standing(it.teamName, it.conference, it.overall)
-        }.toCollection(tableContents)
+    override fun populate(tableData: List<StandingK>) {
+        tableContents.setAll(tableData)
     }
-
-    private data class Standing(val team : String, val conference : String, val overall : String)
 }
