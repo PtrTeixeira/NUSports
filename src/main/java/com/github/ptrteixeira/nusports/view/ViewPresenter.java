@@ -25,9 +25,9 @@ public interface ViewPresenter {
 
   void setSelectableSports(List<String> sports);
 
-  void setScheduleContents(List<Match> scheduleContents);
+  void setScheduleContents(List<Match> tableData);
 
-  void setStandingsContents(List<Standing> standingsContents);
+  void setStandingsContents(List<Standing> tableData);
 
   DisplayType currentDisplayType();
 

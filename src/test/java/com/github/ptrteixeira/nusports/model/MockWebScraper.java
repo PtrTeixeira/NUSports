@@ -20,6 +20,13 @@ public final class MockWebScraper implements WebScraper {
     failNextRequest = true;
   }
 
+  public void reset() {
+    this.standingsRequests.clear();
+    this.scheduleRequests.clear();
+    this.cacheClears.clear();
+    this.failNextRequest = false;
+  }
+
   @Override
   public ObservableList<Standing> getStandings(String sport) throws ConnectionFailureException {
     standingsRequests.add(0, sport);

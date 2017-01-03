@@ -3,9 +3,8 @@ package com.github.ptrteixeira.nusports;
 import com.github.ptrteixeira.nusports.model.Site;
 import com.github.ptrteixeira.nusports.model.WebScraper;
 import com.github.ptrteixeira.nusports.model.WebScraperFactory;
-import com.github.ptrteixeira.nusports.presenter.MainPresenter;
+import com.github.ptrteixeira.nusports.presenter.MainController;
 import com.github.ptrteixeira.nusports.view.MainView;
-import com.github.ptrteixeira.nusports.view.ViewPresenter;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -32,17 +31,15 @@ public class NUSports extends Application {
 
   @Override
   public void start(Stage primaryStage) {
-    ViewPresenter view = new MainView();
     WebScraper scraper = new WebScraperFactory().forSite(Site.CAA);
     ExecutorService executor = new ThreadPoolExecutor(2, 6,
         500, TimeUnit.MILLISECONDS,
         new LinkedBlockingQueue<>());
+    MainController controller = new MainController(executor, scraper);
+    MainView view = new MainView(controller);
 
-    MainPresenter presenter = new MainPresenter(scraper, view, executor);
 
-
-    Scene scene = new Scene(view.createView());
-    presenter.loadPresenter();
+    Scene scene = new Scene(view.getRoot());
 
     primaryStage.setTitle("NU Sports");
     primaryStage.setScene(scene);
