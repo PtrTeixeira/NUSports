@@ -1,9 +1,5 @@
 package com.github.ptrteixeira.nusports.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.tuple;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.jsoup.Jsoup;
@@ -12,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author Peter Teixeira

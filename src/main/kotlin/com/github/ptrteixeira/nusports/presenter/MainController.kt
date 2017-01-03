@@ -1,6 +1,9 @@
 package com.github.ptrteixeira.nusports.presenter
 
-import com.github.ptrteixeira.nusports.model.*
+import com.github.ptrteixeira.nusports.model.ConnectionFailureException
+import com.github.ptrteixeira.nusports.model.Match
+import com.github.ptrteixeira.nusports.model.Standing
+import com.github.ptrteixeira.nusports.model.WebScraper
 import com.github.ptrteixeira.nusports.view.DisplayType
 import com.github.ptrteixeira.nusports.view.DisplayType.SCHEDULE
 import com.github.ptrteixeira.nusports.view.DisplayType.STANDINGS
@@ -16,10 +19,10 @@ class MainController(private val executor: Executor,
                      private val webScraper: WebScraper) : Controller() {
     private val logger = LogManager.getLogger()
 
-    val displayedSchedule: ObservableList<MatchK>
-            = FXCollections.observableArrayList<MatchK>()
-    val displayedStandings: ObservableList<StandingK>
-            = FXCollections.observableArrayList<StandingK>()
+    val displayedSchedule: ObservableList<Match>
+            = FXCollections.observableArrayList<Match>()
+    val displayedStandings: ObservableList<Standing>
+            = FXCollections.observableArrayList<Standing>()
     val errorText: SimpleStringProperty = SimpleStringProperty()
 
     fun lookup(type: DisplayType, currentSelection: String, clearOnFail: Boolean = false) {
@@ -41,7 +44,7 @@ class MainController(private val executor: Executor,
                 logger.debug("Loading schedule data")
                 try {
                     val schedule = webScraper.getSchedule(currentSelection)
-                    displayedSchedule.setAll(schedule.map(::asMatchK))
+                    displayedSchedule.setAll(schedule)
                     return schedule
                 } catch (cfx: ConnectionFailureException) {
                     onFail()
@@ -61,7 +64,7 @@ class MainController(private val executor: Executor,
                 logger.debug("Loading standings data")
                 try {
                     val standings = webScraper.getStandings(currentSelection)
-                    displayedStandings.setAll(standings.map(::asStandingK))
+                    displayedStandings.setAll(standings)
                     return standings
                 } catch (cfx: ConnectionFailureException) {
                     onFail()
@@ -91,12 +94,4 @@ class MainController(private val executor: Executor,
             changeDisplay()
         }
     }
-}
-
-private fun asMatchK(match: Match): MatchK {
-    return MatchK(match.date, match.opponent, match.result)
-}
-
-private fun asStandingK(standing: Standing): StandingK {
-    return StandingK(standing.teamName, standing.conference, standing.overall)
 }
