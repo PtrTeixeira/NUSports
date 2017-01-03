@@ -10,6 +10,6 @@ package com.github.ptrteixeira.nusports.model
  * @property conference Record within conference play, eg "5-2"
  * @property overall Overall record, including both in-conference and out-of conference play
  */
-data class StandingK(val teamName: String,
-                     val conference: String,
-                     val overall: String)
+data class Standing(val teamName: String,
+                    val conference: String,
+                    val overall: String)

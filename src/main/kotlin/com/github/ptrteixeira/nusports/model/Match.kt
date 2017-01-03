@@ -7,6 +7,6 @@ package com.github.ptrteixeira.nusports.model
  *
  *
  */
-data class MatchK(val date: String,
-                  val opponent: String,
-                  val result: String)
+data class Match(val date: String,
+                 val opponent: String,
+                 val result: String)

@@ -160,8 +160,8 @@ class NUWebScraperSpec : Spek({
   }
 
   describe("getStandings") {
-    val mockSource = DocumentSource { url ->
-      Jsoup.parse(File("src/test/resources/test_standings.html"), "UTF8", ".");
+    val mockSource = DocumentSource {
+      Jsoup.parse(File("src/test/resources/test_standings.html"), "UTF8", ".")
     }
 
     given("a value in the cache") {
