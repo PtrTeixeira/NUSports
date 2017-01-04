@@ -7,7 +7,7 @@ import javafx.collections.ObservableList
 import tornadofx.column
 import tornadofx.tableview
 
-class StandingTab(private val binding: ObservableList<Standing>) : AbstractTab<Standing>() {
+class StandingTab(private val binding: ObservableList<Standing>) : AbstractTab() {
     private val tableContents = FXCollections.observableArrayList<Standing>()
 
     init {
@@ -22,9 +22,5 @@ class StandingTab(private val binding: ObservableList<Standing>) : AbstractTab<S
             column("Conference", Standing::conference)
             column("Overall", Standing::overall)
         }
-    }
-
-    override fun populate(tableData: List<Standing>) {
-        tableContents.setAll(tableData)
     }
 }

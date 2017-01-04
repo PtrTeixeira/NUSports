@@ -9,7 +9,7 @@ import javafx.scene.paint.Color
 import javafx.scene.text.Text
 import tornadofx.*
 
-abstract class AbstractTab<in TableData> : View() {
+abstract class AbstractTab : View() {
     private val sports = FXCollections.observableArrayList<String>()
 
     private var errorText : Text by singleAssign()
@@ -35,8 +35,6 @@ abstract class AbstractTab<in TableData> : View() {
             center(table)
         }
     }
-
-    abstract fun populate(tableData: List<TableData>)
 
     fun setErrorText(message : String) {
         this.errorText.text = message

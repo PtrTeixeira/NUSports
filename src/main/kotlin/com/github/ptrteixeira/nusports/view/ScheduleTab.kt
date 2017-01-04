@@ -7,13 +7,11 @@ import javafx.collections.ObservableList
 import tornadofx.column
 import tornadofx.tableview
 
-class ScheduleTab(private val binding : ObservableList<Match>) : AbstractTab<Match>() {
+class ScheduleTab(private val binding : ObservableList<Match>) : AbstractTab() {
     private var tableContents = FXCollections.observableArrayList<Match>()
 
     init {
-        binding.addListener(ListChangeListener {
-            tableContents.setAll(binding)
-        })
+        binding.addListener(ListChangeListener { tableContents.setAll(binding) })
     }
 
     override val root = place {
@@ -24,9 +22,5 @@ class ScheduleTab(private val binding : ObservableList<Match>) : AbstractTab<Mat
             column("Opponent", Match::opponent)
             column("Result", Match::result)
         }
-    }
-
-    override fun populate(tableData : List<Match>) {
-        this.tableContents.setAll(tableData)
     }
 }
