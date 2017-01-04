@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 /**
@@ -22,6 +23,9 @@ import java.io.IOException;
  */
 final class NUDocumentSource implements DocumentSource {
   private static final Logger logger = LogManager.getLogger();
+
+  @Inject
+  NUDocumentSource() {}
 
   @Override
   public Document get(String url) throws IOException {
