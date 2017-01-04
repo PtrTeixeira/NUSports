@@ -1,5 +1,8 @@
 # Exclude tooling. This will get moved to global.
 .idea/
+*.iml
+*.iws
+*.ipr
 
 # Exclude gradle nonsense
 .gradle/
