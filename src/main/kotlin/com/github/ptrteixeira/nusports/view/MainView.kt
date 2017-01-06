@@ -86,7 +86,7 @@ private fun TabPane.setTabChangeListener(op: ChangeListener<in Tab>) {
         .addListener(op)
 }
 
-private fun <T> Tab.addRoot(abstractViewTab: AbstractTab, op: AbstractTab.() -> Unit) {
+private fun Tab.addRoot(abstractViewTab: AbstractTab, op: AbstractTab.() -> Unit) {
     abstractViewTab.apply(op)
 
     this.add(abstractViewTab.root)
