@@ -8,12 +8,9 @@ import javafx.geometry.Pos
 import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import javafx.scene.control.TabPane.TabClosingPolicy.UNAVAILABLE
-import org.apache.logging.log4j.LogManager
 import tornadofx.*
 
 class MainView(private val controller : MainController) : View() {
-    private val logger = LogManager.getLogger()
-
     private val scheduleTab = ScheduleTab(controller.displayedSchedule)
     private val standingsTab = StandingTab(controller.displayedStandings)
 
@@ -89,7 +86,7 @@ private fun TabPane.setTabChangeListener(op: ChangeListener<in Tab>) {
         .addListener(op)
 }
 
-private fun <T> Tab.addRoot(abstractViewTab: AbstractTab<T>, op: AbstractTab<T>.() -> Unit) {
+private fun Tab.addRoot(abstractViewTab: AbstractTab, op: AbstractTab.() -> Unit) {
     abstractViewTab.apply(op)
 
     this.add(abstractViewTab.root)
