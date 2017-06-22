@@ -1,6 +1,6 @@
 buildscript {
-  ext.kotlin_version = '1.0.6'
-  ext.junit_version = '1.0.0-M2'
+  ext.kotlin_version = '1.1.2-5'
+  ext.junit_version = '1.0.0-M4'
 
   repositories {
     mavenCentral()
@@ -15,6 +15,8 @@ buildscript {
 plugins {
   // Language Plugins
   id 'java'
+  id 'nebula.kotlin' version '1.1.2-5.1'
+  id 'org.jetbrains.kotlin.kapt' version '1.1.2-5'
 
   // Reporting Plugins
   id 'project-report'
@@ -26,30 +28,31 @@ plugins {
 }
 
 apply plugin: 'org.junit.platform.gradle.plugin'
-apply plugin: 'kotlin'
 apply from: "gradle/style.gradle"
 
 group 'com.github.PtrTeixeira'
-version '2.0.0'
+version '3.0.0'
 
 def versions = [
-    jsoup  : '1.10.1',
-    junit  : '5.0.0-M2',
-    log4j  : '2.7',
-    assertj: '3.6.1',
-    spek   : '1.0.89',
-    dagger : '2.8'
+    jsoup  : '1.10.3',
+    junit  : '5.0.0-M4',
+    log4j  : '2.8.2',
+    assertj: '3.8.0',
+    spek   : '1.1.2',
+    dagger : '2.11'
 ]
 
 junitPlatform {
-  platformVersion = "1.0.0-M2"
-  engines {
-    include 'spek', 'junit-jupiter'
+  platformVersion = '1.0.0-M4'
+  filters {
+    engines {
+      include 'spek', 'junit-jupiter'
+    }
   }
 }
 
 kapt {
-  generateStubs = true
+  correctErrorTypes = true
 }
 
 // Base plugin
@@ -60,7 +63,6 @@ repositories {
 }
 
 dependencies {
-  compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_version
   compile group: 'org.jsoup', name: 'jsoup', version: versions.jsoup
   compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
   compile group: 'no.tornado', name: 'tornadofx', version: '1.5.7'
@@ -71,6 +73,7 @@ dependencies {
   testCompile group: 'org.assertj', name: 'assertj-core', version: versions.assertj
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
   testCompile group: 'org.jetbrains.spek', name: 'spek-api', version: versions.spek
+  testCompile group: 'org.jetbrains.spek', name: 'spek-subject-extension', version: versions.spek
   testRuntime group: 'org.jetbrains.spek', name: 'spek-junit-platform-engine', version: versions.spek
   testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
 }
