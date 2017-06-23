@@ -73,6 +73,7 @@ spotless {
     ktlint()
     licenseHeaderFile 'LICENSE'
   }
+  lineEndings 'UNIX'
 }
 
 kapt {
