@@ -1,30 +1,47 @@
+/*
+ * Copyright (c) 2017 Peter Teixeira
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.github.ptrteixeira.nusports.model;
 
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Function;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.*;
-import java.util.function.Function;
-
-
 /**
- * Scrape the CAA site, in particular, to get information relevant to
- * Northeastern.
+ * Scrape the CAA site, in particular, to get information relevant to Northeastern.
+ *
  * <p>
- * <p>
- * It is extremely tightly tied to the actual structure of the CAA site, but I
- * couldn't find a REST endpoint or anything similar that would allow me to
- * trivially extract the information that I needed. So it just scrapes straight
- * off of HTML, which works until the CAA changes how their site is laid out
- * again.
- * </p>
+ *
+ * <p>It is extremely tightly tied to the actual structure of the CAA site, but I couldn't find a
+ * REST endpoint or anything similar that would allow me to trivially extract the information that I
+ * needed. So it just scrapes straight off of HTML, which works until the CAA changes how their site
+ * is laid out again.
  *
  * @author Peter
  */
@@ -36,9 +53,10 @@ final class NUWebScraper implements WebScraper {
   private final DocumentSource documentSource;
 
   @Inject
-  NUWebScraper(Map<String, ObservableList<Standing>> standingsCache,
-               Map<String, ObservableList<Match>> scheduleCache,
-               DocumentSource documentSource) {
+  NUWebScraper(
+      Map<String, ObservableList<Standing>> standingsCache,
+      Map<String, ObservableList<Match>> scheduleCache,
+      DocumentSource documentSource) {
     this.standingsCache = standingsCache;
     this.scheduleCache = scheduleCache;
     this.documentSource = documentSource;
@@ -52,19 +70,20 @@ final class NUWebScraper implements WebScraper {
     }
 
     try {
-      logger.debug("Standings for \"{}\" not found in cache; "
-          + "connecting to external source.", sport);
+      logger.debug(
+          "Standings for \"{}\" not found in cache; " + "connecting to external source.", sport);
       ObservableList<Standing> data = FXCollections.observableArrayList();
       String queryPath = "http://caasports.com/standings.aspx?path=" + this.sportToPath(sport);
       logger.debug("Making query to path {}", queryPath);
       Document doc = documentSource.get(queryPath);
 
-      Elements rows = doc.getElementsByClass("default_dgrd") // list of <table>
-          .first() // <table>
-          .getElementsByTag("tbody") // list of <tbody>
-          .first() // <tbody>
-          .children();                          // list of <tr>
-      rows.remove(0);                               // drop header
+      Elements rows =
+          doc.getElementsByClass("default_dgrd") // list of <table>
+              .first() // <table>
+              .getElementsByTag("tbody") // list of <tbody>
+              .first() // <tbody>
+              .children(); // list of <tr>
+      rows.remove(0); // drop header
 
       rows.stream().map(standingsParser(sport)).forEach(data::add);
 
@@ -92,9 +111,7 @@ final class NUWebScraper implements WebScraper {
 
       Elements nuGames = this.extractSport(doc.getElementsByClass("school_3"), sport);
 
-      nuGames.stream()
-          .map(this::parseMatch)
-          .forEach(data::add);
+      nuGames.stream().map(this::parseMatch).forEach(data::add);
 
       logger.debug("Found schedule data on the web for {}. Writing to cache.", sport);
       this.scheduleCache.put(sport, data);
@@ -108,11 +125,16 @@ final class NUWebScraper implements WebScraper {
   @Override
   public List<String> getSelectableSports() {
     List<String> sports = new ArrayList<>();
-    Collections.addAll(sports,
-        "Baseball", "Field Hockey",
-        "Men's Basketball", "Women's Basketball",
-        "Men's Soccer", "Women's Soccer",
-        "Softball", "Volleyball");
+    Collections.addAll(
+        sports,
+        "Baseball",
+        "Field Hockey",
+        "Men's Basketball",
+        "Women's Basketball",
+        "Men's Soccer",
+        "Women's Soccer",
+        "Softball",
+        "Volleyball");
 
     return sports;
   }
@@ -230,7 +252,7 @@ final class NUWebScraper implements WebScraper {
     return new Standing(
         element.child(0).text(), // School
         element.child(1).text(), // Conference Results
-        element.child(3).text());           // Overall Results
+        element.child(3).text()); // Overall Results
   }
 
   // In contrast, soccer standings look like
@@ -242,7 +264,7 @@ final class NUWebScraper implements WebScraper {
     return new Standing(
         element.child(0).text(), // School
         element.child(1).text(), // Conference Results
-        element.child(4).text());// Overall results
+        element.child(4).text()); // Overall results
   }
 
   // Parse the table row in the document into a Match
@@ -263,17 +285,13 @@ final class NUWebScraper implements WebScraper {
     String result;
     final String outputFormat = "%s %s - %s";
     if (element.child(northeasternIndex).hasClass("won")) {
-      result = String.format(
-          outputFormat,
-          "W",
-          element.child(2).text().trim(),
-          element.child(5).text().trim());
+      result =
+          String.format(
+              outputFormat, "W", element.child(2).text().trim(), element.child(5).text().trim());
     } else if (element.child(opponentIndex).hasClass("won")) {
-      result = String.format(
-          outputFormat,
-          "L",
-          element.child(2).text().trim(),
-          element.child(5).text().trim());
+      result =
+          String.format(
+              outputFormat, "L", element.child(2).text().trim(), element.child(5).text().trim());
     } else if (element.child(opponentIndex + 1).text().trim().isEmpty()) {
       result = "";
     } else {

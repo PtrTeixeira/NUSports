@@ -1,5 +1,4 @@
 buildscript {
-  ext.kotlin_version = '1.1.2-5'
   ext.junit_version = '1.0.0-M4'
 
   repositories {
@@ -8,7 +7,6 @@ buildscript {
 
   dependencies {
     classpath "org.junit.platform:junit-platform-gradle-plugin:$junit_version"
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
 }
 
@@ -16,19 +14,23 @@ plugins {
   // Language Plugins
   id 'java'
   id 'nebula.kotlin' version '1.1.2-5.1'
-  id 'org.jetbrains.kotlin.kapt' version '1.1.2-5'
 
   // Reporting Plugins
   id 'project-report'
   id 'build-dashboard'
 
-  // Annotation Procesing
-  id 'net.ltgt.apt' version '0.5'
+  // Because Intellij is not good with Dagger
   id 'idea'
+
+  // Annotation Processing
+  id 'net.ltgt.apt' version '0.5'
+  id 'org.jetbrains.kotlin.kapt' version '1.1.2-5'
+
+  // Validation plugins
+  id 'com.diffplug.gradle.spotless' version '3.4.0'
 }
 
 apply plugin: 'org.junit.platform.gradle.plugin'
-apply from: "gradle/style.gradle"
 
 group 'com.github.PtrTeixeira'
 version '3.0.0'
@@ -48,6 +50,28 @@ junitPlatform {
     engines {
       include 'spek', 'junit-jupiter'
     }
+  }
+}
+
+// Because Intellij plays poorly with Dagger
+idea {
+  module {
+    sourceDirs += file('build/generated/source/kapt/main')
+    testSourceDirs += file('build/generated/source/kapt/test')
+    generatedSourceDirs += file('build/generated/source/kapt/main')
+    generatedSourceDirs += file('build/generated/source/kapt/test')
+  }
+}
+
+spotless {
+  java {
+    removeUnusedImports()
+    googleJavaFormat()
+    licenseHeaderFile 'LICENSE'
+  }
+  kotlin {
+    ktlint()
+    licenseHeaderFile 'LICENSE'
   }
 }
 
