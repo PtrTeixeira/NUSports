@@ -3,10 +3,10 @@ package com.github.ptrteixeira.nusports.presenter
 import com.github.ptrteixeira.nusports.model.MockWebScraper
 import com.github.ptrteixeira.nusports.view.DisplayType
 import org.assertj.core.api.Assertions.assertThat
-import org.jetbrains.spek.api.SubjectSpek
 import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.subject.SubjectSpek
 import java.util.concurrent.Executor
 
 internal class MainControllerSpec : SubjectSpek<MainController>({
@@ -16,9 +16,9 @@ internal class MainControllerSpec : SubjectSpek<MainController>({
     subject { MainController(immediateExecutor, scraper) }
 
     describe(".lookup") {
-        beforeEach { scraper.reset() }
+        beforeEachTest { scraper.reset() }
         context("when Standings is displayed") {
-            beforeEach { subject.lookup(DisplayType.STANDINGS, "Sport 1", false) }
+            beforeEachTest { subject.lookup(DisplayType.STANDINGS, "Sport 1", false) }
             it("should make a query about the standings") {
                 assertThat(scraper.standingsRequests)
                         .hasSize(1)
@@ -39,9 +39,9 @@ internal class MainControllerSpec : SubjectSpek<MainController>({
                 }
             }
             context("when the query fails") {
-                beforeEach { scraper.failNextRequest() }
+                beforeEachTest { scraper.failNextRequest() }
                 context("when set to clear on fail") {
-                    beforeEach { subject.lookup(DisplayType.STANDINGS, "Sport 1", clearOnFail = true) }
+                    beforeEachTest { subject.lookup(DisplayType.STANDINGS, "Sport 1", clearOnFail = true) }
                     it("should show an error message") {
                         assertThat(subject.errorText.get())
                                 .isNotEmpty()
@@ -52,7 +52,7 @@ internal class MainControllerSpec : SubjectSpek<MainController>({
                     }
                 }
                 context("when not set to clear on fail") {
-                    beforeEach { subject.lookup(DisplayType.STANDINGS, "Sport 1", clearOnFail = false) }
+                    beforeEachTest { subject.lookup(DisplayType.STANDINGS, "Sport 1", clearOnFail = false) }
                     it("should show an error message") {
                         assertThat(subject.errorText.get())
                                 .isNotEmpty()
@@ -65,7 +65,7 @@ internal class MainControllerSpec : SubjectSpek<MainController>({
             }
         }
         context("when Schedule is displayed") {
-            beforeEach { subject.lookup(DisplayType.SCHEDULE, "Sport 1", false) }
+            beforeEachTest { subject.lookup(DisplayType.SCHEDULE, "Sport 1", false) }
             it("should make a query about the schedule") {
                 assertThat(scraper.scheduleRequests)
                         .hasSize(1)
@@ -84,9 +84,9 @@ internal class MainControllerSpec : SubjectSpek<MainController>({
                 }
             }
             context("when the query fails") {
-                beforeEach { scraper.failNextRequest() }
+                beforeEachTest { scraper.failNextRequest() }
                 context("when set to clear on fail") {
-                    beforeEach { subject.lookup(DisplayType.SCHEDULE, "Sport 1", clearOnFail = true) }
+                    beforeEachTest { subject.lookup(DisplayType.SCHEDULE, "Sport 1", clearOnFail = true) }
                     it("should show an error message") {
                         assertThat(subject.errorText.get())
                                 .isNotEmpty()
@@ -97,7 +97,7 @@ internal class MainControllerSpec : SubjectSpek<MainController>({
                     }
                 }
                 context("when not set to clear on fail") {
-                    beforeEach { subject.lookup(DisplayType.SCHEDULE, "Sport 1", clearOnFail = false) }
+                    beforeEachTest { subject.lookup(DisplayType.SCHEDULE, "Sport 1", clearOnFail = false) }
                     it("should show an error message") {
                         assertThat(subject.errorText.get())
                                 .isNotEmpty()
