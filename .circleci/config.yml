@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/build
+    docker:
+      - image: openjdk:8u131
+    steps:
+      - checkout
+      - run: apt-get update && apt-get install -y --no-install-recommends openjfx && rm -rf /var/lib/apt/lists/*
+      - restore_cache:
+          key: v1-{{ checksum "build.gradle" }}
+      - run: bash gradlew check --console plain
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-{{ checksum "pom.xml" }}
+      - store_test_results:
+          path: /build/build/test-results
