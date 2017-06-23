@@ -21,6 +21,7 @@
  */
 package com.github.ptrteixeira.nusports.view
 
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.value.ChangeListener
 import javafx.collections.FXCollections
 import javafx.geometry.Pos
@@ -38,6 +39,8 @@ import tornadofx.text
 import tornadofx.vbox
 
 abstract class AbstractTab : View() {
+    override val refreshable = SimpleBooleanProperty(true)
+
     private val sports = FXCollections.observableArrayList<String>()
 
     private var errorText : Text by singleAssign()

@@ -19,41 +19,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.ptrteixeira.nusports;
+package com.github.ptrteixeira.nusports
 
-import com.github.ptrteixeira.nusports.view.MainView;
-import java.util.concurrent.ExecutorService;
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import com.github.ptrteixeira.nusports.presenter.MainController
+import com.github.ptrteixeira.nusports.view.Body
+import com.github.ptrteixeira.nusports.view.SportsWorkspace
+import javafx.application.Application
+import tornadofx.App
+import tornadofx.DIContainer
+import tornadofx.FX
+import tornadofx.UIComponent
+import kotlin.reflect.KClass
 
-/**
- * @author Peter
- * @version 0.1
- */
-public class NUSports extends Application {
+class SportsApp : App(SportsWorkspace::class) {
+    override fun onBeforeShow(view: UIComponent) {
+        workspace.dock<Body>()
+    }
 
-  /**
-   * Entry point for application.
-   *
-   * @param args the command line arguments
-   */
-  public static void main(String[] args) {
-    launch(args);
-  }
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            val application: SportsApplication = DaggerSportsApplication.create()
 
-  @Override
-  public void start(Stage primaryStage) {
-    SportsApplication application = DaggerSportsApplication.create();
-    ExecutorService executor = application.executor();
-    MainView view = application.mainView();
+            FX.dicontainer = object : DIContainer {
+                override fun <T : Any> getInstance(type: KClass<T>): T {
+                    when (type) {
+                        MainController::class -> return application.controller() as T
+                        else -> throw IllegalArgumentException()
+                    }
+                }
+            }
 
-    Scene scene = new Scene(view.getRoot());
-
-    primaryStage.setTitle("NU Sports");
-    primaryStage.setScene(scene);
-    primaryStage.setOnCloseRequest(windowEvent -> executor.shutdown());
-
-    primaryStage.show();
-  }
+            Application.launch(SportsApp::class.java, *args)
+        }
+    }
 }

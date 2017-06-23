@@ -19,19 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.ptrteixeira.nusports
+package com.github.ptrteixeira.nusports.view
 
-import com.github.ptrteixeira.nusports.model.ApplicationModelModule
-import com.github.ptrteixeira.nusports.presenter.MainController
-import com.github.ptrteixeira.nusports.view.MainView
-import dagger.Component
-import java.util.concurrent.ExecutorService
-import javax.inject.Singleton
+import tornadofx.Workspace
 
-@Component(modules = arrayOf(SportsApplicationModule::class, ApplicationModelModule::class))
-@Singleton
-interface SportsApplication {
-    fun mainView(): MainView
-    fun executor(): ExecutorService
-    fun controller(): MainController
-}
+// TODO customization of the workspace
+class SportsWorkspace : Workspace()
