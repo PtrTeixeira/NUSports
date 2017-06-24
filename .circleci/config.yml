@@ -15,4 +15,4 @@ jobs:
             - ~/.m2
           key: v1-{{ checksum "build.gradle" }}
       - store_test_results:
-          path: /build/build/test-results
+          path: ~/build/build/test-results
