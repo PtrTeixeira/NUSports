@@ -43,7 +43,7 @@ class Body : View() {
     private val displayType = SimpleObjectProperty(SCHEDULE)
     private val errorText = SimpleStringProperty("")
 
-    private val scheduleTab = ScheduleTab2(sports, controller.displayedSchedule, currentSelection, errorText)
+    private val scheduleTab = ScheduleTab(sports, controller.displayedSchedule, currentSelection, errorText)
     private val standingsTab = StandingsTab(sports, controller.displayedStandings, currentSelection, errorText)
 
     override val refreshable = SimpleBooleanProperty(true)
@@ -70,6 +70,10 @@ class Body : View() {
         }
 
         runAsync { controller.lookup(displayType.value, currentSelection.value) }
+    }
+
+    override fun onRefresh() {
+        runAsync { controller.lookup(displayType.value, currentSelection.value, clearOnFail = false) }
     }
 
     private fun getDisplayType(tab: Tab) = when (tab.text) {

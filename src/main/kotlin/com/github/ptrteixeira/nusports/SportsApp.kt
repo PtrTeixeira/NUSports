@@ -43,7 +43,7 @@ class SportsApp : App(SportsWorkspace::class) {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val component: ApplicationComponent = DaggerSportsApplication.create()
+            val component: ApplicationComponent = DaggerApplicationComponent.create()
 
             FX.dicontainer = object : DIContainer {
                 override fun <T: Any> getInstance(type: KClass<T>): T {

@@ -23,7 +23,6 @@ package com.github.ptrteixeira.nusports
 
 import com.github.ptrteixeira.nusports.model.WebScraper
 import com.github.ptrteixeira.nusports.presenter.MainController
-import com.github.ptrteixeira.nusports.view.MainView
 import dagger.Module
 import dagger.Provides
 import java.util.concurrent.ExecutorService
@@ -34,11 +33,6 @@ import javax.inject.Singleton
 
 @Module
 class ApplicationModule {
-    @Provides
-    fun provideView(controller: MainController): MainView {
-        return MainView(controller)
-    }
-
     @Provides
     fun provideController(executor: ExecutorService, webScraper: WebScraper): MainController {
         return MainController(executor, webScraper)
