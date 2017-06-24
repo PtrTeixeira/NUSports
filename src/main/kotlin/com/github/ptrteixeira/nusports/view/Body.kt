@@ -59,7 +59,7 @@ class Body : View() {
         }
 
     private fun changeTabs() : ChangeListener<Tab> {
-        return ChangeListener { observable, oldValue, newValue ->
+        return ChangeListener { _, _, newValue ->
             displayType = when (newValue.text) {
                 "Schedule" -> DisplayType.SCHEDULE
                 "Standings" -> DisplayType.STANDINGS
@@ -71,7 +71,7 @@ class Body : View() {
     }
 
     private fun changeSport(): ChangeListener<String> {
-        return ChangeListener { observable, oldValue, newValue ->
+        return ChangeListener { _, _, newValue ->
             currentSelection = newValue
 
             controller.lookup(displayType, currentSelection, clearOnFail = true)

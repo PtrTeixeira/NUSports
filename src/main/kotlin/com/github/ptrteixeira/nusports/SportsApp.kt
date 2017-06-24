@@ -42,7 +42,7 @@ class SportsApp : App(SportsWorkspace::class) {
             val application: SportsApplication = DaggerSportsApplication.create()
 
             FX.dicontainer = object : DIContainer {
-                override fun <T : Any> getInstance(type: KClass<T>): T {
+                override fun <T: Any> getInstance(type: KClass<T>): T {
                     when (type) {
                         MainController::class -> return application.controller() as T
                         else -> throw IllegalArgumentException()
