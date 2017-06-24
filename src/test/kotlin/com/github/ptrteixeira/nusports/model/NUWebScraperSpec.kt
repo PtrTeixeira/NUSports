@@ -98,7 +98,7 @@ class NUWebScraperSpec : Spek({
     }
 
     describe("getSchedule") {
-        val mockSource = DocumentSource { url ->
+        val mockSource = DocumentSource {
             Jsoup.parse(File("src/test/resources/test_schedule.html"), "UTF8", ".")
         }
 
