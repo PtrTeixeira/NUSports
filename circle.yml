@@ -3,10 +3,9 @@ machine:
     version: oraclejdk8
 test:
   override:
-    - ./gradlew check
+    - ./gradlew check --console plain
   post: 
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - mkdir -p $CIRCLE_ARTIFACTS/{style,test}
     - find build/test-results -type f -regex ".*[.]xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
-    - cp build/reports/checkstyle/*.html -t $CIRCLE_ARTIFACTS/style/
 
