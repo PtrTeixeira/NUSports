@@ -22,34 +22,45 @@
 package com.github.ptrteixeira.nusports.view
 
 import com.github.ptrteixeira.nusports.presenter.MainController
+import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.beans.value.ChangeListener
 import javafx.scene.Parent
 import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import tornadofx.View
 import tornadofx.add
+import tornadofx.observable
+import tornadofx.onChange
 import tornadofx.tab
 import tornadofx.tabpane
 
 class Body : View() {
     private val controller: MainController by di()
+    private val sports = controller.getSelectableSports().observable()
     private val scheduleTab = ScheduleTab(controller.displayedSchedule)
     private val standingsTab = StandingTab(controller.displayedStandings)
 
+    private val currentSelection2 = SimpleStringProperty("Baseball")
+    private val errorText = SimpleStringProperty("")
+
+
+    private val scheduleTab2 = ScheduleTab2(sports, controller.displayedSchedule, currentSelection2, errorText)
+
     private var displayType: DisplayType = DisplayType.SCHEDULE
     private var currentSelection = "Baseball"
+
+    override val refreshable = SimpleBooleanProperty(true)
+    override val savable = SimpleBooleanProperty(false)
+    override val deletable = SimpleBooleanProperty(false)
 
     override val root: Parent = tabpane {
             tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
 
             setTabChangeListener(changeTabs())
 
-            tab("Schedule") {
-                addRoot(scheduleTab) {
-                    setSportSelections(controller.getSelectableSports())
-                    setSportSelectionCallback(changeSport())
-                }
-            }
+            tab("Schedule", scheduleTab2.root)
+
             tab("Standings") {
                 addRoot(standingsTab) {
                     setSportSelections(controller.getSelectableSports())
@@ -58,12 +69,18 @@ class Body : View() {
             }
         }
 
+    init {
+        currentSelection2.onChange { newSelection ->
+            newSelection?.let { controller.lookup(displayType, it) }
+        }
+    }
+
     private fun changeTabs() : ChangeListener<Tab> {
         return ChangeListener { _, _, newValue ->
             displayType = when (newValue.text) {
                 "Schedule" -> DisplayType.SCHEDULE
                 "Standings" -> DisplayType.STANDINGS
-                else -> throw IllegalStateException("Invalid tab title")
+                else -> throw IllegalStateException("Invalid tab title ${newValue.text}")
             }
 
             controller.lookup(displayType, currentSelection)

@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
-class SportsApplicationModule {
+class ApplicationModule {
     @Provides
     fun provideView(controller: MainController): MainView {
         return MainView(controller)

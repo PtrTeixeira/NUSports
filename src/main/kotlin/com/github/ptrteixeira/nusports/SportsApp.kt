@@ -36,15 +36,19 @@ class SportsApp : App(SportsWorkspace::class) {
         workspace.dock<Body>()
     }
 
+    override fun stop() {
+        System.exit(0)
+    }
+
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val application: SportsApplication = DaggerSportsApplication.create()
+            val component: ApplicationComponent = DaggerSportsApplication.create()
 
             FX.dicontainer = object : DIContainer {
                 override fun <T: Any> getInstance(type: KClass<T>): T {
                     when (type) {
-                        MainController::class -> return application.controller() as T
+                        MainController::class -> return component.controller() as T
                         else -> throw IllegalArgumentException()
                     }
                 }

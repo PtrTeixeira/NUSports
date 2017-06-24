@@ -28,9 +28,9 @@ import dagger.Component
 import java.util.concurrent.ExecutorService
 import javax.inject.Singleton
 
-@Component(modules = arrayOf(SportsApplicationModule::class, ApplicationModelModule::class))
+@Component(modules = arrayOf(ApplicationModule::class, ApplicationModelModule::class))
 @Singleton
-interface SportsApplication {
+interface ApplicationComponent {
     fun mainView(): MainView
     fun executor(): ExecutorService
     fun controller(): MainController
