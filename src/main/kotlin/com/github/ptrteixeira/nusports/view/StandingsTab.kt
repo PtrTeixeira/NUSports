@@ -1,6 +1,6 @@
 package com.github.ptrteixeira.nusports.view
 
-import com.github.ptrteixeira.nusports.model.Match
+import com.github.ptrteixeira.nusports.model.Standing
 import javafx.beans.property.StringProperty
 import javafx.collections.ObservableList
 import javafx.scene.paint.Color
@@ -14,9 +14,9 @@ import tornadofx.tableview
 import tornadofx.text
 import tornadofx.vbox
 
-class ScheduleTab2(
+class StandingsTab(
     private val sports: ObservableList<String>,
-    private val tableContents: ObservableList<Match>,
+    private val tableContents: ObservableList<Standing>,
     selectedItem: StringProperty,
     errorText: StringProperty
 ) : View() {
@@ -29,7 +29,7 @@ class ScheduleTab2(
                 combobox<String>(selectedItem, sports)
 
                 text(errorText) {
-                    fill = Color.RED
+                    fill = javafx.scene.paint.Color.RED
                     styleClass += "error"
                 }
             }
@@ -37,9 +37,9 @@ class ScheduleTab2(
 
         center {
             tableview(tableContents) {
-                column("Date", Match::date)
-                column("Opponent", Match::opponent)
-                column("Result", Match::result)
+                column("Team", Standing::teamName)
+                column("Conference", Standing::conference)
+                column("Overall", Standing::overall)
             }
         }
     }
