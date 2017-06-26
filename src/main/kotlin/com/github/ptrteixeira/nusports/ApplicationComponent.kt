@@ -22,16 +22,12 @@
 package com.github.ptrteixeira.nusports
 
 import com.github.ptrteixeira.nusports.model.ApplicationModelModule
-import com.github.ptrteixeira.nusports.presenter.MainController
-import com.github.ptrteixeira.nusports.view.MainView
+import com.github.ptrteixeira.nusports.presenter.ViewState
 import dagger.Component
-import java.util.concurrent.ExecutorService
 import javax.inject.Singleton
 
-@Component(modules = arrayOf(SportsApplicationModule::class, ApplicationModelModule::class))
+@Component(modules = arrayOf(ApplicationModule::class, ApplicationModelModule::class))
 @Singleton
-interface SportsApplication {
-    fun mainView(): MainView
-    fun executor(): ExecutorService
-    fun controller(): MainController
+interface ApplicationComponent {
+    fun viewState(): ViewState
 }

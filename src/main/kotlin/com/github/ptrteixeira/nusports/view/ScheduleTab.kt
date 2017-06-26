@@ -22,26 +22,46 @@
 package com.github.ptrteixeira.nusports.view
 
 import com.github.ptrteixeira.nusports.model.Match
-import javafx.collections.FXCollections
-import javafx.collections.ListChangeListener
+import javafx.beans.property.StringProperty
 import javafx.collections.ObservableList
+import javafx.scene.paint.Color
+import tornadofx.View
+import tornadofx.borderpane
+import tornadofx.center
 import tornadofx.column
+import tornadofx.combobox
+import tornadofx.left
 import tornadofx.tableview
+import tornadofx.text
+import tornadofx.vbox
 
-class ScheduleTab(private val binding : ObservableList<Match>) : AbstractTab() {
-    private var tableContents = FXCollections.observableArrayList<Match>()
+class ScheduleTab(
+    private val sports: List<String>,
+    private val tableContents: ObservableList<Match>,
+    selectedItem: StringProperty,
+    errorText: StringProperty
+) : View() {
 
-    init {
-        binding.addListener(ListChangeListener { tableContents.setAll(binding) })
-    }
+    override val root = borderpane {
+        left {
+            vbox {
+                alignment = javafx.geometry.Pos.TOP_CENTER
 
-    override val root = place {
-        tableview<Match> {
-            items = tableContents
+                combobox<String>(selectedItem, sports)
 
-            column("Date", Match::date)
-            column("Opponent", Match::opponent)
-            column("Result", Match::result)
+                text(errorText) {
+                    fill = Color.RED
+                    styleClass += "error"
+                }
+            }
+        }
+
+        center {
+            tableview(tableContents) {
+                column("Date", Match::date)
+                column("Opponent", Match::opponent)
+                column("Result", Match::result)
+            }
         }
     }
 }

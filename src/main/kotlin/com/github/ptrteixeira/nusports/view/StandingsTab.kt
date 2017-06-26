@@ -22,26 +22,46 @@
 package com.github.ptrteixeira.nusports.view
 
 import com.github.ptrteixeira.nusports.model.Standing
-import javafx.collections.FXCollections
-import javafx.collections.ListChangeListener
+import javafx.beans.property.StringProperty
 import javafx.collections.ObservableList
+import javafx.scene.paint.Color
+import tornadofx.View
+import tornadofx.borderpane
+import tornadofx.center
 import tornadofx.column
+import tornadofx.combobox
+import tornadofx.left
 import tornadofx.tableview
+import tornadofx.text
+import tornadofx.vbox
 
-class StandingTab(private val binding: ObservableList<Standing>) : AbstractTab() {
-    private val tableContents = FXCollections.observableArrayList<Standing>()
+class StandingsTab(
+    private val sports: List<String>,
+    private val tableContents: ObservableList<Standing>,
+    selectedItem: StringProperty,
+    errorText: StringProperty
+) : View() {
 
-    init {
-        binding.addListener(ListChangeListener { tableContents.setAll(binding) })
-    }
+    override val root = borderpane {
+        left {
+            vbox {
+                alignment = javafx.geometry.Pos.TOP_CENTER
 
-    override val root = place {
-        tableview<Standing> {
-            items = tableContents
+                combobox<String>(selectedItem, sports)
 
-            column("Team", Standing::teamName)
-            column("Conference", Standing::conference)
-            column("Overall", Standing::overall)
+                text(errorText) {
+                    fill = Color.RED
+                    styleClass += "error"
+                }
+            }
+        }
+
+        center {
+            tableview(tableContents) {
+                column("Team", Standing::teamName)
+                column("Conference", Standing::conference)
+                column("Overall", Standing::overall)
+            }
         }
     }
 }

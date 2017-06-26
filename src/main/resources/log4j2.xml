@@ -7,7 +7,7 @@
         <Property name="fileFormat">
             %date{HH:mm:ss.SSS} %logger [%5level] - %message%n
         </Property>
-        <Property name="fullLogs">logs/application.log</Property>
+        <Property name="fullLogs">logs/component.log</Property>
     </Properties>
     <ThresholdFilter />
     <Appenders>

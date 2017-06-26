@@ -41,8 +41,10 @@ def versions = [
     log4j  : '2.8.2',
     assertj: '3.8.0',
     spek   : '1.1.2',
+    mockito: '2.8.47',
     dagger : '2.11',
-    tornadofx: '1.7.7'
+    tornadofx: '1.7.7',
+    coroutines: '0.16'
 ]
 
 junitPlatform {
@@ -86,12 +88,15 @@ sourceCompatibility = 1.8
 
 repositories {
   mavenCentral()
+  jcenter()
 }
 
 dependencies {
   compile group: 'org.jsoup', name: 'jsoup', version: versions.jsoup
   compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
   compile group: 'no.tornado', name: 'tornadofx', version: versions.tornadofx
+  compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: versions.coroutines
+  compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-javafx', version: versions.coroutines
 
   compile group: 'com.google.dagger', name: 'dagger', version: versions.dagger
   kapt group: 'com.google.dagger', name: 'dagger-compiler', version: versions.dagger
@@ -100,6 +105,7 @@ dependencies {
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
   testCompile group: 'org.jetbrains.spek', name: 'spek-api', version: versions.spek
   testCompile group: 'org.jetbrains.spek', name: 'spek-subject-extension', version: versions.spek
+  testCompile group: 'org.mockito', name: 'mockito-core', version: versions.mockito
   testRuntime group: 'org.jetbrains.spek', name: 'spek-junit-platform-engine', version: versions.spek
   testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
 }
