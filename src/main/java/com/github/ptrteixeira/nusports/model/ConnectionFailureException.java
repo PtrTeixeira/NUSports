@@ -33,7 +33,7 @@ import java.io.IOException;
  * @author Peter Teixeira
  */
 public class ConnectionFailureException extends IOException {
-  ConnectionFailureException(String message) {
+  public ConnectionFailureException(String message) {
     super(message);
   }
 }

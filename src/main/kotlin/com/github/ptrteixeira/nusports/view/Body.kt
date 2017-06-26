@@ -21,30 +21,22 @@
  */
 package com.github.ptrteixeira.nusports.view
 
-import com.github.ptrteixeira.nusports.presenter.MainController
-import com.github.ptrteixeira.nusports.view.DisplayType.SCHEDULE
-import com.github.ptrteixeira.nusports.view.DisplayType.STANDINGS
+import com.github.ptrteixeira.nusports.presenter.ViewState
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.property.SimpleStringProperty
 import javafx.scene.Parent
-import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import tornadofx.View
-import tornadofx.observable
-import tornadofx.onChange
 import tornadofx.tab
 import tornadofx.tabpane
 
 class Body : View() {
-    private val controller: MainController by di()
-    private val sports = controller.getSelectableSports().observable()
-    private val currentSelection = SimpleStringProperty("Baseball")
-    private val displayType = SimpleObjectProperty(SCHEDULE)
-    private val errorText = SimpleStringProperty("")
+    private val viewState: ViewState by di()
+    private val sports = viewState.selectableSports
+    private val currentSelection = viewState.selectedSport
+    private val errorText = viewState.errorText
 
-    private val scheduleTab = ScheduleTab(sports, controller.displayedSchedule, currentSelection, errorText)
-    private val standingsTab = StandingsTab(sports, controller.displayedStandings, currentSelection, errorText)
+    private val scheduleTab = ScheduleTab(sports, viewState.displayedSchedule, currentSelection, errorText)
+    private val standingsTab = StandingsTab(sports, viewState.displayedStandings, currentSelection, errorText)
 
     override val refreshable = SimpleBooleanProperty(true)
     override val savable = SimpleBooleanProperty(false)
@@ -55,36 +47,9 @@ class Body : View() {
 
         tab("Schedule", scheduleTab.root)
         tab("Standings", standingsTab.root)
-
-        onTabChange { newTab ->
-            displayType.set(getDisplayType(newTab))
-        }
-    }
-
-    init {
-        currentSelection.onChange { newSelection ->
-            newSelection?.let { controller.lookup(displayType.value, it) }
-        }
-        displayType.onChange { newDisplayType ->
-            newDisplayType?.let { controller.lookup(it, currentSelection.value) }
-        }
-
-        runAsync { controller.lookup(displayType.value, currentSelection.value) }
     }
 
     override fun onRefresh() {
-        runAsync { controller.lookup(displayType.value, currentSelection.value, clearOnFail = false) }
-    }
-
-    private fun getDisplayType(tab: Tab) = when (tab.text) {
-        "Schedule" -> SCHEDULE
-        "Standings" -> STANDINGS
-        else -> throw IllegalStateException("Invalid tab title ${tab.text}")
-    }
-
-    private fun TabPane.onTabChange(op: (Tab) -> Unit): Unit {
-        this.selectionModel.selectedItemProperty().onChange {
-            it?.let(op)
-        }
+        viewState.reload()
     }
 }

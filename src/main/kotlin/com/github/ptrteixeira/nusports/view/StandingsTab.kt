@@ -36,7 +36,7 @@ import tornadofx.text
 import tornadofx.vbox
 
 class StandingsTab(
-    private val sports: ObservableList<String>,
+    private val sports: List<String>,
     private val tableContents: ObservableList<Standing>,
     selectedItem: StringProperty,
     errorText: StringProperty
@@ -50,7 +50,7 @@ class StandingsTab(
                 combobox<String>(selectedItem, sports)
 
                 text(errorText) {
-                    fill = javafx.scene.paint.Color.RED
+                    fill = Color.RED
                     styleClass += "error"
                 }
             }

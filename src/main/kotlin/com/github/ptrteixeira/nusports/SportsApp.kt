@@ -21,7 +21,7 @@
  */
 package com.github.ptrteixeira.nusports
 
-import com.github.ptrteixeira.nusports.presenter.MainController
+import com.github.ptrteixeira.nusports.presenter.ViewState
 import com.github.ptrteixeira.nusports.view.Body
 import com.github.ptrteixeira.nusports.view.SportsWorkspace
 import javafx.application.Application
@@ -46,11 +46,10 @@ class SportsApp : App(SportsWorkspace::class) {
             val component: ApplicationComponent = DaggerApplicationComponent.create()
 
             FX.dicontainer = object : DIContainer {
-                override fun <T: Any> getInstance(type: KClass<T>): T {
-                    when (type) {
-                        MainController::class -> return component.controller() as T
-                        else -> throw IllegalArgumentException()
-                    }
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : Any> getInstance(type: KClass<T>): T = when (type) {
+                    ViewState::class -> component.viewState() as T
+                    else -> throw IllegalArgumentException()
                 }
             }
 

@@ -36,7 +36,7 @@ import tornadofx.text
 import tornadofx.vbox
 
 class ScheduleTab(
-    private val sports: ObservableList<String>,
+    private val sports: List<String>,
     private val tableContents: ObservableList<Match>,
     selectedItem: StringProperty,
     errorText: StringProperty
