@@ -25,7 +25,6 @@ import com.github.ptrteixeira.nusports.model.ConnectionFailureException
 import com.github.ptrteixeira.nusports.model.Match
 import com.github.ptrteixeira.nusports.model.Standing
 import com.github.ptrteixeira.nusports.model.WebScraper
-import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -37,6 +36,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
+import tornadofx.onChange
 
 internal class ViewStateTest {
     @Mock
@@ -79,11 +79,17 @@ internal class ViewStateTest {
             assertThat(viewState.errorText.value)
                 .isEqualTo("")
 
-            viewState.blockingUpdate("sport 2")
-            delay(100)
+            var called = false
+            viewState.errorText.onChange {
+                called = true
+                assertThat(it)
+                    .isEqualTo("Failed to connect")
+            }
 
-            assertThat(viewState.errorText.value)
-                .isEqualTo("Failed to connect")
+            viewState.blockingUpdate("sport 2")
+
+            assertThat(called)
+                .isTrue()
         }
     }
 
