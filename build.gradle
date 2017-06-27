@@ -79,6 +79,19 @@ spotless {
   lineEndings 'UNIX'
 }
 
+compileKotlin {
+  kotlinOptions {
+    apiVersion = "1.1"
+    jvmTarget = '1.8'
+  }
+}
+
+kotlin {
+  experimental {
+    coroutines 'enable'
+  }
+}
+
 kapt {
   correctErrorTypes = true
 }

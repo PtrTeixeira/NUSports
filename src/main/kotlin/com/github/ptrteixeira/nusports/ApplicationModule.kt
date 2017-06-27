@@ -21,15 +21,19 @@
  */
 package com.github.ptrteixeira.nusports
 
-import com.github.ptrteixeira.nusports.model.WebScraper
-import com.github.ptrteixeira.nusports.presenter.ViewState
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.experimental.CommonPool
+import javax.inject.Named
+import kotlin.coroutines.experimental.CoroutineContext
 
 @Module
 class ApplicationModule {
     @Provides
-    fun provideViewState(webScraper: WebScraper): ViewState {
-        return ViewState(webScraper)
+    @Named(UI_COROUTINE_POOL)
+    internal fun providesContext(): CoroutineContext = CommonPool
+
+    companion object {
+        const val UI_COROUTINE_POOL = "nusports.ui.pool"
     }
 }

@@ -19,24 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.ptrteixeira.nusports.model;
+package com.github.ptrteixeira.nusports.model
 
-import java.io.IOException;
-import org.jsoup.nodes.Document;
+import org.apache.logging.log4j.LogManager
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import java.io.IOException
+import javax.inject.Inject
 
 /**
- * A supplier for {@link Document} objects, which are parsed in the {@link WebScraper}. I am not
- * convinced that I have the right abstraction here. But it does permit unit testing, which is nice.
+ * Implementation of the access layer for foreign resources. In particular, it is designed to load
+ * relevant documents from the CAA website.
  *
+ * I am really not sure how much specification really needs to go in here; perhaps it would be
+ * better to just make this `DocumentSourceImpl`.
+
  * @author Peter Teixeira
  */
-interface DocumentSource {
-  /**
-   * Return the {@link Document} which can be accessed at the given URL.
-   *
-   * @param url URL of the web page to be accessed
-   * @return {@code JSoup} interpretation of the accessed web-page
-   * @throws IOException If the webpage cannot be accessed for whatever reason
-   */
-  Document get(String url) throws IOException;
+internal class NuDocumentSource @Inject
+constructor() : DocumentSource {
+
+    @Throws(IOException::class)
+    override fun load(url: String): Document {
+        logger.debug("Making query to {}", url)
+        return Jsoup.connect(url)
+            .header("Connection", "keep-alive")
+            .header("Accept-Encoding", "gzip, deflate, sdch")
+            .userAgent("Chrome/51")
+            .maxBodySize(0)
+            .timeout(7000)
+            .get()
+    }
+
+    companion object {
+        private val logger = LogManager.getLogger()
+    }
 }

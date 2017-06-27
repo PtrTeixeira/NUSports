@@ -23,28 +23,34 @@ package com.github.ptrteixeira.nusports.model
 
 import dagger.Module
 import dagger.Provides
-import javafx.collections.ObservableList
+import kotlinx.coroutines.experimental.CommonPool
 import java.util.HashMap
+import javax.inject.Named
+import kotlin.coroutines.experimental.CoroutineContext
 
 @Module
-class ApplicationModelModule {
+abstract class ApplicationModelModule {
     @Provides
-    internal fun provideWebScraper(nuWebScraper: NUWebScraper): WebScraper {
-        return nuWebScraper
-    }
+    internal fun provideWebScraper(nuWebScraper: NuWebScraper): WebScraper = nuWebScraper
 
     @Provides
-    internal fun provideStandingsCache(): Map<String, ObservableList<Standing>> {
+    @Named(MODEL_COROUTINE_POOL)
+    internal fun providesCoroutineContext(): CoroutineContext = CommonPool
+
+    @Provides
+    internal fun provideStandingsCache(): Map<String, List<Standing>> {
         return HashMap()
     }
 
     @Provides
-    internal fun provideScheduleCache(): Map<String, ObservableList<Match>> {
+    internal fun provideScheduleCache(): Map<String, List<Match>> {
         return HashMap()
     }
 
     @Provides
-    internal fun provideDocumentSource(nuDocumentSource: NUDocumentSource): DocumentSource {
-        return nuDocumentSource
+    internal fun provideDocumentSource(nuDocumentSource: NuDocumentSource): DocumentSource = nuDocumentSource
+
+    companion object {
+        const val MODEL_COROUTINE_POOL = "nusports.model.pool"
     }
 }

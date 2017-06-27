@@ -43,7 +43,9 @@ class SportsApp : App(SportsWorkspace::class) {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val component: ApplicationComponent = DaggerApplicationComponent.create()
+            val component: ApplicationComponent = DaggerApplicationComponent.builder()
+                .applicationModule(ApplicationModule())
+                .build()
 
             FX.dicontainer = object : DIContainer {
                 @Suppress("UNCHECKED_CAST")

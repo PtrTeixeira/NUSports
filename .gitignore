@@ -1,4 +1,4 @@
-# Exclude tooling. This will get moved to global.
+# Exclude tooling. This will load moved to global.
 .idea/
 *.iml
 *.iws
