@@ -19,21 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.ptrteixeira.nusports.model;
+package com.github.ptrteixeira.nusports.model
 
-import java.io.IOException;
+import org.jsoup.nodes.Document
+import java.io.IOException
 
 /**
- * Represents a failure of the {@link WebScraper} to connect to the site to be scraped. The cause
- * should be specified by the throwing method, but will typically do to a failure to connect to the
- * internet. This is a checked exception; it is perfectly reasonable for this exception to be thrown
- * in the normal operation of the application. Also, {@link IOException} is checked, so what can you
- * do.
- *
+ * A supplier for [Document] objects, which are parsed in the [WebScraper]. I am not
+ * convinced that I have the right abstraction here. But it does permit unit testing, which is nice.
+
  * @author Peter Teixeira
  */
-public class ConnectionFailureException extends IOException {
-  public ConnectionFailureException(String message) {
-    super(message);
-  }
+internal interface DocumentSource {
+    /**
+     * Return the [Document] which can be accessed at the given URL.
+
+     * @param url URL of the web page to be accessed
+     * @return `JSoup` interpretation of the accessed web-page
+     * @throws IOException If the webpage cannot be accessed for whatever reason
+     */
+    @Throws(IOException::class) fun load(url: String): Document
 }

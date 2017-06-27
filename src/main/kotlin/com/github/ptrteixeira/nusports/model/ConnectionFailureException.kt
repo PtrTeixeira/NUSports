@@ -19,41 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.ptrteixeira.nusports.model;
+package com.github.ptrteixeira.nusports.model
 
-import java.io.IOException;
-import javax.inject.Inject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+import java.io.IOException
 
 /**
- * Implementation of the access layer for foreign resources. In particular, it is designed to get
- * relevant documents from the CAA website.
- *
- * <p>
- *
- * <p>I am really not sure how much specification really needs to go in here; perhaps it would be
- * better to just make this {@code DocumentSourceImpl}.
+ * Represents a failure of the [WebScraper] to connect to the site to be scraped. The cause
+ * should be specified by the throwing method, but will typically do to a failure to connect to the
+ * internet. This is a checked exception; it is perfectly reasonable for this exception to be thrown
+ * in the normal operation of the application.
  *
  * @author Peter Teixeira
  */
-final class NUDocumentSource implements DocumentSource {
-  private static final Logger logger = LogManager.getLogger();
-
-  @Inject
-  NUDocumentSource() {}
-
-  @Override
-  public Document get(String url) throws IOException {
-    logger.debug("Making query to {}", url);
-    return Jsoup.connect(url)
-        .header("Connection", "keep-alive")
-        .header("Accept-Encoding", "gzip, deflate, sdch")
-        .userAgent("Chrome/51")
-        .maxBodySize(0)
-        .timeout(7000)
-        .get();
-  }
-}
+class ConnectionFailureException(message: String) : IOException(message)

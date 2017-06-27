@@ -25,6 +25,7 @@ import com.github.ptrteixeira.nusports.model.ConnectionFailureException
 import com.github.ptrteixeira.nusports.model.Match
 import com.github.ptrteixeira.nusports.model.Standing
 import com.github.ptrteixeira.nusports.model.WebScraper
+import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -34,7 +35,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
-import tornadofx.observable
 
 internal class ViewStateTest {
     @Mock
@@ -48,11 +48,14 @@ internal class ViewStateTest {
         `when`(webScraper.selectableSports)
             .thenReturn(listOf("sport 1", "sport 2"))
 
-        viewState = ViewState(webScraper)
-        `when`(webScraper.getSchedule(anyString()))
-            .thenReturn(listOf<Match>().observable())
-        `when`(webScraper.getStandings(anyString()))
-            .thenReturn(listOf<Standing>().observable())
+        viewState = ViewState(webScraper, newSingleThreadContext("ViewStateTest"))
+        runBlocking {
+            `when`(webScraper.getSchedule(anyString()))
+                .thenReturn(listOf<Match>())
+            `when`(webScraper.getStandings(anyString()))
+                .thenReturn(listOf<Standing>())
+        }
+
     }
 
     @Test
@@ -74,7 +77,6 @@ internal class ViewStateTest {
         viewState.blockingUpdate("sport 2")
 
         assertThat(viewState.errorText.value)
-            .isNotBlank()
             .isEqualTo("Failed to connect")
     }
 

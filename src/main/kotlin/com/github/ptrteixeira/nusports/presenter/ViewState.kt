@@ -21,6 +21,7 @@
  */
 package com.github.ptrteixeira.nusports.presenter
 
+import com.github.ptrteixeira.nusports.ApplicationModule
 import com.github.ptrteixeira.nusports.model.ConnectionFailureException
 import com.github.ptrteixeira.nusports.model.Match
 import com.github.ptrteixeira.nusports.model.Standing
@@ -28,13 +29,18 @@ import com.github.ptrteixeira.nusports.model.WebScraper
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import tornadofx.ViewModel
 import tornadofx.onChange
+import javax.inject.Inject
+import javax.inject.Named
+import kotlin.coroutines.experimental.CoroutineContext
 
-class ViewState(private val webScraper: WebScraper) : ViewModel() {
+class ViewState @Inject
+constructor(
+    private val webScraper: WebScraper,
+    @Named(ApplicationModule.UI_COROUTINE_POOL) private val context: CoroutineContext
+) : ViewModel() {
     val displayedSchedule: ObservableList<Match> = FXCollections.observableArrayList()
     val displayedStandings: ObservableList<Standing> = FXCollections.observableArrayList()
     val errorText: SimpleStringProperty = SimpleStringProperty("")
@@ -51,17 +57,17 @@ class ViewState(private val webScraper: WebScraper) : ViewModel() {
     }
 
     private fun update(selectedSport: String) {
-        launch(CommonPool) {
+        launch(context) {
             blockingUpdate(selectedSport)
         }
     }
 
     suspend fun blockingUpdate(selectedSport: String) {
         try {
-            val schedule = async(CommonPool) { webScraper.getSchedule(selectedSport) }
-            val standings = async(CommonPool) { webScraper.getStandings(selectedSport) }
-            displayedSchedule.setAll(schedule.await())
-            displayedStandings.setAll(standings.await())
+            val schedule = webScraper.getSchedule(selectedSport)
+            val standings = webScraper.getStandings(selectedSport)
+            displayedSchedule.setAll(schedule)
+            displayedStandings.setAll(standings)
         } catch (exn: ConnectionFailureException) {
             errorText.value = exn.message
         }

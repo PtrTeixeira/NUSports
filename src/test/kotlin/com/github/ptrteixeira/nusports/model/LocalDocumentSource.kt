@@ -19,25 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.ptrteixeira.nusports.view;
+package com.github.ptrteixeira.nusports.model
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import java.io.File
 
-import org.junit.jupiter.api.Test;
-
-/**
- * The point of this class is mostly just for fun.
- *
- * <p>
- *
- * <p>Like, there very, very little point in testing the {@link DisplayType#toString()} method,
- * that's just silly. On the flip side, I really like the {@code switch(this) {}} construction, so
- * I'll take it.
- */
-public class DisplayTypeTest {
-  @Test
-  public void testToStringReturnsExpectedValues() {
-    assertThat(DisplayType.SCHEDULE).hasToString("Schedule");
-    assertThat(DisplayType.STANDINGS).hasToString("Standings");
-  }
+internal class LocalDocumentSource(private val pathInFolder: String) : DocumentSource {
+    override fun load(url: String): Document {
+        return Jsoup.parse(File("src/test/resources/$pathInFolder.html"), "UTF8", ".")
+    }
 }

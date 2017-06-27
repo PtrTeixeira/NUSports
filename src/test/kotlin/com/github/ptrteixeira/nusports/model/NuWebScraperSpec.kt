@@ -22,7 +22,8 @@
 package com.github.ptrteixeira.nusports.model
 
 import javafx.collections.FXCollections
-import javafx.collections.ObservableList
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.assertj.core.api.Assertions.tuple
@@ -31,33 +32,35 @@ import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
-import org.jsoup.Jsoup
-import java.io.File
-import java.io.IOException
+import org.jsoup.nodes.Document
 
 /**
  *
  */
-class NUWebScraperSpec : Spek({
-    val emptyScheduleCache = emptyMap<String, ObservableList<Match>>()
-    val emptyStandingsCache = emptyMap<String, ObservableList<Standing>>()
+class NuWebScraperSpec : Spek({
+    val emptyScheduleCache = mutableMapOf<String, List<Match>>()
+    val emptyStandingsCache = mutableMapOf<String, List<Standing>>()
 
-    val buildMutableScheduleCache = { mutableMapOf<String, ObservableList<Match>>() }
-    val buildMutableStandingsCache = { mutableMapOf<String, ObservableList<Standing>>() }
+    val buildMutableScheduleCache = { mutableMapOf<String, List<Match>>() }
+    val buildMutableStandingsCache = { mutableMapOf<String, List<Standing>>() }
 
-    val errorDocumentSource = DocumentSource { throw IOException() }
+    val errorDocumentSource: DocumentSource = object : DocumentSource {
+        override fun load(url: String): Document {
+            throw ConnectionFailureException("Failed to connect")
+        }
+    }
 
     describe("clearCache") {
         val buildStandingsCache = {
             mutableMapOf(
-                "key1" to FXCollections.emptyObservableList<Standing>(),
-                "key2" to FXCollections.emptyObservableList<Standing>()
+                "key1" to listOf<Standing>(),
+                "key2" to listOf<Standing>()
             )
         }
         val buildScheduleCache = {
             mutableMapOf(
-                "key1" to FXCollections.emptyObservableList<Match>(),
-                "key2" to FXCollections.emptyObservableList<Match>()
+                "key1" to listOf<Match>(),
+                "key2" to listOf<Match>()
             )
         }
 
@@ -65,7 +68,7 @@ class NUWebScraperSpec : Spek({
             it("should remove that object") {
                 val standingsCache = buildStandingsCache()
                 val scheduleCache = buildScheduleCache()
-                val webScraper = NUWebScraper(standingsCache, scheduleCache, null)
+                val webScraper = NuWebScraper(standingsCache, scheduleCache, errorDocumentSource, CommonPool)
 
                 webScraper.clearCache("key1")
 
@@ -77,7 +80,7 @@ class NUWebScraperSpec : Spek({
             it("should do nothing") {
                 val standingsCache = buildStandingsCache()
                 val scheduleCache = buildScheduleCache()
-                val webScraper = NUWebScraper(standingsCache, scheduleCache, null)
+                val webScraper = NuWebScraper(standingsCache, scheduleCache, errorDocumentSource, CommonPool)
 
                 webScraper.clearCache("key3")
 
@@ -85,40 +88,32 @@ class NUWebScraperSpec : Spek({
                 assertThat(scheduleCache).containsOnlyKeys("key1", "key2")
             }
         }
-        given("a null value") {
-            it("should throw a NullPointerException") {
-                val standingsCache = buildStandingsCache()
-                val scheduleCache = buildScheduleCache()
-                val webScraper = NUWebScraper(standingsCache, scheduleCache, null)
-
-                assertThatExceptionOfType(NullPointerException::class.java)
-                    .isThrownBy { webScraper.clearCache(null) }
-            }
-        }
     }
 
     describe("getSchedule") {
-        val mockSource = DocumentSource {
-            Jsoup.parse(File("src/test/resources/test_schedule.html"), "UTF8", ".")
-        }
+        val mockSource = LocalDocumentSource("test_schedule")
 
         given("a value in the cache") {
             val standingsCache = emptyStandingsCache
-            val scheduleEntry = FXCollections
-                .singletonObservableList(Match("date", "opponent", "result"))
+            val scheduleEntry = listOf(Match("date", "opponent", "result"))
             val scheduleCache = mutableMapOf("key1" to scheduleEntry)
-            val webScraper = NUWebScraper(standingsCache, scheduleCache, errorDocumentSource)
+            val webScraper = NuWebScraper(standingsCache, scheduleCache, errorDocumentSource, CommonPool)
+
             it("should use the value from the cache") {
-                assertThat(webScraper.getSchedule("key1"))
-                    .isEqualTo(scheduleEntry)
+                runBlocking {
+                    assertThat(webScraper.getSchedule("key1"))
+                        .isEqualTo(scheduleEntry)
+                }
             }
         }
         given("a value not in the cache") {
             val standingsCache = buildMutableStandingsCache()
             val scheduleCache = buildMutableScheduleCache()
-            val webScraper = NUWebScraper(standingsCache, scheduleCache, mockSource)
+            val webScraper = NuWebScraper(standingsCache, scheduleCache, mockSource, CommonPool)
+            var result: List<Match> = FXCollections.observableArrayList()
 
-            val result = webScraper.getSchedule("Baseball")
+            beforeGroup { result = runBlocking { webScraper.getSchedule("Baseball") } }
+
             it("should fetch it from an external source") {
                 assertThat(result)
                     .isNotNull()
@@ -136,74 +131,73 @@ class NUWebScraperSpec : Spek({
         }
         context("when an IO error occurs") {
             it("should throw an ConnectionFailureException") {
-                val webScraper = NUWebScraper(
-                    emptyStandingsCache, emptyScheduleCache, errorDocumentSource)
+                val webScraper = NuWebScraper(
+                    emptyStandingsCache, emptyScheduleCache, errorDocumentSource, CommonPool)
 
                 assertThatExceptionOfType(ConnectionFailureException::class.java)
-                    .isThrownBy { webScraper.getSchedule("Baseball") }
+                    .isThrownBy { runBlocking { webScraper.getSchedule("Baseball") } }
             }
         }
 
         context("when a game has a victor") {
-            val source = DocumentSource {
-                Jsoup.parse(File("src/test/resources/test_schedule.html"), "UTF8", ".")
-            }
-            val webScraper = NUWebScraper(
-                buildMutableStandingsCache(), buildMutableScheduleCache(), source)
+            val source = LocalDocumentSource("test_schedule")
+            val webScraper = NuWebScraper(
+                buildMutableStandingsCache(), buildMutableScheduleCache(), source, CommonPool)
             it("outputs a core as a win or a loss") {
-                assertThat(webScraper.getSchedule("Baseball"))
-                    .extracting("result")
-                    .containsExactly("W 3 - 2")
+                runBlocking {
+                    assertThat(webScraper.getSchedule("Baseball"))
+                        .extracting("result")
+                        .containsExactly("W 3 - 2")
+                }
             }
         }
         context("when a game results in a tie") {
-            val source = DocumentSource {
-                Jsoup.parse(File("src/test/resources/test_schedule_ties.html"), "UTF8", ".")
-            }
-            val webScraper = NUWebScraper(
-                buildMutableStandingsCache(), buildMutableScheduleCache(), source)
+            val source = LocalDocumentSource("test_schedule_ties")
+            val webScraper = NuWebScraper(
+                buildMutableStandingsCache(), buildMutableScheduleCache(), source, CommonPool)
             it("outputs the score, but not as a win or a loss") {
-                assertThat(webScraper.getSchedule("Baseball"))
-                    .extracting("result")
-                    .containsExactly("2 - 2")
+                runBlocking {
+                    assertThat(webScraper.getSchedule("Baseball"))
+                        .extracting("result")
+                        .containsExactly("2 - 2")
+                }
             }
         }
         context("when a game has not yet been played") {
-            val source = DocumentSource {
-                Jsoup.parse(File("src/test/resources/test_schedule_unplayed_games.html"), "UTF8", ".")
-            }
-            val webScraper = NUWebScraper(
-                buildMutableStandingsCache(), buildMutableScheduleCache(), source)
+            val source = LocalDocumentSource("test_schedule_unplayed_games")
+            val webScraper = NuWebScraper(
+                buildMutableStandingsCache(), buildMutableScheduleCache(), source, CommonPool)
             it("outputs the empty string") {
-                assertThat(webScraper.getSchedule("Baseball"))
-                    .extracting("result")
-                    .containsExactly("")
+                runBlocking {
+                    assertThat(webScraper.getSchedule("Baseball"))
+                        .extracting("result")
+                        .containsExactly("")
+                }
             }
         }
     }
 
     describe("getStandings") {
-        val mockSource = DocumentSource {
-            Jsoup.parse(File("src/test/resources/test_standings.html"), "UTF8", ".")
-        }
+        val mockSource = LocalDocumentSource("test_standings")
 
         given("a value in the cache") {
-            val standingsEntry = FXCollections
-                .singletonObservableList(Standing("teamName", "conference", "overall"))
+            val standingsEntry = listOf(Standing("teamName", "conference", "overall"))
             val standingsCache = mutableMapOf("key1" to standingsEntry)
             val scheduleCache = emptyScheduleCache
-            val webScraper = NUWebScraper(standingsCache, scheduleCache, errorDocumentSource)
+            val webScraper = NuWebScraper(standingsCache, scheduleCache, errorDocumentSource, CommonPool)
             it("should use the value from the cache") {
-                assertThat(webScraper.getStandings("key1"))
-                    .isEqualTo(standingsEntry)
+                runBlocking {
+                    assertThat(webScraper.getStandings("key1"))
+                        .isEqualTo(standingsEntry)
+                }
             }
         }
         given("a value not in the cache") {
             val standingsCache = buildMutableStandingsCache()
             val scheduleCache = buildMutableScheduleCache()
-            val webScraper = NUWebScraper(standingsCache, scheduleCache, mockSource)
+            val webScraper = NuWebScraper(standingsCache, scheduleCache, mockSource, CommonPool)
 
-            val result = webScraper.getStandings("Baseball")
+            val result = runBlocking { webScraper.getStandings("Baseball") }
             it("should fetch it from an external source") {
                 assertThat(result)
                     .isNotNull()
@@ -222,18 +216,18 @@ class NUWebScraperSpec : Spek({
         }
         context("when an IO error occurs") {
             it("should throw a ConnectionFailureException") {
-                val webScraper = NUWebScraper(
-                    emptyStandingsCache, emptyScheduleCache, errorDocumentSource)
+                val webScraper = NuWebScraper(
+                    emptyStandingsCache, emptyScheduleCache, errorDocumentSource, CommonPool)
 
                 assertThatExceptionOfType(ConnectionFailureException::class.java)
-                    .isThrownBy { webScraper.getStandings("Baseball") }
+                    .isThrownBy { runBlocking { webScraper.getStandings("Baseball") } }
             }
         }
     }
 
     describe("getSelectableSports") {
         it("should return a list of sports supported by this scraper") {
-            val webScraper = NUWebScraper(null, null, null)
+            val webScraper = NuWebScraper(emptyStandingsCache, emptyScheduleCache, errorDocumentSource, CommonPool)
 
             assertThat(webScraper.selectableSports)
                 .containsExactlyInAnyOrder(
@@ -244,7 +238,7 @@ class NUWebScraperSpec : Spek({
                 )
         }
         it("should only contain sports supported by the rest of the scraper") {
-            val webScraper = NUWebScraper(null, null, null)
+            val webScraper = NuWebScraper(emptyStandingsCache, emptyScheduleCache, errorDocumentSource, CommonPool)
 
             webScraper.selectableSports.forEach { sport ->
                 assertThat(webScraper.sportToClass(sport))
