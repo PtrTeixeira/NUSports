@@ -55,29 +55,32 @@ internal class ViewStateTest {
             `when`(webScraper.getStandings(anyString()))
                 .thenReturn(listOf<Standing>())
         }
-
     }
 
     @Test
-    fun itClearsTheCacheOnReload() = runBlocking {
-        viewState.reload()
+    fun itClearsTheCacheOnReload() {
+        runBlocking {
+            viewState.reload()
 
-        verify(webScraper)
-            .clearCache("sport 1")
+            verify(webScraper)
+                .clearCache("sport 1")
+        }
     }
 
     @Test
-    fun itSetsTheErrorTextWhenAnExnOccurs() = runBlocking {
-        `when`(webScraper.getSchedule("sport 2"))
-            .thenThrow(ConnectionFailureException("Failed to connect"))
+    fun itSetsTheErrorTextWhenAnExnOccurs() {
+        runBlocking {
+            `when`(webScraper.getSchedule("sport 2"))
+                .thenThrow(ConnectionFailureException("Failed to connect"))
 
-        assertThat(viewState.errorText.value)
-            .isEqualTo("")
+            assertThat(viewState.errorText.value)
+                .isEqualTo("")
 
-        viewState.blockingUpdate("sport 2")
+            viewState.blockingUpdate("sport 2")
 
-        assertThat(viewState.errorText.value)
-            .isEqualTo("Failed to connect")
+            assertThat(viewState.errorText.value)
+                .isEqualTo("Failed to connect")
+        }
     }
 
 }
