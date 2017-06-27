@@ -29,7 +29,7 @@ import javax.inject.Named
 import kotlin.coroutines.experimental.CoroutineContext
 
 @Module
-abstract class ApplicationModelModule {
+class ApplicationModelModule {
     @Provides
     internal fun provideWebScraper(nuWebScraper: NuWebScraper): WebScraper = nuWebScraper
 

@@ -19,41 +19,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.ptrteixeira.nusports
+package com.github.ptrteixeira.nusports.view
 
-import com.github.ptrteixeira.nusports.presenter.ViewState
-import com.github.ptrteixeira.nusports.view.Body
-import com.github.ptrteixeira.nusports.view.SportsWorkspace
-import javafx.application.Application
-import tornadofx.App
-import tornadofx.DIContainer
-import tornadofx.FX
-import tornadofx.UIComponent
-import kotlin.reflect.KClass
+import javafx.beans.property.StringProperty
+import javafx.scene.paint.Color
+import tornadofx.View
+import tornadofx.borderpane
+import tornadofx.center
+import tornadofx.combobox
+import tornadofx.left
+import tornadofx.text
+import tornadofx.vbox
 
-class SportsApp : App(SportsWorkspace::class) {
-    override fun onBeforeShow(view: UIComponent) {
-        workspace.dock<Body>()
-    }
+class BodyTab(
+    private val sports: List<String>,
+    private val centerContents: View,
+    selectedItem: StringProperty,
+    errorText: StringProperty
+) : View() {
 
-    override fun stop() {
-        System.exit(0)
-    }
+    override val root = borderpane {
+        left {
+            vbox {
+                alignment = javafx.geometry.Pos.TOP_CENTER
 
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val component: ApplicationComponent = DaggerApplicationComponent.create()
+                combobox<String>(selectedItem, sports)
 
-            FX.dicontainer = object : DIContainer {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : Any> getInstance(type: KClass<T>): T = when (type) {
-                    ViewState::class -> component.viewState() as T
-                    else -> throw IllegalArgumentException()
+                text(errorText) {
+                    fill = Color.RED
+                    styleClass += "error"
                 }
             }
+        }
 
-            Application.launch(SportsApp::class.java, *args)
+        center {
+            add(centerContents)
         }
     }
 }
