@@ -105,9 +105,9 @@ constructor(
         try {
             val queryPath = "http://caasports.com/standings.aspx?path=${sportToPath(sport)}"
             logger.debug("Making query to path {}", queryPath)
-            val doc = documentSource.load(queryPath)
+            val doc = async(context) { documentSource.load(queryPath) }
 
-            val rows = doc.getElementsByClass("default_dgrd") // list of <table>
+            val rows = doc.await().getElementsByClass("default_dgrd") // list of <table>
                 .first() // <table>
                 .getElementsByTag("tbody") // list of <tbody>
                 .first() // <tbody>
