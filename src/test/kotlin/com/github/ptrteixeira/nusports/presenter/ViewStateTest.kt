@@ -24,8 +24,7 @@ package com.github.ptrteixeira.nusports.presenter
 import com.github.ptrteixeira.nusports.model.ConnectionFailureException
 import com.github.ptrteixeira.nusports.model.Match
 import com.github.ptrteixeira.nusports.model.Standing
-import com.github.ptrteixeira.nusports.model.WebScraper
-import kotlinx.coroutines.experimental.newSingleThreadContext
+import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
@@ -33,50 +32,46 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.BDDMockito.given
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import java.util.concurrent.TimeUnit.SECONDS
 
 internal class ViewStateTest {
     @Mock
-    lateinit var webScraper: WebScraper
+    lateinit var webScraper: SyncWebScraper
     lateinit var viewState: ViewState
 
     @BeforeEach
     fun setUp() {
         MockitoAnnotations.initMocks(this)
 
-        `when`(webScraper.selectableSports)
-            .thenReturn(listOf("sport 1", "sport 2"))
+        given(webScraper.selectableSports())
+            .willReturn(listOf("sport 1", "sport 2"))
+        given(webScraper.getSchedule(anyString()))
+            .willReturn(listOf<Match>())
+        given(webScraper.getStandings(anyString()))
+            .willReturn(listOf<Standing>())
 
-        viewState = ViewState(webScraper, newSingleThreadContext("ViewStateTest"))
-        runBlocking {
-            `when`(webScraper.getSchedule(anyString()))
-                .thenReturn(listOf<Match>())
-            `when`(webScraper.getStandings(anyString()))
-                .thenReturn(listOf<Standing>())
-        }
+        viewState = ViewState(MockWebScraper(webScraper), Unconfined)
     }
 
     @Test
     fun itClearsTheCacheOnReload() {
         runBlocking {
             viewState.reload()
-
-            verify(webScraper)
-                .clearCache("sport 1")
         }
+
+        verify(webScraper)
+            .clearCache("sport 1")
     }
 
     @Test
     @RepeatedTest(10)
     fun itSetsTheErrorTextWhenAnExnOccurs() {
-        runBlocking {
-            `when`(webScraper.getSchedule("sport 2"))
-                .thenThrow(ConnectionFailureException("Failed to connect"))
-        }
+        given(webScraper.getSchedule("sport 2"))
+            .willThrow(ConnectionFailureException("Failed to connect"))
 
         assertThat(viewState.errorText.value)
             .isEqualTo("")
@@ -87,7 +82,10 @@ internal class ViewStateTest {
 
         await()
             .atMost(1, SECONDS)
-            .until({ viewState.errorText.value == "Failed to connect" })
+            .untilAsserted {
+                assertThat(viewState.errorText.value)
+                    .isEqualTo("Failed to connect")
+            }
     }
 
 }
