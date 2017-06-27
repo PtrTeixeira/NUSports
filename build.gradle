@@ -44,7 +44,8 @@ def versions = [
     mockito: '2.8.47',
     dagger : '2.11',
     tornadofx: '1.7.7',
-    coroutines: '0.16'
+    coroutines: '0.16',
+    awaitility: '3.0.0'
 ]
 
 junitPlatform {
@@ -116,6 +117,7 @@ dependencies {
 
   testCompile group: 'org.assertj', name: 'assertj-core', version: versions.assertj
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
+  testCompile group: 'org.awaitility', name: 'awaitility', version: versions.awaitility
   testCompile group: 'org.jetbrains.spek', name: 'spek-api', version: versions.spek
   testCompile group: 'org.jetbrains.spek', name: 'spek-subject-extension', version: versions.spek
   testCompile group: 'org.mockito', name: 'mockito-core', version: versions.mockito

@@ -19,21 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.ptrteixeira.nusports
+package com.github.ptrteixeira.nusports.presenter
 
-import dagger.Module
-import dagger.Provides
-import kotlinx.coroutines.experimental.javafx.JavaFx
-import javax.inject.Named
-import kotlin.coroutines.experimental.CoroutineContext
+import com.github.ptrteixeira.nusports.model.ConnectionFailureException
+import com.github.ptrteixeira.nusports.model.Match
+import com.github.ptrteixeira.nusports.model.Standing
 
-@Module
-class ApplicationModule {
-    @Provides
-    @Named(UI_COROUTINE_POOL)
-    internal fun providesContext(): CoroutineContext = JavaFx
-
-    companion object {
-        const val UI_COROUTINE_POOL = "nusports.ui.pool"
-    }
+interface SyncWebScraper {
+    fun selectableSports(): List<String>
+    @Throws(ConnectionFailureException::class)
+    fun getStandings(sport: String): List<Standing>
+    @Throws(ConnectionFailureException::class)
+    fun getSchedule(sport: String): List<Match>
+    fun clearCache(sport: String)
 }

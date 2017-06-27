@@ -19,21 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.ptrteixeira.nusports
+package com.github.ptrteixeira.nusports.presenter
 
-import dagger.Module
-import dagger.Provides
-import kotlinx.coroutines.experimental.javafx.JavaFx
-import javax.inject.Named
-import kotlin.coroutines.experimental.CoroutineContext
+import com.github.ptrteixeira.nusports.model.Match
+import com.github.ptrteixeira.nusports.model.Standing
+import com.github.ptrteixeira.nusports.model.WebScraper
 
-@Module
-class ApplicationModule {
-    @Provides
-    @Named(UI_COROUTINE_POOL)
-    internal fun providesContext(): CoroutineContext = JavaFx
+class MockWebScraper(private val mockImpl: SyncWebScraper) : WebScraper {
+    override val selectableSports: List<String>
+        get() = mockImpl.selectableSports()
 
-    companion object {
-        const val UI_COROUTINE_POOL = "nusports.ui.pool"
+    suspend override fun getStandings(sport: String): List<Standing> = mockImpl.getStandings(sport)
+
+    suspend override fun getSchedule(sport: String): List<Match> = mockImpl.getSchedule(sport)
+
+    override fun clearCache(sport: String) {
+        mockImpl.clearCache(sport)
     }
 }
