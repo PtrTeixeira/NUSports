@@ -10,6 +10,8 @@ buildscript {
   }
 }
 
+import org.junit.platform.console.options.Details
+
 plugins {
   // Language Plugins
   id 'java'
@@ -36,14 +38,14 @@ group 'com.github.PtrTeixeira'
 version '3.0.0'
 
 def versions = [
-    jsoup  : '1.10.3',
-    junit  : '5.0.0-M4',
-    log4j  : '2.8.2',
-    assertj: '3.8.0',
-    spek   : '1.1.2',
-    mockito: '2.8.47',
-    dagger : '2.11',
-    tornadofx: '1.7.7',
+    jsoup     : '1.10.3',
+    junit     : '5.0.0-M4',
+    log4j     : '2.8.2',
+    assertj   : '3.8.0',
+    spek      : '1.1.2',
+    mockito   : '2.8.47',
+    dagger    : '2.11',
+    tornadofx : '1.7.7',
     coroutines: '0.16',
     awaitility: '3.0.0'
 ]
@@ -55,6 +57,7 @@ junitPlatform {
       include 'spek', 'junit-jupiter'
     }
   }
+  details = Details.TREE
 }
 
 // Because Intellij plays poorly with Dagger
@@ -117,10 +120,6 @@ dependencies {
 
   testCompile group: 'org.assertj', name: 'assertj-core', version: versions.assertj
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
-  testCompile group: 'org.awaitility', name: 'awaitility', version: versions.awaitility
-  testCompile group: 'org.jetbrains.spek', name: 'spek-api', version: versions.spek
-  testCompile group: 'org.jetbrains.spek', name: 'spek-subject-extension', version: versions.spek
   testCompile group: 'org.mockito', name: 'mockito-core', version: versions.mockito
-  testRuntime group: 'org.jetbrains.spek', name: 'spek-junit-platform-engine', version: versions.spek
   testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
 }

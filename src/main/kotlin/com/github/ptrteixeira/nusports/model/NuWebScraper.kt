@@ -21,6 +21,8 @@
  */
 package com.github.ptrteixeira.nusports.model
 
+import com.github.ptrteixeira.nusports.model.ApplicationModelModule.Companion.MODEL_COROUTINE_POOL
+import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.async
 import org.apache.logging.log4j.LogManager
 import org.jsoup.nodes.Element
@@ -50,7 +52,7 @@ constructor(
     private val standingsCache: MutableMap<String, List<Standing>>,
     private val scheduleCache: MutableMap<String, List<Match>>,
     private val documentSource: DocumentSource,
-    @Named(ApplicationModelModule.MODEL_COROUTINE_POOL) private val context: CoroutineContext
+    @Named(MODEL_COROUTINE_POOL) private val context: CoroutineContext = CommonPool
 ) : WebScraper {
 
     @Throws(ConnectionFailureException::class)
