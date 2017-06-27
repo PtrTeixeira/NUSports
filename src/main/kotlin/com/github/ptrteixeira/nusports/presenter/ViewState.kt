@@ -26,6 +26,7 @@ import com.github.ptrteixeira.nusports.model.ConnectionFailureException
 import com.github.ptrteixeira.nusports.model.Match
 import com.github.ptrteixeira.nusports.model.Standing
 import com.github.ptrteixeira.nusports.model.WebScraper
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
@@ -46,7 +47,8 @@ constructor(
     val errorText: SimpleStringProperty = SimpleStringProperty("")
     val selectableSports: List<String> = webScraper.selectableSports
 
-    val selectedSport: SimpleStringProperty = SimpleStringProperty(selectableSports[0])
+    val selectedSport = SimpleStringProperty(selectableSports[0])
+    val isLoading = SimpleBooleanProperty(true)
 
     init {
         selectedSport.onChange { newSelection ->
@@ -57,9 +59,13 @@ constructor(
     }
 
     private fun update(selectedSport: String) {
+        isLoading.set(true)
         launch(context) {
             blockingUpdate(selectedSport)
+        }.invokeOnCompletion {
+            isLoading.set(false)
         }
+
     }
 
     suspend fun blockingUpdate(selectedSport: String) {
