@@ -25,10 +25,12 @@ import com.github.ptrteixeira.nusports.model.ConnectionFailureException
 import com.github.ptrteixeira.nusports.model.Match
 import com.github.ptrteixeira.nusports.model.Standing
 import com.github.ptrteixeira.nusports.model.WebScraper
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
@@ -68,6 +70,7 @@ internal class ViewStateTest {
     }
 
     @Test
+    @RepeatedTest(5)
     fun itSetsTheErrorTextWhenAnExnOccurs() {
         runBlocking {
             `when`(webScraper.getSchedule("sport 2"))
@@ -77,6 +80,7 @@ internal class ViewStateTest {
                 .isEqualTo("")
 
             viewState.blockingUpdate("sport 2")
+            delay(100)
 
             assertThat(viewState.errorText.value)
                 .isEqualTo("Failed to connect")
