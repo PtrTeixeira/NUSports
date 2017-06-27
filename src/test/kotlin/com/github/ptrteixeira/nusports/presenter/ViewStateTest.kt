@@ -27,7 +27,6 @@ import com.github.ptrteixeira.nusports.model.Standing
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
@@ -36,7 +35,6 @@ import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
-import java.util.concurrent.TimeUnit.SECONDS
 
 internal class ViewStateTest {
     @Mock
@@ -69,6 +67,8 @@ internal class ViewStateTest {
 
     @Test
     @RepeatedTest(10)
+    // Repeated because this test has a bad habit of being
+    // flaky, in part because it sits on top of coroutines.
     fun itSetsTheErrorTextWhenAnExnOccurs() {
         given(webScraper.getSchedule("sport 2"))
             .willThrow(ConnectionFailureException("Failed to connect"))
@@ -80,12 +80,8 @@ internal class ViewStateTest {
             viewState.blockingUpdate("sport 2")
         }
 
-        await()
-            .atMost(1, SECONDS)
-            .untilAsserted {
-                assertThat(viewState.errorText.value)
-                    .isEqualTo("Failed to connect")
-            }
+        assertThat(viewState.errorText.value)
+            .isEqualTo("Failed to connect")
     }
 
 }
