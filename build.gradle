@@ -1,3 +1,5 @@
+import org.junit.platform.console.options.Details
+
 buildscript {
   ext.junit_version = '1.0.0-M4'
 
@@ -9,8 +11,6 @@ buildscript {
     classpath "org.junit.platform:junit-platform-gradle-plugin:$junit_version"
   }
 }
-
-import org.junit.platform.console.options.Details
 
 plugins {
   // Language Plugins
@@ -30,9 +30,11 @@ plugins {
 
   // Validation plugins
   id 'com.diffplug.gradle.spotless' version '3.4.0'
+  id 'io.gitlab.arturbosch.detekt' version '1.0.0.M11'
 }
 
 apply plugin: 'org.junit.platform.gradle.plugin'
+apply from: 'gradle/validation.gradle'
 
 group 'com.github.PtrTeixeira'
 version '3.0.0'
@@ -42,12 +44,10 @@ def versions = [
     junit     : '5.0.0-M4',
     log4j     : '2.8.2',
     assertj   : '3.8.0',
-    spek      : '1.1.2',
     mockito   : '2.8.47',
     dagger    : '2.11',
     tornadofx : '1.7.7',
-    coroutines: '0.16',
-    awaitility: '3.0.0'
+    coroutines: '0.16'
 ]
 
 junitPlatform {
@@ -70,18 +70,9 @@ idea {
   }
 }
 
-spotless {
-  java {
-    removeUnusedImports()
-    googleJavaFormat()
-    licenseHeaderFile 'LICENSE'
-  }
-  kotlin {
-    ktlint()
-    licenseHeaderFile 'LICENSE'
-  }
-  lineEndings 'UNIX'
-}
+
+
+
 
 compileKotlin {
   kotlinOptions {
