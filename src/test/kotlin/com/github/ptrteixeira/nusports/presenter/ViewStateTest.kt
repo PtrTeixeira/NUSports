@@ -36,7 +36,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
-import tornadofx.onChange
 
 internal class ViewStateTest {
     @Mock
@@ -75,22 +74,21 @@ internal class ViewStateTest {
         runBlocking {
             `when`(webScraper.getSchedule("sport 2"))
                 .thenThrow(ConnectionFailureException("Failed to connect"))
-
-            assertThat(viewState.errorText.value)
-                .isEqualTo("")
-
-            var called = false
-            viewState.errorText.onChange {
-                called = true
-                assertThat(it)
-                    .isEqualTo("Failed to connect")
-            }
-
-            viewState.blockingUpdate("sport 2")
-
-            assertThat(called)
-                .isTrue()
         }
+
+        assertThat(viewState.errorText.value)
+            .isEqualTo("")
+
+        runBlocking {
+            viewState.blockingUpdate("sport 2")
+        }
+
+        assertThat(viewState.errorText.value)
+            .isEqualTo("Failed to connect")
+
+//        await()
+//            .atMost(1, SECONDS)
+//            .until({ viewState.errorText.value == "Failed to connect"})
     }
 
 }
