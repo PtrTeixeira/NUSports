@@ -35,8 +35,10 @@ class Body : View() {
     private val currentSelection = viewState.selectedSport
     private val errorText = viewState.errorText
 
-    private val scheduleTab = ScheduleTab(sports, viewState.displayedSchedule, currentSelection, errorText)
-    private val standingsTab = StandingsTab(sports, viewState.displayedStandings, currentSelection, errorText)
+    private val standingsTable = StandingsTable(viewState.displayedStandings)
+    private val scheduleTable = ScheduleTable(viewState.displayedSchedule)
+    private val standingsTab = BodyTab(sports, standingsTable, currentSelection, errorText)
+    private val scheduleTab = BodyTab(sports, scheduleTable, currentSelection, errorText)
 
     override val refreshable = SimpleBooleanProperty(true)
     override val savable = SimpleBooleanProperty(false)
