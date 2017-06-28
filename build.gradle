@@ -31,6 +31,9 @@ plugins {
   // Validation plugins
   id 'com.diffplug.gradle.spotless' version '3.4.0'
   id 'io.gitlab.arturbosch.detekt' version '1.0.0.M11'
+
+  // Application
+  id 'application'
 }
 
 apply plugin: 'org.junit.platform.gradle.plugin'
@@ -70,9 +73,9 @@ idea {
   }
 }
 
-
-
-
+distTar {
+  compression = Compression.GZIP
+}
 
 compileKotlin {
   kotlinOptions {
@@ -91,8 +94,8 @@ kapt {
   correctErrorTypes = true
 }
 
-// Base plugin
 sourceCompatibility = 1.8
+mainClassName = 'com.github.ptrteixeira.nusports.SportsApp'
 
 repositories {
   mavenCentral()
