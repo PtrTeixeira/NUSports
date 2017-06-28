@@ -40,7 +40,7 @@ apply plugin: 'org.junit.platform.gradle.plugin'
 apply from: 'gradle/validation.gradle'
 
 group 'com.github.PtrTeixeira'
-version '3.0.0'
+version '3.1.0'
 
 def versions = [
     jsoup     : '1.10.3',
