@@ -65,7 +65,6 @@ internal class ViewStateTest {
             .clearCache("sport 1")
     }
 
-    @Test
     @RepeatedTest(10)
     // Repeated because this test has a bad habit of being
     // flaky, in part because it sits on top of coroutines.
