@@ -11,15 +11,3 @@ spotless {
   lineEndings 'UNIX'
 }
 
-detekt {
-  version = '1.0.0.M11'
-  input = file('src/main/kotlin')
-  config = file("detekt.yml")
-
-  report = file("build/detekt")
-  output = true
-}
-
-check.dependsOn(detektCheck)
-
-
