@@ -11,24 +11,14 @@ buildscript {
 }
 
 plugins {
-  // Language Plugins
   id 'java'
-  id 'nebula.kotlin' version '1.2.0'
-
-  // Reporting Plugins
-  id 'project-report'
-  id 'build-dashboard'
+  id 'nebula.kotlin' version '1.2.10'
 
   // Because Intellij is not good with Dagger
   id 'idea'
 
-  // Annotation Processing
   id 'net.ltgt.apt' version '0.5'
-
-  // Validation plugins
-  id 'com.diffplug.gradle.spotless' version '3.6.0'
-
-  // Application
+  id 'com.diffplug.gradle.spotless' version '3.7.0'
   id 'application'
 }
 
@@ -40,23 +30,15 @@ group 'com.github.PtrTeixeira'
 version '3.1.1'
 
 def versions = [
-    jsoup     : '1.11.1',
+    jsoup     : '1.11.2',
     junit     : '5.0.2',
-    log4j     : '2.9.1',
-    assertj   : '3.8.0',
-    mockito   : '2.11.0',
-    dagger    : '2.12',
-    tornadofx : '1.7.12',
-    coroutines: '0.19.3'
+    log4j     : '2.10.0',
+    assertj   : '3.9.0',
+    mockito   : '2.13.0',
+    dagger    : '2.14.1',
+    tornadofx : '1.7.14',
+    coroutines: '0.21.1'
 ]
-
-junitPlatform {
-  filters {
-    engines {
-      include 'spek', 'junit-jupiter'
-    }
-  }
-}
 
 // Because Intellij plays poorly with Dagger
 idea {
