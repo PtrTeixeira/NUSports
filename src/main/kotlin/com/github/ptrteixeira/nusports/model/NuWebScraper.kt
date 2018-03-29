@@ -1,3 +1,5 @@
+/* Released under the MIT license, $YEAR */
+
 package com.github.ptrteixeira.nusports.model
 
 import com.github.ptrteixeira.nusports.model.ApplicationModelModule.Companion.MODEL_COROUTINE_POOL

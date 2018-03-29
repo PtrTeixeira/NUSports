@@ -1,3 +1,5 @@
+/* Released under the MIT license, $YEAR */
+
 package com.github.ptrteixeira.nusports.view
 
 import com.github.ptrteixeira.nusports.model.Standing
