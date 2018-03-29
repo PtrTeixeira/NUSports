@@ -1,5 +1,3 @@
-/* Released under the MIT license, $YEAR */
-
 package com.github.ptrteixeira.nusports.model
 
 import com.github.ptrteixeira.nusports.model.ApplicationModelModule.Companion.MODEL_COROUTINE_POOL
@@ -16,10 +14,6 @@ import kotlin.coroutines.experimental.CoroutineContext
 
 /**
  * Scrape the CAA site, in particular, to load information relevant to Northeastern.
-
- *
- *
-
  *
  * It is extremely tightly tied to the actual structure of the CAA site, but I couldn't find a
  * REST endpoint or anything similar that would allow me to trivially extract the information that I

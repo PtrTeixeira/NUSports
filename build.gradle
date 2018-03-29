@@ -77,19 +77,19 @@ repositories {
 }
 
 dependencies {
-  implementation group: 'org.jsoup', name: 'jsoup', version: versions.jsoup
-  implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
-  implementation group: 'no.tornado', name: 'tornadofx', version: versions.tornadofx
-  implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: versions.coroutines
-  implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-javafx', version: versions.coroutines
-  implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
-  implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
+  compile group: 'org.jsoup', name: 'jsoup', version: versions.jsoup
+  compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
+  compile group: 'no.tornado', name: 'tornadofx', version: versions.tornadofx
+  compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: versions.coroutines
+  compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-javafx', version: versions.coroutines
+  compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
+  compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
 
   compile group: 'com.google.dagger', name: 'dagger', version: versions.dagger
   kapt group: 'com.google.dagger', name: 'dagger-compiler', version: versions.dagger
 
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: versions.assertj
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: versions.mockito
+  testCompile group: 'org.assertj', name: 'assertj-core', version: versions.assertj
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
+  testCompile group: 'org.mockito', name: 'mockito-core', version: versions.mockito
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
 }
