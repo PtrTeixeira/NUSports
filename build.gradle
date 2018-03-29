@@ -1,18 +1,12 @@
 buildscript {
-  ext.junit_version = '1.0.2'
-
   repositories {
     mavenCentral()
-  }
-
-  dependencies {
-    classpath "org.junit.platform:junit-platform-gradle-plugin:$junit_version"
   }
 }
 
 plugins {
   id 'java'
-  id 'nebula.kotlin' version '1.2.10'
+  id 'nebula.kotlin' version '1.2.30'
 
   // Because Intellij is not good with Dagger
   id 'idea'
@@ -22,7 +16,6 @@ plugins {
   id 'application'
 }
 
-apply plugin: 'org.junit.platform.gradle.plugin'
 apply from: 'gradle/validation.gradle'
 apply plugin: 'kotlin-kapt'
 
@@ -31,13 +24,13 @@ version '3.1.1'
 
 def versions = [
     jsoup     : '1.11.2',
-    junit     : '5.0.2',
+    junit     : '5.1.0',
     log4j     : '2.10.0',
-    assertj   : '3.9.0',
-    mockito   : '2.13.0',
-    dagger    : '2.14.1',
-    tornadofx : '1.7.14',
-    coroutines: '0.21.1'
+    assertj   : '3.9.1',
+    mockito   : '2.15.0',
+    dagger    : '2.15',
+    tornadofx : '1.7.15',
+    coroutines: '0.22.5'
 ]
 
 // Because Intellij plays poorly with Dagger
@@ -71,6 +64,10 @@ kapt {
   correctErrorTypes = true
 }
 
+test {
+  useJUnitPlatform()
+}
+
 sourceCompatibility = 1.8
 mainClassName = 'com.github.ptrteixeira.nusports.SportsApp'
 
@@ -94,5 +91,5 @@ dependencies {
   testCompile group: 'org.assertj', name: 'assertj-core', version: versions.assertj
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
   testCompile group: 'org.mockito', name: 'mockito-core', version: versions.mockito
-  testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
+  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
 }
