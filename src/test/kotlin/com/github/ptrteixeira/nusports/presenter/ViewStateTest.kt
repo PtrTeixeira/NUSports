@@ -1,4 +1,4 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.presenter
 
@@ -63,5 +63,4 @@ internal class ViewStateTest {
         assertThat(viewState.errorText.value)
             .isEqualTo("Failed to connect")
     }
-
 }

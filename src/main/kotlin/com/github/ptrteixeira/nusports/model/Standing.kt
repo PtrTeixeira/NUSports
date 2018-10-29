@@ -1,4 +1,4 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.model
 
@@ -12,6 +12,8 @@ package com.github.ptrteixeira.nusports.model
  * @property conference Record within conference play, eg "5-2"
  * @property overall Overall record, including both in-conference and out-of conference play
  */
-data class Standing(val teamName: String,
-                    val conference: String,
-                    val overall: String)
+data class Standing(
+    val teamName: String,
+    val conference: String,
+    val overall: String
+)

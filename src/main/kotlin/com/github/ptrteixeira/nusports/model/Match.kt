@@ -1,4 +1,4 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.model
 
@@ -9,6 +9,8 @@ package com.github.ptrteixeira.nusports.model
  *
  *
  */
-data class Match(val date: String,
-                 val opponent: String,
-                 val result: String)
+data class Match(
+    val date: String,
+    val opponent: String,
+    val result: String
+)

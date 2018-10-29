@@ -6,13 +6,13 @@ buildscript {
 
 plugins {
   id 'java'
-  id 'nebula.kotlin' version '1.2.30'
+  id 'nebula.kotlin' version '1.2.61'
 
   // Because Intellij is not good with Dagger
   id 'idea'
 
   id 'net.ltgt.apt' version '0.5'
-  id 'com.diffplug.gradle.spotless' version '3.7.0'
+  id 'com.diffplug.gradle.spotless' version '3.14.0'
   id 'application'
 }
 
@@ -72,7 +72,6 @@ sourceCompatibility = 1.8
 mainClassName = 'com.github.ptrteixeira.nusports.SportsApp'
 
 repositories {
-  mavenCentral()
   jcenter()
 }
 

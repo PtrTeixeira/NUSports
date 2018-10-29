@@ -1,4 +1,4 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.presenter
 
@@ -10,9 +10,9 @@ class MockWebScraper(private val mockImpl: SyncWebScraper) : WebScraper {
     override val selectableSports: List<String>
         get() = mockImpl.selectableSports()
 
-    suspend override fun getStandings(sport: String): List<Standing> = mockImpl.getStandings(sport)
+    override suspend fun getStandings(sport: String): List<Standing> = mockImpl.getStandings(sport)
 
-    suspend override fun getSchedule(sport: String): List<Match> = mockImpl.getSchedule(sport)
+    override suspend fun getSchedule(sport: String): List<Match> = mockImpl.getSchedule(sport)
 
     override fun clearCache(sport: String) {
         mockImpl.clearCache(sport)

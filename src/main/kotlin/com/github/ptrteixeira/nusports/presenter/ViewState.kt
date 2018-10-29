@@ -1,4 +1,4 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.presenter
 
@@ -46,7 +46,6 @@ constructor(
         }.invokeOnCompletion {
             isLoading.set(false)
         }
-
     }
 
     suspend fun blockingUpdate(selectedSport: String) {

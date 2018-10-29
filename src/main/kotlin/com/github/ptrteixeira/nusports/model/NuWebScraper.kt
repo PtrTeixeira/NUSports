@@ -1,4 +1,4 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.model
 
@@ -124,8 +124,8 @@ constructor(
     }
 
     // Extract all elements in e1 with a class of sport
-    private fun extractSport(el: Elements, sport: String): Elements
-        = el.select(".${sportToClass(sport)}")
+    private fun extractSport(el: Elements, sport: String): Elements =
+        el.select(".${sportToClass(sport)}")
 
     // Convert the given string sport into an HTML class
     // Used in extracting data from the calendar

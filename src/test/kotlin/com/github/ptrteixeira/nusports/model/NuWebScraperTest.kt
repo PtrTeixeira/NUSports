@@ -1,4 +1,4 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.model
 
@@ -17,7 +17,7 @@ internal class NuWebScraperTest {
     @Nested
     @DisplayName("when the cache is cleared")
     inner class CacheClear {
-        lateinit var scheduleCache : MutableMap<String, List<Match>>
+        lateinit var scheduleCache: MutableMap<String, List<Match>>
         lateinit var standingsCache: MutableMap<String, List<Standing>>
         lateinit var webscraper: NuWebScraper
 
