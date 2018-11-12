@@ -1,28 +1,33 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.presenter
 
-import com.github.ptrteixeira.nusports.ApplicationModule
 import com.github.ptrteixeira.nusports.model.ConnectionFailureException
 import com.github.ptrteixeira.nusports.model.Match
 import com.github.ptrteixeira.nusports.model.Standing
 import com.github.ptrteixeira.nusports.model.WebScraper
+import com.github.ptrteixeira.nusports.view.ViewModule
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.javafx.JavaFx
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import tornadofx.ViewModel
 import tornadofx.onChange
 import javax.inject.Inject
 import javax.inject.Named
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.CoroutineContext
 
-class ViewState @Inject
-constructor(
+class ViewState @Inject constructor(
     private val webScraper: WebScraper,
-    @Named(ApplicationModule.UI_COROUTINE_POOL) private val context: CoroutineContext
-) : ViewModel() {
+    @Named(ViewModule.VIEW_COROUTINE_POOL) override val coroutineContext: CoroutineContext = Dispatchers.JavaFx
+) : ViewModel(), CoroutineScope {
+
     val displayedSchedule: ObservableList<Match> = FXCollections.observableArrayList()
     val displayedStandings: ObservableList<Standing> = FXCollections.observableArrayList()
     val errorText: SimpleStringProperty = SimpleStringProperty("")
@@ -40,13 +45,15 @@ constructor(
     }
 
     private fun update(selectedSport: String) {
+        logger.info("Updating table contents for sport {}", selectedSport)
         isLoading.set(true)
-        launch(context) {
+
+        async(Dispatchers.IO) {
             blockingUpdate(selectedSport)
         }.invokeOnCompletion {
             isLoading.set(false)
+            logger.info("Done updating table contents")
         }
-
     }
 
     suspend fun blockingUpdate(selectedSport: String) {
@@ -57,11 +64,16 @@ constructor(
             displayedStandings.setAll(standings)
         } catch (exn: ConnectionFailureException) {
             errorText.value = exn.message
+            logger.error("Failed to load data from CAA", exn)
         }
     }
 
     fun reload() {
         webScraper.clearCache(selectedSport.value)
         update(selectedSport.value)
+    }
+
+    companion object {
+        val logger: Logger = LogManager.getLogger()
     }
 }

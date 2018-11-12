@@ -1,4 +1,4 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports
 
@@ -6,6 +6,8 @@ import com.github.ptrteixeira.nusports.presenter.ViewState
 import com.github.ptrteixeira.nusports.view.Body
 import com.github.ptrteixeira.nusports.view.SportsWorkspace
 import javafx.application.Application
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import tornadofx.App
 import tornadofx.DIContainer
 import tornadofx.FX
@@ -22,8 +24,12 @@ class SportsApp : App(SportsWorkspace::class) {
     }
 
     companion object {
+        private val logger: Logger = LogManager.getLogger()
+
         @JvmStatic
         fun main(args: Array<String>) {
+            logger.info("Starting application")
+
             val component: ApplicationComponent = DaggerApplicationComponent.create()
 
             FX.dicontainer = object : DIContainer {

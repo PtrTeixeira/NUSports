@@ -1,4 +1,4 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.model
 
@@ -19,5 +19,5 @@ internal interface DocumentSource {
      * @return `JSoup` interpretation of the accessed web-page
      * @throws IOException If the webpage cannot be accessed for whatever reason
      */
-    @Throws(IOException::class) fun load(url: String): Document
+    suspend fun load(url: String): Document
 }

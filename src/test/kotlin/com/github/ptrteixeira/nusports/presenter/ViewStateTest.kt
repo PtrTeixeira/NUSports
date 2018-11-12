@@ -1,12 +1,11 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.presenter
 
 import com.github.ptrteixeira.nusports.model.ConnectionFailureException
-import com.github.ptrteixeira.nusports.model.Match
-import com.github.ptrteixeira.nusports.model.Standing
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
@@ -27,41 +26,40 @@ internal class ViewStateTest {
         MockitoAnnotations.initMocks(this)
 
         given(webScraper.selectableSports())
-            .willReturn(listOf("sport 1", "sport 2"))
+                .willReturn(listOf("sport 1", "sport 2"))
         given(webScraper.getSchedule(anyString()))
-            .willReturn(listOf<Match>())
+                .willReturn(listOf())
         given(webScraper.getStandings(anyString()))
-            .willReturn(listOf<Standing>())
+                .willReturn(listOf())
 
-        viewState = ViewState(MockWebScraper(webScraper), Unconfined)
+        viewState = ViewState(MockWebScraper(webScraper), coroutineContext = Dispatchers.Default)
     }
 
     @Test
     fun itClearsTheCacheOnReload() {
         runBlocking {
             viewState.reload()
-        }
 
-        verify(webScraper)
-            .clearCache("sport 1")
+            verify(webScraper)
+                    .clearCache("sport 1")
+        }
     }
 
-    @RepeatedTest(10)
-    // Repeated because this test has a bad habit of being
-    // flaky, in part because it sits on top of coroutines.
+    // Repeated because this test has historically been kinda flaky
+    @RepeatedTest(20)
     fun itSetsTheErrorTextWhenAnExnOccurs() {
-        given(webScraper.getSchedule("sport 2"))
-            .willThrow(ConnectionFailureException("Failed to connect"))
-
-        assertThat(viewState.errorText.value)
-            .isEqualTo("")
-
         runBlocking {
+            delay(200)
+            given(webScraper.getSchedule("sport 2"))
+                    .willThrow(ConnectionFailureException("Failed to connect"))
+
+            assertThat(viewState.errorText.value)
+                    .isBlank()
+
             viewState.blockingUpdate("sport 2")
+
+            assertThat(viewState.errorText.value)
+                    .isEqualTo("Failed to connect")
         }
-
-        assertThat(viewState.errorText.value)
-            .isEqualTo("Failed to connect")
     }
-
 }

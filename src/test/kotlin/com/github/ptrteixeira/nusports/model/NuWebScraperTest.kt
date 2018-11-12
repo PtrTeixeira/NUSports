@@ -1,8 +1,8 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.model
 
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.jsoup.nodes.Document
@@ -17,7 +17,7 @@ internal class NuWebScraperTest {
     @Nested
     @DisplayName("when the cache is cleared")
     inner class CacheClear {
-        lateinit var scheduleCache : MutableMap<String, List<Match>>
+        lateinit var scheduleCache: MutableMap<String, List<Match>>
         lateinit var standingsCache: MutableMap<String, List<Standing>>
         lateinit var webscraper: NuWebScraper
 
@@ -232,7 +232,7 @@ internal class NuWebScraperTest {
         fun scheduleCache() = mutableMapOf<String, List<Match>>()
         fun standingsCache() = mutableMapOf<String, List<Standing>>()
         fun errorSource() = object : DocumentSource {
-            override fun load(url: String): Document {
+            override suspend fun load(url: String): Document {
                 throw IOException("Failed to connect")
             }
         }

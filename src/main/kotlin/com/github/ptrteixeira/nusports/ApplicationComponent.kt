@@ -1,13 +1,14 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports
 
 import com.github.ptrteixeira.nusports.model.ApplicationModelModule
 import com.github.ptrteixeira.nusports.presenter.ViewState
+import com.github.ptrteixeira.nusports.view.ViewModule
 import dagger.Component
 import javax.inject.Singleton
 
-@Component(modules = arrayOf(ApplicationModule::class, ApplicationModelModule::class))
+@Component(modules = [ApplicationModelModule::class, ViewModule::class])
 @Singleton
 interface ApplicationComponent {
     fun viewState(): ViewState

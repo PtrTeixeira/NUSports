@@ -1,0 +1,18 @@
+Configuration:
+  status: error
+  name: NuWebScraper
+  thresholdFilter:
+    level: debug
+  appenders:
+    Console:
+      name: STDOUT
+      PatternLayout:
+        Pattern: "%m%n"
+  Loggers:
+    logger:
+    - name: com.github.ptrteixeira
+      level: debug
+    Root:
+      level: error
+      AppenderRef:
+        ref: STDOUT

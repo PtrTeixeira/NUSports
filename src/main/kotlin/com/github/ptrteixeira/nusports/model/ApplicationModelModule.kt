@@ -1,13 +1,13 @@
-/* Released under the MIT license, $YEAR */
+/* Released under the MIT license, 2018 */
 
 package com.github.ptrteixeira.nusports.model
 
 import dagger.Module
 import dagger.Provides
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.Dispatchers
 import java.util.HashMap
 import javax.inject.Named
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.CoroutineContext
 
 @Module
 class ApplicationModelModule {
@@ -16,7 +16,7 @@ class ApplicationModelModule {
 
     @Provides
     @Named(MODEL_COROUTINE_POOL)
-    internal fun providesCoroutineContext(): CoroutineContext = CommonPool
+    internal fun providesCoroutineContext(): CoroutineContext = Dispatchers.Default
 
     @Provides
     internal fun provideStandingsCache(): Map<String, List<Standing>> {
