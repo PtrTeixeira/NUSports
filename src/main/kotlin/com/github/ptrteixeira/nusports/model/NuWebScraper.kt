@@ -2,17 +2,12 @@
 
 package com.github.ptrteixeira.nusports.model
 
-import com.github.ptrteixeira.nusports.model.ApplicationModelModule.Companion.MODEL_COROUTINE_POOL
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.async
 import org.apache.logging.log4j.LogManager
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.io.IOException
 import java.util.Objects
 import javax.inject.Inject
-import javax.inject.Named
-import kotlin.coroutines.experimental.CoroutineContext
 
 /**
  * Scrape the CAA site, in particular, to load information relevant to Northeastern.
@@ -28,21 +23,20 @@ internal class NuWebScraper @Inject
 constructor(
     private val standingsCache: MutableMap<String, List<Standing>>,
     private val scheduleCache: MutableMap<String, List<Match>>,
-    private val documentSource: DocumentSource,
-    @Named(MODEL_COROUTINE_POOL) private val context: CoroutineContext = CommonPool
+    private val documentSource: DocumentSource
 ) : WebScraper {
 
     @Throws(ConnectionFailureException::class)
     override suspend fun getStandings(sport: String): List<Standing> {
         val result = standingsCache[sport]
 
-        if (result == null) {
+        return if (result == null) {
             logger.debug("Standings for {} not found in cache. Connecting to external source", sport)
             val computed = loadStandings(sport)
             standingsCache[sport] = computed
-            return computed
+            computed
         } else {
-            return result
+            result
         }
     }
 
@@ -50,13 +44,13 @@ constructor(
     override suspend fun getSchedule(sport: String): List<Match> {
         val result = scheduleCache[sport]
 
-        if (result == null) {
+        return if (result == null) {
             logger.debug("Schedule for {} not found in cache. Connecting to external source", sport)
             val computed = loadSchedule(sport)
             scheduleCache[sport] = computed
-            return computed
+            computed
         } else {
-            return result
+            result
         }
     }
 
@@ -84,9 +78,9 @@ constructor(
         try {
             val queryPath = "http://caasports.com/standings.aspx?path=${sportToPath(sport)}"
             logger.debug("Making query to path {}", queryPath)
-            val doc = async(context) { documentSource.load(queryPath) }
+            val doc = documentSource.load(queryPath)
 
-            val rows = doc.await().getElementsByClass("default_dgrd") // list of <table>
+            val rows = doc.getElementsByClass("default_dgrd") // list of <table>
                 .first() // <table>
                 .getElementsByTag("tbody") // list of <tbody>
                 .first() // <tbody>
@@ -109,9 +103,9 @@ constructor(
         try {
             logger.debug("Schedule for \"{}\" not found in cache; connecting to external source", sport)
             val queryPath = "http://caasports.com/calendar.aspx"
-            val doc = async(context) { documentSource.load(queryPath) }
+            val doc = documentSource.load(queryPath)
 
-            val nuGames = this.extractSport(doc.await().getElementsByClass("school_3"), sport)
+            val nuGames = this.extractSport(doc.getElementsByClass("school_3"), sport)
             val results = nuGames
                 .map(this::parseMatch)
 
@@ -182,16 +176,16 @@ constructor(
     fun sportToPath(sport: String): String {
         logger.trace("Getting URL path for \"{}\"", sport)
 
-        when (sport) {
-            "Baseball" -> return "baseball"
-            "Field Hockey" -> return "fhockey"
-            "Men's Basketball" -> return "mbball"
-            "Men's Soccer" -> return "msoc"
-            "Softball" -> return "softball"
-            "Women's Basketball" -> return "wbball"
-            "Women's Soccer" -> return "wsoc"
-            "Volleyball" -> return "wvball"
-            else -> return ""
+        return when (sport) {
+            "Baseball" -> "baseball"
+            "Field Hockey" -> "fhockey"
+            "Men's Basketball" -> "mbball"
+            "Men's Soccer" -> "msoc"
+            "Softball" -> "softball"
+            "Women's Basketball" -> "wbball"
+            "Women's Soccer" -> "wsoc"
+            "Volleyball" -> "wvball"
+            else -> ""
         }
     }
 

@@ -5,7 +5,6 @@ package com.github.ptrteixeira.nusports.model
 import org.apache.logging.log4j.LogManager
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -20,8 +19,8 @@ import javax.inject.Inject
 internal class NuDocumentSource @Inject
 constructor() : DocumentSource {
 
-    @Throws(IOException::class)
-    override fun load(url: String): Document {
+    // Actually blocking right now.
+    override suspend fun load(url: String): Document {
         logger.debug("Making query to {}", url)
         return Jsoup.connect(url)
             .header("Connection", "keep-alive")

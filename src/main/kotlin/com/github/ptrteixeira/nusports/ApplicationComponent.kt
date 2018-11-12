@@ -7,7 +7,7 @@ import com.github.ptrteixeira.nusports.presenter.ViewState
 import dagger.Component
 import javax.inject.Singleton
 
-@Component(modules = arrayOf(ApplicationModule::class, ApplicationModelModule::class))
+@Component(modules = [ApplicationModelModule::class])
 @Singleton
 interface ApplicationComponent {
     fun viewState(): ViewState

@@ -2,7 +2,7 @@
 
 package com.github.ptrteixeira.nusports.model
 
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.jsoup.nodes.Document
@@ -232,7 +232,7 @@ internal class NuWebScraperTest {
         fun scheduleCache() = mutableMapOf<String, List<Match>>()
         fun standingsCache() = mutableMapOf<String, List<Standing>>()
         fun errorSource() = object : DocumentSource {
-            override fun load(url: String): Document {
+            override suspend fun load(url: String): Document {
                 throw IOException("Failed to connect")
             }
         }
