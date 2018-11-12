@@ -27,7 +27,7 @@ def versions = [
     mockito   : '2.23.0',
     dagger    : '2.18',
     tornadofx : '1.7.17',
-    coroutines: '1.0.0'
+    coroutines: '1.0.1'
 ]
 
 distTar {

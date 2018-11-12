@@ -3,7 +3,7 @@
 package com.github.ptrteixeira.nusports.presenter
 
 import com.github.ptrteixeira.nusports.model.ConnectionFailureException
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -16,7 +16,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 
-@ExperimentalCoroutinesApi
 internal class ViewStateTest {
     @Mock
     lateinit var webScraper: SyncWebScraper
@@ -33,7 +32,7 @@ internal class ViewStateTest {
         given(webScraper.getStandings(anyString()))
                 .willReturn(listOf())
 
-        viewState = ViewState(MockWebScraper(webScraper))
+        viewState = ViewState(MockWebScraper(webScraper), coroutineContext = Dispatchers.Default)
     }
 
     @Test

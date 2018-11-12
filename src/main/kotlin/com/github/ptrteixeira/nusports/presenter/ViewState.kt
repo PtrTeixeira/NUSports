@@ -6,6 +6,7 @@ import com.github.ptrteixeira.nusports.model.ConnectionFailureException
 import com.github.ptrteixeira.nusports.model.Match
 import com.github.ptrteixeira.nusports.model.Standing
 import com.github.ptrteixeira.nusports.model.WebScraper
+import com.github.ptrteixeira.nusports.view.ViewModule
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
@@ -19,11 +20,13 @@ import org.apache.logging.log4j.Logger
 import tornadofx.ViewModel
 import tornadofx.onChange
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.coroutines.CoroutineContext
 
-class ViewState @Inject constructor(private val webScraper: WebScraper) : ViewModel(), CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.JavaFx
+class ViewState @Inject constructor(
+    private val webScraper: WebScraper,
+    @Named(ViewModule.VIEW_COROUTINE_POOL) override val coroutineContext: CoroutineContext = Dispatchers.JavaFx
+) : ViewModel(), CoroutineScope {
 
     val displayedSchedule: ObservableList<Match> = FXCollections.observableArrayList()
     val displayedStandings: ObservableList<Standing> = FXCollections.observableArrayList()
