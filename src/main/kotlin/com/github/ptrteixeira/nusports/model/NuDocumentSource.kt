@@ -25,7 +25,7 @@ constructor() : DocumentSource {
         return Jsoup.connect(url)
             .header("Connection", "keep-alive")
             .header("Accept-Encoding", "gzip, deflate, sdch")
-            .userAgent("Chrome/51")
+            .userAgent("Chrome/60")
             .maxBodySize(0)
             .timeout(7000)
             .get()

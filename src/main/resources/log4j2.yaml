@@ -7,7 +7,7 @@ Configuration:
     Console:
       name: STDOUT
       PatternLayout:
-        Pattern: "%m%n"
+        Pattern: "%-5p%m %throwable%n"
   Loggers:
     logger:
     - name: com.github.ptrteixeira

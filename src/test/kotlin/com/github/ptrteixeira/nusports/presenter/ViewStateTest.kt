@@ -2,64 +2,62 @@
 
 package com.github.ptrteixeira.nusports.presenter
 
+import com.github.ptrteixeira.nusports.model.ConnectionError
 import com.github.ptrteixeira.nusports.model.ConnectionFailureException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import com.github.ptrteixeira.nusports.model.InteractionEvent
+import com.github.ptrteixeira.nusports.model.Match
+import com.github.ptrteixeira.nusports.model.ReloadEvent
+import com.github.ptrteixeira.nusports.model.Standing
+import com.github.ptrteixeira.nusports.model.VisibleSport
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.given
-import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations
+import org.mockito.BDDMockito.then
+import org.mockito.Mockito.mock
 
+@ObsoleteCoroutinesApi
 internal class ViewStateTest {
-    @Mock
-    lateinit var webScraper: SyncWebScraper
-    lateinit var viewState: ViewState
+    private val standing = Standing("Team", "Conference W-L", "Overall W-L")
+    private val match = Match("Date", "Opponent", "Score")
 
-    @BeforeEach
-    fun setUp() {
-        MockitoAnnotations.initMocks(this)
-
-        given(webScraper.selectableSports())
-                .willReturn(listOf("sport 1", "sport 2"))
-        given(webScraper.getSchedule(anyString()))
-                .willReturn(listOf())
-        given(webScraper.getStandings(anyString()))
-                .willReturn(listOf())
-
-        viewState = ViewState(MockWebScraper(webScraper), coroutineContext = Dispatchers.Default)
-    }
+    private val webScraper: SyncWebScraper = mock(SyncWebScraper::class.java)
+    private val viewState = ViewState(MockWebScraper(webScraper))
 
     @Test
     fun itClearsTheCacheOnReload() {
-        runBlocking {
-            viewState.reload()
+        given(webScraper.getStandings("sport 1"))
+                .willReturn(listOf(standing))
+        given(webScraper.getSchedule("sport 1"))
+                .willReturn(listOf(match))
 
-            verify(webScraper)
-                    .clearCache("sport 1")
+        val viewUpdate = runBlocking {
+            viewState.getViewUpdate(ReloadEvent("sport 1"))
         }
+
+        val (schedule, standings) = (viewUpdate as VisibleSport)
+
+        assertThat(standings)
+                .containsExactly(standing)
+        assertThat(schedule)
+                .containsExactly(match)
+        then(webScraper)
+                .should()
+                .clearCache("sport 1")
     }
 
-    // Repeated because this test has historically been kinda flaky
-    @RepeatedTest(20)
-    fun itSetsTheErrorTextWhenAnExnOccurs() {
-        runBlocking {
-            delay(200)
-            given(webScraper.getSchedule("sport 2"))
-                    .willThrow(ConnectionFailureException("Failed to connect"))
+    @Test
+    fun itReturnsAnErrorEventWhenAnExceptionOccurs() {
+        given(webScraper.getSchedule("sport 2"))
+                .willThrow(ConnectionFailureException("Failed to connect"))
 
-            assertThat(viewState.errorText.value)
-                    .isBlank()
-
-            viewState.blockingUpdate("sport 2")
-
-            assertThat(viewState.errorText.value)
-                    .isEqualTo("Failed to connect")
+        val viewUpdate = runBlocking {
+            viewState.getViewUpdate(InteractionEvent("sport 2"))
         }
+
+        assertThat(viewUpdate as ConnectionError)
+                .extracting(ConnectionError::errorText)
+                .isEqualTo("Failed to connect")
     }
 }

@@ -76,7 +76,7 @@ constructor(
     @Throws(ConnectionFailureException::class)
     private suspend fun loadStandings(sport: String): List<Standing> {
         try {
-            val queryPath = "http://caasports.com/standings.aspx?path=${sportToPath(sport)}"
+            val queryPath = "https://caasports.com/standings.aspx?path=${sportToPath(sport)}"
             logger.debug("Making query to path {}", queryPath)
             val doc = documentSource.load(queryPath)
 
@@ -102,7 +102,7 @@ constructor(
     private suspend fun loadSchedule(sport: String): List<Match> {
         try {
             logger.debug("Schedule for \"{}\" not found in cache; connecting to external source", sport)
-            val queryPath = "http://caasports.com/calendar.aspx"
+            val queryPath = "https://caasports.com/calendar.aspx"
             val doc = documentSource.load(queryPath)
 
             val nuGames = this.extractSport(doc.getElementsByClass("school_3"), sport)
