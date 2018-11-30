@@ -81,17 +81,17 @@ constructor(
             val doc = documentSource.load(queryPath)
 
             val rows = doc.getElementsByClass("default_dgrd") // list of <table>
-                .first() // <table>
-                .getElementsByTag("tbody") // list of <tbody>
-                .first() // <tbody>
-                .children() // list of <tr>
+                ?.first() // <table>
+                ?.getElementsByTag("tbody") // list of <tbody>
+                ?.first() // <tbody>
+                ?.children() // list of <tr>
 
             val result = rows
-                .drop(1) // Drop the header from the table
-                .map(standingsParser(sport))
+                ?.drop(1) // Drop the header from the table
+                ?.map(standingsParser(sport))
 
             logger.debug("Found standings data {} on the web for {}", result, sport)
-            return result
+            return result ?: listOf()
         } catch (iex: IOException) {
             logger.warn("Connection failure getting standings data", iex)
             throw ConnectionFailureException("Failed to connect to the internet.")
@@ -214,12 +214,14 @@ constructor(
 
     // Parse the table row in the document into a Match
     private fun parseMatch(element: Element): Match {
-        val (opponent, northeasternIndex, opponentIndex) =
+        val (northeasternIndex, opponentIndex) =
             if (element.child(1).text() == "Northeastern") {
-                Triple(element.child(4).text(), 1, 4)
+                Pair(1, 4)
             } else {
-                Triple(element.child(1).text(), 4, 1)
+                Pair(4, 1)
             }
+
+        val opponent = element.child(opponentIndex).text()
 
         val result = if (element.child(northeasternIndex).hasClass("won")) {
             val winningScore = element.child(2).text().trim()
