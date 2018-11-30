@@ -1,17 +1,29 @@
 Configuration:
   status: error
   name: NuWebScraper
+  properties:
+    property:
+      name: filename
+      value: logs/out.log
   thresholdFilter:
     level: debug
   appenders:
     Console:
       name: STDOUT
       PatternLayout:
-        Pattern: "%-5p%m %throwable%n"
+        Pattern: "[%-5p] %c{2} - %m%n"
+    File:
+      name: JSON
+      fileName: ${filename}
+      JSONLayout:
+        compact: true
+        eventEol: true
   Loggers:
     logger:
     - name: com.github.ptrteixeira
       level: debug
+      AppenderRef:
+        ref: JSON
     Root:
       level: error
       AppenderRef:
