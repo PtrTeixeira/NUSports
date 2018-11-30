@@ -5,6 +5,8 @@ buildscript {
 }
 
 plugins {
+  id 'idea'
+
   id 'java'
   id 'nebula.kotlin' version '1.3.0'
 
