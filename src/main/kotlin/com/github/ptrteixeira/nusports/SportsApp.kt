@@ -6,6 +6,8 @@ import com.github.ptrteixeira.nusports.presenter.ViewState
 import com.github.ptrteixeira.nusports.view.Body
 import com.github.ptrteixeira.nusports.view.SportsWorkspace
 import javafx.application.Application
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import tornadofx.App
@@ -14,6 +16,8 @@ import tornadofx.FX
 import tornadofx.UIComponent
 import kotlin.reflect.KClass
 
+@ObsoleteCoroutinesApi
+@ExperimentalCoroutinesApi
 class SportsApp : App(SportsWorkspace::class) {
     override fun onBeforeShow(view: UIComponent) {
         workspace.dock<Body>()
