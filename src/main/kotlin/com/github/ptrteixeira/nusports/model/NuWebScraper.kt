@@ -2,12 +2,26 @@
 
 package com.github.ptrteixeira.nusports.model
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.apache.logging.log4j.LogManager
 import org.jsoup.nodes.Element
-import org.jsoup.select.Elements
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.jackson.JacksonConverterFactory
 import java.io.IOException
+import java.time.Clock
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Objects
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Scrape the CAA site, in particular, to load information relevant to Northeastern.
@@ -25,6 +39,17 @@ constructor(
     private val scheduleCache: MutableMap<String, List<Match>>,
     private val documentSource: DocumentSource
 ) : WebScraper {
+    // TODO Inject
+    private val objectMapper = ObjectMapper().apply {
+        registerModule(KotlinModule())
+        enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+    }
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://caasports.com")
+        .addConverterFactory(JacksonConverterFactory.create(objectMapper))
+        .build()
+    private val caaService = retrofit.create(CaaService::class.java)
+    private val clock = Clock.systemDefaultZone()
 
     @Throws(ConnectionFailureException::class)
     override suspend fun getStandings(sport: String): List<Standing> {
@@ -80,18 +105,15 @@ constructor(
             logger.debug("Making query to path {}", queryPath)
             val doc = documentSource.load(queryPath)
 
-            val rows = doc.getElementsByClass("default_dgrd") // list of <table>
+            val rows = doc.getElementsByClass("sidearm-standings-table") // list of <table>
                 ?.first() // <table>
                 ?.getElementsByTag("tbody") // list of <tbody>
                 ?.first() // <tbody>
                 ?.children() // list of <tr>
 
-            val result = rows
-                ?.drop(1) // Drop the header from the table
+            return rows
                 ?.map(standingsParser(sport))
-
-            logger.debug("Found standings data {} on the web for {}", result, sport)
-            return result ?: listOf()
+                ?: listOf()
         } catch (iex: IOException) {
             logger.warn("Connection failure getting standings data", iex)
             throw ConnectionFailureException("Failed to connect to the internet.")
@@ -102,39 +124,51 @@ constructor(
     private suspend fun loadSchedule(sport: String): List<Match> {
         try {
             logger.debug("Schedule for \"{}\" not found in cache; connecting to external source", sport)
-            val queryPath = "https://caasports.com/calendar.aspx"
-            val doc = documentSource.load(queryPath)
+            val start = ZonedDateTime.now(clock).minus(2, ChronoUnit.MONTHS).format(DateTimeFormatter.ISO_OFFSET_DATE)
+            val end = ZonedDateTime.now(clock).plus(2, ChronoUnit.MONTHS).format(DateTimeFormatter.ISO_OFFSET_DATE)
+            val sportId = sportToIdNumber(sport)
+            val schoolId = NORTHEASTERN_ID_NUMBER
 
-            val nuGames = this.extractSport(doc.getElementsByClass("school_3"), sport)
-            val results = nuGames
-                .map(this::parseMatch)
+            val schedule = caaService
+                .getSchedule(start, end, sportId, schoolId)
+                .read()
 
-            logger.debug("Found schedule data {} on the web for {}. Writing to cache.", results, sport)
-            return results
+            return if (schedule == null) {
+                // TODO should probably do something else here
+                emptyList()
+            } else {
+                schedule.map {
+                    val results = it.result?.format() ?: ""
+                    Match(it.date, it.opponent.title, results)
+                }
+            }
         } catch (iex: IOException) {
             logger.trace("Connection failure getting schedule data", iex)
             throw ConnectionFailureException("Failed to connect to the internet.")
         }
     }
 
-    // Extract all elements in e1 with a class of sport
-    private fun extractSport(el: Elements, sport: String): Elements =
-        el.select(".${sportToClass(sport)}")
-
     // Convert the given string sport into an HTML class
     // Used in extracting data from the calendar
     fun sportToClass(sport: String): String {
         logger.debug("Finding CSS class for \"{}\"", sport)
+        return "sport_${sportToIdNumber(sport)}"
+    }
+
+    // Convert the given string sport into an HTML class
+    // Used in extracting data from the calendar
+    private fun sportToIdNumber(sport: String): String {
+        logger.debug("Finding CSS class for \"{}\"", sport)
 
         return when (sport) {
-            "Baseball" -> "sport_1"
-            "Field Hockey" -> "sport_3"
-            "Men's Basketball" -> "sport_6"
-            "Men's Soccer" -> "sport_8"
-            "Softball" -> "sport_9"
-            "Women's Basketball" -> "sport_13"
-            "Women's Soccer" -> "sport_16"
-            "Volleyball" -> "sport_17"
+            "Baseball" -> "1"
+            "Field Hockey" -> "3"
+            "Men's Basketball" -> "6"
+            "Men's Soccer" -> "8"
+            "Softball" -> "9"
+            "Women's Basketball" -> "13"
+            "Women's Soccer" -> "16"
+            "Volleyball" -> "17"
             else -> ""
         }
 
@@ -190,14 +224,15 @@ constructor(
     }
 
     // In general, the standings tables look like
-    // Hofstra | 0 - 12 | 0.000 | 5 - 25 | 0.2000
+    // Hofstra | Hofstra | 0 - 12 | 0.000 | 5 - 25 | 0.2000
     // So this just grabs the correct elements.
     // Parse a generic standing table row into a Standing object
     private fun parseNormalStanding(element: Element): Standing {
         return Standing(
             element.child(0).text(), // School
-            element.child(1).text(), // Conference Results
-            element.child(3).text()) // Overall Results
+            element.child(3).text(), // Conference Results
+            element.child(4).text() // Overall results
+        )
     }
 
     // In contrast, soccer standings look like
@@ -208,52 +243,27 @@ constructor(
     private fun parseSoccerStanding(element: Element): Standing {
         return Standing(
             element.child(0).text(), // School
-            element.child(1).text(), // Conference Results
-            element.child(4).text()) // Overall results
+            element.child(2).text(), // Conference Results
+            element.child(4).text()
+        ) // Overall results
     }
 
-    // Parse the table row in the document into a Match
-    private fun parseMatch(element: Element): Match {
-        val (northeasternIndex, opponentIndex) =
-            if (element.child(1).text() == "Northeastern") {
-                Pair(1, 4)
-            } else {
-                Pair(4, 1)
-            }
+    private suspend fun <T> Call<T>.read(): T? {
+        return suspendCoroutine {
+            this.enqueue(object : Callback<T> {
+                override fun onFailure(call: Call<T>, t: Throwable) {
+                    it.resumeWithException(t)
+                }
 
-        val opponent = element.child(opponentIndex).text()
-
-        val result = if (element.child(northeasternIndex).hasClass("won")) {
-            val winningScore = element.child(2).text().trim()
-            val losingScore = element.child(5).text().trim()
-            "W $winningScore - $losingScore"
-        } else if (element.child(opponentIndex).hasClass("won")) {
-            val winningScore = element.child(2).text().trim()
-            val losingScore = element.child(5).text().trim()
-            "L $winningScore - $losingScore"
-        } else if (element.child(opponentIndex + 1).text().trim { it <= ' ' }.isEmpty()) {
-            ""
-        } else {
-            val tiedScore = element.child(opponentIndex + 1).text().trim()
-            "$tiedScore - $tiedScore"
+                override fun onResponse(call: Call<T>, response: Response<T>) {
+                    it.resume(response.body())
+                }
+            })
         }
-
-        val date = this.getDate(element)
-
-        return Match(date, opponent, result)
-    }
-
-    // Look up through the table until it hits a row that contains the date
-    private fun getDate(element: Element?): String {
-        var loopingElement = element
-        while (loopingElement != null && !loopingElement.hasAttr("data-date")) {
-            loopingElement = loopingElement.previousElementSibling()
-        }
-
-        return loopingElement?.attr("data-date") ?: ""
     }
 
     companion object {
+        private const val NORTHEASTERN_ID_NUMBER = "3"
         private val logger = LogManager.getLogger()
     }
 }

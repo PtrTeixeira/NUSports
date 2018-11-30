@@ -2,10 +2,19 @@
 
 package com.github.ptrteixeira.nusports.model
 
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import org.apache.logging.log4j.LogManager
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import java.io.IOException
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Implementation of the access layer for foreign resources. In particular, it is designed to load
@@ -18,17 +27,37 @@ import javax.inject.Inject
  */
 internal class NuDocumentSource @Inject
 constructor() : DocumentSource {
+    // TODO should be injected instead
+    private val client = OkHttpClient()
 
     // Actually blocking right now.
     override suspend fun load(url: String): Document {
         logger.debug("Making query to {}", url)
-        return Jsoup.connect(url)
-            .header("Connection", "keep-alive")
-            .header("Accept-Encoding", "gzip, deflate, sdch")
-            .userAgent("Chrome/60")
-            .maxBodySize(0)
-            .timeout(7000)
-            .get()
+        val request = Request.Builder()
+                .get().url(url)
+                .header("User-Agent", "Chrome/70")
+                .build()
+        val responseBody = client.newCall(request).read().body()
+        if (responseBody == null) {
+            throw IOException("Body was empty")
+        } else {
+            val body = responseBody.string()
+            return Jsoup.parse(body)
+        }
+    }
+
+    private suspend fun Call.read(): Response {
+        return suspendCoroutine {
+            this.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    it.resumeWithException(e)
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    it.resume(response)
+                }
+            })
+        }
     }
 
     companion object {
