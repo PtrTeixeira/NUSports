@@ -2,11 +2,13 @@
 
 package com.github.ptrteixeira.nusports.model
 
+import com.github.ptrteixeira.nusports.dao.DocumentSource
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.File
 
-internal class LocalDocumentSource(private val pathInFolder: String) : DocumentSource {
+internal class LocalDocumentSource(private val pathInFolder: String) :
+    DocumentSource {
     override suspend fun load(url: String): Document {
         return Jsoup.parse(File("src/test/resources/$pathInFolder.html"), "UTF8", ".")
     }

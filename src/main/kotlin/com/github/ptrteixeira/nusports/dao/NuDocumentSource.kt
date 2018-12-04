@@ -1,10 +1,13 @@
 /* Released under the MIT license, 2018 */
 
-package com.github.ptrteixeira.nusports.model
+package com.github.ptrteixeira.nusports.dao
 
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.apache.logging.log4j.LogManager
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -16,19 +19,22 @@ import javax.inject.Inject
 
  * @author Peter Teixeira
  */
-internal class NuDocumentSource @Inject
-constructor() : DocumentSource {
+internal class NuDocumentSource @Inject constructor(private val client: OkHttpClient) : DocumentSource {
 
-    // Actually blocking right now.
     override suspend fun load(url: String): Document {
         logger.debug("Making query to {}", url)
-        return Jsoup.connect(url)
-            .header("Connection", "keep-alive")
-            .header("Accept-Encoding", "gzip, deflate, sdch")
-            .userAgent("Chrome/60")
-            .maxBodySize(0)
-            .timeout(7000)
-            .get()
+        val request = Request.Builder()
+                .get().url(url)
+                .header("User-Agent", "Chrome/70")
+                .build()
+        val responseBody = client.newCall(request).read().body()
+
+        if (responseBody == null) {
+            throw IOException("Body was empty")
+        } else {
+            val body = responseBody.string()
+            return Jsoup.parse(body)
+        }
     }
 
     companion object {
