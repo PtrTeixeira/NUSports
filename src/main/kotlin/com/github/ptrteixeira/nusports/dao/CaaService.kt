@@ -1,7 +1,8 @@
 /* Released under the MIT license, 2018 */
 
-package com.github.ptrteixeira.nusports.model
+package com.github.ptrteixeira.nusports.dao
 
+import com.github.ptrteixeira.nusports.model.CalendarResponseItem
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query

@@ -5,6 +5,8 @@ package com.github.ptrteixeira.nusports.model
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.github.ptrteixeira.nusports.dao.CaaService
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
@@ -13,6 +15,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
+@Disabled
 internal class CaaServiceTest {
     private val objectMapper = ObjectMapper().apply {
         registerModule(KotlinModule())

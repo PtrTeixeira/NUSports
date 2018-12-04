@@ -1,6 +1,6 @@
 /* Released under the MIT license, 2018 */
 
-package com.github.ptrteixeira.nusports.model
+package com.github.ptrteixeira.nusports.dao
 
 import org.jsoup.nodes.Document
 import java.io.IOException

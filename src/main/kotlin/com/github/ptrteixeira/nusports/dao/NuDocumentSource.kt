@@ -1,6 +1,6 @@
 /* Released under the MIT license, 2018 */
 
-package com.github.ptrteixeira.nusports.model
+package com.github.ptrteixeira.nusports.dao
 
 import okhttp3.Call
 import okhttp3.Callback
@@ -25,10 +25,7 @@ import kotlin.coroutines.suspendCoroutine
 
  * @author Peter Teixeira
  */
-internal class NuDocumentSource @Inject
-constructor() : DocumentSource {
-    // TODO should be injected instead
-    private val client = OkHttpClient()
+internal class NuDocumentSource @Inject constructor(private val client: OkHttpClient) : DocumentSource {
 
     // Actually blocking right now.
     override suspend fun load(url: String): Document {
@@ -38,6 +35,7 @@ constructor() : DocumentSource {
                 .header("User-Agent", "Chrome/70")
                 .build()
         val responseBody = client.newCall(request).read().body()
+
         if (responseBody == null) {
             throw IOException("Body was empty")
         } else {
