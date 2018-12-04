@@ -4,7 +4,7 @@ package com.github.ptrteixeira.nusports.model
 
 import com.github.ptrteixeira.nusports.dao.IScheduleDao
 import com.github.ptrteixeira.nusports.dao.IStandingsDao
-import com.github.ptrteixeira.nusports.dao.TestScheduleDao
+import com.github.ptrteixeira.nusports.dao.FakeScheduleDao
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
@@ -81,7 +81,7 @@ internal class NuWebScraperTest {
     @ObsoleteCoroutinesApi
     @Disabled("It's a cool idea, but I don't actually want to add timeouts yet")
     fun `it cuts off loading after a time period`() = withTestContext {
-        val scheduleDao = TestScheduleDao {
+        val scheduleDao = FakeScheduleDao {
             delay(10000)
             throw IllegalStateException()
         }

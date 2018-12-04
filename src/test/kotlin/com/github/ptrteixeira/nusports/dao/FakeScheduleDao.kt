@@ -4,7 +4,7 @@ package com.github.ptrteixeira.nusports.dao
 
 import com.github.ptrteixeira.nusports.model.Match
 
-class TestScheduleDao(private val doOnGet: suspend () -> List<Match>) : IScheduleDao {
+class FakeScheduleDao(private val doOnGet: suspend () -> List<Match>) : IScheduleDao {
     override suspend fun get(sport: String): List<Match> {
         return doOnGet()
     }
