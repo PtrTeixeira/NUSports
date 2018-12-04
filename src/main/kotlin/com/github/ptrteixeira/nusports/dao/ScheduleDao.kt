@@ -5,26 +5,18 @@ package com.github.ptrteixeira.nusports.dao
 import com.github.ptrteixeira.nusports.model.ConnectionFailureException
 import com.github.ptrteixeira.nusports.model.Match
 import org.apache.logging.log4j.LogManager
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.IOException
 import java.time.Clock
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 class ScheduleDao @Inject internal constructor(
-//    private val scheduleCache: MutableMap<String, List<Match>>,
+    private val scheduleCache: MutableMap<String, List<Match>>,
     private val clock: Clock,
     private val caaService: CaaService
 ) : IScheduleDao {
-    private val scheduleCache = mutableMapOf<String, List<Match>>()
-
     override suspend fun get(sport: String): List<Match> {
         val cached = scheduleCache[sport]
         if (cached != null) {
@@ -38,9 +30,7 @@ class ScheduleDao @Inject internal constructor(
 
         val schedule = try {
             caaService
-                .getSchedule(start, end, sportId,
-                    NORTHEASTERN_ID_NUMBER
-                )
+                .getSchedule(start, end, sportId, NORTHEASTERN_ID_NUMBER)
                 .read()
         } catch (iex: IOException) {
             logger.trace("Connection failure getting schedule data", iex)
@@ -106,20 +96,6 @@ class ScheduleDao @Inject internal constructor(
      * class sport_27 = Women's Track and Field
      * class sport_28 = Wrestling
      */
-    }
-
-    private suspend fun <T> Call<T>.read(): T? {
-        return suspendCoroutine {
-            this.enqueue(object : Callback<T> {
-                override fun onFailure(call: Call<T>, t: Throwable) {
-                    it.resumeWithException(t)
-                }
-
-                override fun onResponse(call: Call<T>, response: Response<T>) {
-                    it.resume(response.body())
-                }
-            })
-        }
     }
 
     companion object {

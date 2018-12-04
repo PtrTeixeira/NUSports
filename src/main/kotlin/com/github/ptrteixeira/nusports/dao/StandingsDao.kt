@@ -10,11 +10,9 @@ import java.io.IOException
 import javax.inject.Inject
 
 class StandingsDao @Inject internal constructor(
-//    private val standingsCache: MutableMap<String, List<Standing>>,
+    private val standingsCache: MutableMap<String, List<Standing>>,
     private val documentSource: DocumentSource
 ) : IStandingsDao {
-    private val standingsCache = mutableMapOf<String, List<Standing>>()
-
     override suspend fun get(sport: String): List<Standing> {
         val cached = standingsCache[sport]
         if (cached != null) {
@@ -40,6 +38,7 @@ class StandingsDao @Inject internal constructor(
 
         return rows
             ?.map(standingsParser(sport))
+            ?.apply { standingsCache[sport] = this }
             ?: listOf()
     }
 
