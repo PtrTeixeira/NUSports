@@ -21,20 +21,21 @@ group 'com.github.PtrTeixeira'
 version '3.1.2'
 
 def versions = [
-    jackson   : '2.9.7',
-    jsoup     : '1.11.3',
-    junit     : '5.3.0',
-    log4j     : '2.11.1',
-    okhttp    : '3.12.0',
+    jackson   : '2.9.8',
+    jsoup     : '1.12.1',
+    junit     : '5.4.2',
+    log4j     : '2.11.2',
+    okhttp    : '3.12.3',
+    // TODO: Start thinking about moving away from retrofit
     retrofit  : '2.5.0',
-    assertj   : '3.11.1',
-    mockito   : '2.23.0',
-    dagger    : '2.19',
-    tornadofx : '1.7.17',
+    assertj   : '3.12.2',
+    mockito   : '2.27.0',
+    dagger    : '2.22.1',
+    tornadofx : '1.7.19',
     
     // Blocked from updating to 1.0.1
     // See https://github.com/Kotlin/kotlinx.coroutines/issues/816
-    coroutines: '1.0.0'
+    coroutines: '1.2.1'
 ]
 
 distTar {
