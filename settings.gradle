@@ -1,2 +1,3 @@
 rootProject.name = 'NUSports'
 
+include 'ui', 'common'
