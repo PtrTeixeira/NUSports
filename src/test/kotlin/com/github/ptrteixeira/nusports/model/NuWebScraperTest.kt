@@ -7,11 +7,10 @@ import com.github.ptrteixeira.nusports.dao.IStandingsDao
 import com.github.ptrteixeira.nusports.dao.FakeScheduleDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
@@ -29,14 +28,14 @@ import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.then
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
+import java.util.concurrent.Executors
 
 @DisplayName("Northeastern Web Scraper")
-@ObsoleteCoroutinesApi
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class NuWebScraperTest {
     private val sampleMatch = Match("date", "opponent", "result")
     private val sampleStanding = Standing("team", "conference", "overall")
-    private val fakeUiThread = newSingleThreadContext("UI Thread")
+    private val fakeUiThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
     // Mocks
     private val scheduleDao = mock(IScheduleDao::class.java)
