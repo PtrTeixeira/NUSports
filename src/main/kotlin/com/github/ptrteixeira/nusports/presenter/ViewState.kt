@@ -11,17 +11,16 @@ import com.github.ptrteixeira.nusports.model.UpdateEvent
 import com.github.ptrteixeira.nusports.model.VisibleSport
 import com.github.ptrteixeira.nusports.model.WebScraper
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import javax.inject.Inject
 
 class ViewState @Inject constructor(
-    private val webScraper: WebScraper
-) : CoroutineScope {
-    override val coroutineContext = Dispatchers.IO
-
+    private val webScraper: WebScraper,
+    private val ioScope: CoroutineScope
+) : CoroutineScope by ioScope {
     val selectableSports: List<String> = webScraper.selectableSports
 
     suspend fun getViewUpdate(sportChangeEvent: SportChangeEvent): UpdateEvent {
@@ -38,11 +37,13 @@ class ViewState @Inject constructor(
     private suspend fun loadNewSport(newSport: String): UpdateEvent {
         logger.info("Loading sport {}", newSport)
 
-        val schedule = async { webScraper.getSchedule(newSport) }
-        val results = async { webScraper.getStandings(newSport) }
-
         return try {
-            VisibleSport(schedule.await(), results.await())
+            coroutineScope {
+                val schedule = async { webScraper.getSchedule(newSport) }
+                val results = async { webScraper.getStandings(newSport) }
+
+                VisibleSport(schedule.await(), results.await())
+            }
         } catch (exn: ConnectionFailureException) {
             ConnectionError(exn.message ?: "Failed to connect", exn)
         }

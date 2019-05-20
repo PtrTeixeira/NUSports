@@ -20,6 +20,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
@@ -92,6 +94,13 @@ internal abstract class ApplicationModule {
         @JvmStatic
         fun providesCaaService(retrofit: Retrofit): CaaService {
             return retrofit.create(CaaService::class.java)
+        }
+
+        @Provides
+        @Reusable
+        @JvmStatic
+        fun providesIoScope(): CoroutineScope {
+            return CoroutineScope(Dispatchers.IO)
         }
     }
 }
