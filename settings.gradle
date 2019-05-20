@@ -1,3 +1,5 @@
 rootProject.name = 'NUSports'
 
-include 'ui', 'common'
+include 'common',
+        'nu-loader',
+        'ui'

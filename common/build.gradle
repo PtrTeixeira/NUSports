@@ -34,10 +34,4 @@ repositories {
 }
 
 dependencies {
-//    testCompile group: 'org.assertj', name: 'assertj-core', version: versions.assertj
-//    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
-//    testCompile group: 'org.mockito', name: 'mockito-core', version: versions.mockito
-//    testCompile "com.squareup.retrofit2:retrofit-mock:${versions.retrofit}"
-//    testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.coroutines}"
-//    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
 }

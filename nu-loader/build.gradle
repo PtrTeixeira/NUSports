@@ -8,15 +8,12 @@ plugins {
   id 'idea'
 
   id 'java'
-  id 'nebula.kotlin' version '1.3.31'
-  id 'org.jetbrains.kotlin.kapt' version '1.3.31'
+  id 'nebula.kotlin'
+  id 'org.jetbrains.kotlin.kapt'
 
-  id 'com.diffplug.gradle.spotless' version '3.23.0'
-  id 'application'
+  id 'com.diffplug.gradle.spotless'
 }
-
-apply from: 'gradle/validation.gradle'
-apply plugin: 'kotlin-kapt'
+apply from: "$rootDir/gradle/validation.gradle"
 
 group 'com.github.PtrTeixeira'
 version '3.1.2'
@@ -36,10 +33,6 @@ def versions = [
     coroutines: '1.2.1'
 ]
 
-distTar {
-  compression = Compression.GZIP
-}
-
 compileKotlin {
   kotlinOptions {
     apiVersion = "1.3"
@@ -57,13 +50,13 @@ test {
 }
 
 sourceCompatibility = 1.8
-mainClassName = 'com.github.ptrteixeira.nusports.SportsApp'
 
 repositories {
   jcenter()
 }
 
 dependencies {
+  compile project(':common')
   compile group: 'org.jsoup', name: 'jsoup', version: versions.jsoup
   compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
   compile group: 'no.tornado', name: 'tornadofx', version: versions.tornadofx

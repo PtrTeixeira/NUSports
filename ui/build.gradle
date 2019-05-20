@@ -14,7 +14,7 @@ plugins {
   id 'application'
   id 'com.diffplug.gradle.spotless'
 }
-//apply plugin: 'kotlin-kapt'
+apply from: "$rootDir/gradle/validation.gradle"
 
 group 'com.github.PtrTeixeira'
 version '3.1.2'
@@ -63,6 +63,7 @@ repositories {
 
 dependencies {
   compile project(':common')
+  compile project(":nu-loader")
   compile group: 'org.jsoup', name: 'jsoup', version: versions.jsoup
   compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
   compile group: 'no.tornado', name: 'tornadofx', version: versions.tornadofx
