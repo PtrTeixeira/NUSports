@@ -59,12 +59,9 @@ dependencies {
   compile project(':common')
   compile group: 'org.jsoup', name: 'jsoup', version: versions.jsoup
   compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
-  compile group: 'no.tornado', name: 'tornadofx', version: versions.tornadofx
   compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: versions.coroutines
-  compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-javafx', version: versions.coroutines
   compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
   compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
-  compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${versions.jackson}"
   compile "com.fasterxml.jackson.core:jackson-databind:${versions.jackson}"
   compile "com.fasterxml.jackson.module:jackson-module-kotlin:${versions.jackson}"
   compile "com.squareup.okhttp3:okhttp:${versions.okhttp}"

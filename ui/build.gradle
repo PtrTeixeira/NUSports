@@ -63,8 +63,8 @@ repositories {
 
 dependencies {
   compile project(':common')
-  compile project(":nu-loader")
-  compile group: 'org.jsoup', name: 'jsoup', version: versions.jsoup
+  runtimeOnly project(":nu-loader")
+//  compile group: 'org.jsoup', name: 'jsoup', version: versions.jsoup
   compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
   compile group: 'no.tornado', name: 'tornadofx', version: versions.tornadofx
   compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: versions.coroutines
@@ -74,9 +74,9 @@ dependencies {
   compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${versions.jackson}"
   compile "com.fasterxml.jackson.core:jackson-databind:${versions.jackson}"
   compile "com.fasterxml.jackson.module:jackson-module-kotlin:${versions.jackson}"
-  compile "com.squareup.okhttp3:okhttp:${versions.okhttp}"
-  compile "com.squareup.retrofit2:retrofit:${versions.retrofit}"
-  compile "com.squareup.retrofit2:converter-jackson:${versions.retrofit}"
+//  compile "com.squareup.okhttp3:okhttp:${versions.okhttp}"
+//  compile "com.squareup.retrofit2:retrofit:${versions.retrofit}"
+//  compile "com.squareup.retrofit2:converter-jackson:${versions.retrofit}"
 
   compile group: 'com.google.dagger', name: 'dagger', version: versions.dagger
   kapt group: 'com.google.dagger', name: 'dagger-compiler', version: versions.dagger
