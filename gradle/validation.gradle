@@ -2,11 +2,11 @@ spotless {
   java {
     removeUnusedImports()
     googleJavaFormat()
-    licenseHeaderFile 'license.header'
+    licenseHeaderFile "$rootDir/license.header"
   }
   kotlin {
     ktlint()
-    licenseHeaderFile 'license.header'
+    licenseHeaderFile "$rootDir/license.header"
   }
   lineEndings 'UNIX'
 }

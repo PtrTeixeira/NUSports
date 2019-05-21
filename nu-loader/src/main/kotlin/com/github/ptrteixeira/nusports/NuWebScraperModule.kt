@@ -1,4 +1,4 @@
-/* Released under the MIT license, 2018 */
+/* Released under the MIT license, 2019 */
 
 package com.github.ptrteixeira.nusports
 
@@ -20,8 +20,6 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
@@ -29,7 +27,7 @@ import java.time.Clock
 import java.util.HashMap
 
 @Module
-internal abstract class ApplicationModule {
+internal abstract class NuWebScraperModule {
     @Binds
     abstract fun providesWebScraper(nuWebScraper: NuWebScraper): WebScraper
 
@@ -44,18 +42,20 @@ internal abstract class ApplicationModule {
 
     @Module
     companion object {
-
-        @Provides @JvmStatic
+        @Provides
+        @JvmStatic
         fun provideStandingsCache(): Map<String, List<Standing>> {
             return HashMap()
         }
 
-        @Provides @JvmStatic
+        @Provides
+        @JvmStatic
         fun provideScheduleCache(): Map<String, List<Match>> {
             return HashMap()
         }
 
-        @Provides @JvmStatic
+        @Provides
+        @JvmStatic
         fun providesClock(): Clock {
             return Clock.systemDefaultZone()
         }
@@ -83,10 +83,10 @@ internal abstract class ApplicationModule {
         @JvmStatic
         fun providesRetrofit(objectMapper: ObjectMapper, client: OkHttpClient): Retrofit {
             return Retrofit.Builder()
-                .client(client)
-                .baseUrl("https://caasports.com")
-                .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-                .build()
+                    .client(client)
+                    .baseUrl("https://caasports.com")
+                    .addConverterFactory(JacksonConverterFactory.create(objectMapper))
+                    .build()
         }
 
         @Provides
@@ -94,13 +94,6 @@ internal abstract class ApplicationModule {
         @JvmStatic
         fun providesCaaService(retrofit: Retrofit): CaaService {
             return retrofit.create(CaaService::class.java)
-        }
-
-        @Provides
-        @Reusable
-        @JvmStatic
-        fun providesIoScope(): CoroutineScope {
-            return CoroutineScope(Dispatchers.IO)
         }
     }
 }
