@@ -6,35 +6,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
-enum class EventStatus {
-    CANCELLED {
-        override fun toString() = "C"
-    },
-    FINISHED {
-        override fun toString() = "O"
-    },
-    UPCOMING {
-        override fun toString() = "A"
-    },
-    POSTPONED {
-        // Just guessing here
-        override fun toString() = "P"
-    }
+enum class EventStatus(private val stringValue: String) {
+    CANCELLED("C"),
+    FINISHED("O"),
+    UPCOMING("A"),
+    POSTPONED("P");
+
+    override fun toString() = stringValue
 }
 
-enum class ResultStatus {
-    WIN {
-        override fun toString() = "W"
-    },
-    LOSS {
-        override fun toString() = "L"
-    },
-    TIE {
-        override fun toString() = "T"
-    },
-    CANCELLED_DURING_PLAY {
-        override fun toString() = "N"
-    }
+enum class ResultStatus(private val stringValue: String) {
+    WIN("W"),
+    LOSS("L"),
+    TIE("T"),
+    CANCELLED_DURING_PLAY("N");
+
+    override fun toString() = stringValue
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
