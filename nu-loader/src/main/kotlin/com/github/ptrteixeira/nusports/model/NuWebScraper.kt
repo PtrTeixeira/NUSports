@@ -5,7 +5,6 @@ package com.github.ptrteixeira.nusports.model
 import com.github.ptrteixeira.nusports.dao.IScheduleDao
 import com.github.ptrteixeira.nusports.dao.IStandingsDao
 import org.apache.logging.log4j.LogManager
-import javax.inject.Inject
 
 /**
  * Scrape the CAA site, in particular, to load information relevant to Northeastern.
@@ -17,8 +16,7 @@ import javax.inject.Inject
 
  * @author Peter
  */
-internal class NuWebScraper @Inject
-constructor(
+internal class NuWebScraper(
     private val scheduleDao: IScheduleDao,
     private val standingsDao: IStandingsDao
 ) : WebScraper {

@@ -15,9 +15,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import javax.inject.Inject
 
-class ViewState @Inject constructor(
+class ViewState(
     private val webScraper: WebScraper,
     private val ioScope: CoroutineScope
 ) : CoroutineScope by ioScope {

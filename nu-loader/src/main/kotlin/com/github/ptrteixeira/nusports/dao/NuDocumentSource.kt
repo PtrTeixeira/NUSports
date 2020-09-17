@@ -8,7 +8,6 @@ import org.apache.logging.log4j.LogManager
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
-import javax.inject.Inject
 
 /**
  * Implementation of the access layer for foreign resources. In particular, it is designed to load
@@ -19,7 +18,7 @@ import javax.inject.Inject
 
  * @author Peter Teixeira
  */
-internal class NuDocumentSource @Inject constructor(private val client: OkHttpClient) : DocumentSource {
+internal class NuDocumentSource(private val client: OkHttpClient) : DocumentSource {
 
     override suspend fun load(url: String): Document {
         logger.debug("Making query to {}", url)

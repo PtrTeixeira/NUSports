@@ -10,9 +10,8 @@ import java.time.Clock
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import javax.inject.Inject
 
-class ScheduleDao @Inject internal constructor(
+class ScheduleDao internal constructor(
     private val scheduleCache: MutableMap<String, List<Match>>,
     private val clock: Clock,
     private val caaService: CaaService
