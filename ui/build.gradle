@@ -10,6 +10,7 @@ plugins {
   id 'java'
   id 'nebula.kotlin'
   id 'org.jetbrains.kotlin.kapt'
+  id 'org.openjfx.javafxplugin' version '0.0.8'
 
   id 'application'
   id 'com.diffplug.gradle.spotless'
@@ -18,6 +19,11 @@ apply from: "$rootDir/gradle/validation.gradle"
 
 group 'com.github.PtrTeixeira'
 version '3.1.2'
+
+javafx {
+  version = '11'
+  modules = ['javafx.controls']
+}
 
 def versions = [
     jackson   : '2.9.8',
