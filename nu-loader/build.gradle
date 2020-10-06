@@ -28,7 +28,6 @@ def versions = [
     retrofit  : '2.5.0',
     assertj   : '3.12.2',
     mockito   : '2.27.0',
-    dagger    : '2.22.1',
     tornadofx : '1.7.19',
     coroutines: '1.2.1'
 ]
