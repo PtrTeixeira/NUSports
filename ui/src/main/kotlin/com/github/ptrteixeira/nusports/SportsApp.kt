@@ -2,10 +2,13 @@
 
 package com.github.ptrteixeira.nusports
 
+import com.github.ptrteixeira.nusports.model.FullWebScraper
+import com.github.ptrteixeira.nusports.model.WebScraperFactory
 import com.github.ptrteixeira.nusports.presenter.ViewState
 import com.github.ptrteixeira.nusports.view.Body
 import com.github.ptrteixeira.nusports.view.SportsWorkspace
-import javafx.application.Application
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.apache.logging.log4j.LogManager
@@ -14,6 +17,7 @@ import tornadofx.App
 import tornadofx.DIContainer
 import tornadofx.FX
 import tornadofx.UIComponent
+import java.util.ServiceLoader
 import kotlin.reflect.KClass
 
 @ObsoleteCoroutinesApi
@@ -34,17 +38,24 @@ class SportsApp : App(SportsWorkspace::class) {
         fun main(args: Array<String>) {
             logger.info("Starting application")
 
-            val component: ApplicationComponent = DaggerApplicationComponent.create()
+            val serviceLoader = ServiceLoader.load(WebScraperFactory::class.java)
+            val webScrapers = serviceLoader
+                .asIterable()
+                .map(WebScraperFactory::build)
 
+            val viewState = ViewState(
+                FullWebScraper(webScrapers),
+                CoroutineScope(Dispatchers.IO)
+            )
             FX.dicontainer = object : DIContainer {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : Any> getInstance(type: KClass<T>): T = when (type) {
-                    ViewState::class -> component.viewState() as T
+                    ViewState::class -> viewState as T
                     else -> throw IllegalArgumentException()
                 }
             }
 
-            Application.launch(SportsApp::class.java, *args)
+            launch(SportsApp::class.java, *args)
         }
     }
 }

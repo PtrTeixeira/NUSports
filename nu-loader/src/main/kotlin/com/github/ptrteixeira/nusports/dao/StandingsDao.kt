@@ -7,9 +7,8 @@ import com.github.ptrteixeira.nusports.model.Standing
 import org.apache.logging.log4j.LogManager
 import org.jsoup.nodes.Element
 import java.io.IOException
-import javax.inject.Inject
 
-class StandingsDao @Inject internal constructor(
+class StandingsDao internal constructor(
     private val standingsCache: MutableMap<String, List<Standing>>,
     private val documentSource: DocumentSource
 ) : IStandingsDao {
